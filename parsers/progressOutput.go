@@ -1,20 +1,17 @@
 package parsers
 
-import "strings"
+import (
+	"servermakemkv/outputs"
+	"strings"
+)
 
 const (
 	progress_output_prefix = "PRGV:"
 	delimiter              = ","
 )
 
-type ProgressOutput struct {
-	CurrentProgress string
-	TotalProgress   string
-	MaxProgress     string
-}
-
-func ParseProgressString(input string) *ProgressOutput {
-	var progressOutput ProgressOutput
+func ParseProgressString(input string) *outputs.ProgressOutput {
+	var progressOutput outputs.ProgressOutput
 
 	trimmed, found := strings.CutPrefix(input, progress_output_prefix)
 	if !found {

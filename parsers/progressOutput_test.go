@@ -1,6 +1,7 @@
 package parsers_test
 
 import (
+	"servermakemkv/outputs"
 	"servermakemkv/parsers"
 	"testing"
 
@@ -8,7 +9,7 @@ import (
 )
 
 func TestProgressOutputSuccessfulLine(t *testing.T) {
-	expected := parsers.ProgressOutput{
+	expected := outputs.ProgressOutput{
 		CurrentProgress: "1",
 		TotalProgress:   "100",
 		MaxProgress:     "200",
