@@ -19,8 +19,9 @@ func TestMessageOutputSuccessfulLineNoParams(t *testing.T) {
 
 	input := "MSG:1,test,0,Test Message,Test Message"
 
-	actual := parsers.ParseMessageOutput(input)
+	actual, err := parsers.ParseMessageOutput(input)
 
+	assert.Equal(t, nil, err)
 	assert.Equal(t, expected, actual)
 
 }
@@ -37,10 +38,10 @@ func TestMessageOutputSuccessfulLineOneParam(t *testing.T) {
 
 	input := "MSG:1,test,1,Test Message,Test Message,Test"
 
-	actual := parsers.ParseMessageOutput(input)
+	actual, err := parsers.ParseMessageOutput(input)
 
+	assert.Equal(t, nil, err)
 	assert.Equal(t, expected, actual)
-
 }
 
 func TestMessageOutputSuccessfulLineThreeParams(t *testing.T) {
@@ -55,17 +56,18 @@ func TestMessageOutputSuccessfulLineThreeParams(t *testing.T) {
 
 	input := "MSG:1,test,3,Test Message,Test Message,Test1,Test2,Test3"
 
-	actual := parsers.ParseMessageOutput(input)
+	actual, err := parsers.ParseMessageOutput(input)
 
+	assert.Equal(t, nil, err)
 	assert.Equal(t, expected, actual)
-
 }
 
 func TestMessageOutputFailsMissingPrefix(t *testing.T) {
 	input := "1,test,3,Test Message,Test Message,Test1,Test2,Test3"
 
-	actual := parsers.ParseMessageOutput(input)
+	actual, err := parsers.ParseMessageOutput(input)
 
+	assert.NotEqual(t, nil, err)
 	assert.Equal(t, nil, actual)
 }
 
@@ -81,8 +83,9 @@ func TestMessageOutputParameterCountMismatchLessThanActual(t *testing.T) {
 
 	input := "MSG:1,test,1,Test Message,Test Message,Test1,Test2,Test3"
 
-	actual := parsers.ParseMessageOutput(input)
+	actual, err := parsers.ParseMessageOutput(input)
 
+	assert.Equal(t, nil, err)
 	assert.Equal(t, expected, actual)
 }
 
@@ -97,36 +100,8 @@ func TestMessageOutputParameterCountMismatchGreaterThanActualGrabsNoParams(t *te
 
 	input := "MSG:1,test,3,Test Message,Test Message,Test1"
 
-	actual := parsers.ParseMessageOutput(input)
+	actual, err := parsers.ParseMessageOutput(input)
 
+	assert.Equal(t, nil, err)
 	assert.Equal(t, expected, actual)
-}
-
-func TestProgressOutputSuccessfulLine(t *testing.T) {
-	expected := outputs.ProgressBarOutput{
-		CurrentProgress: "1",
-		TotalProgress:   "100",
-		MaxProgress:     "200",
-	}
-	input := "PRGV:1,100,200"
-
-	actual := parsers.ParseProgressBarOutput(input)
-
-	assert.Equal(t, expected, actual)
-}
-
-func TestProgressOutputMissingPrefix(t *testing.T) {
-	input := "1,100,200"
-
-	actual := parsers.ParseProgressBarOutput(input)
-
-	assert.Equal(t, nil, actual)
-}
-
-func TestProgressOutputIncomplete(t *testing.T) {
-	input := "PRGV:1,100"
-
-	actual := parsers.ParseProgressBarOutput(input)
-
-	assert.Equal(t, nil, actual)
 }

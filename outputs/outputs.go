@@ -36,6 +36,8 @@ type DriveScanMessage struct {
 	DiscName   string
 }
 
+// ------------------------------------------
+
 type DiscInformationOutputMessage struct {
 	TitleCount int
 }
