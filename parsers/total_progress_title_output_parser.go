@@ -13,7 +13,6 @@ func ParseTotalProgressTitleOutput(input string) (*outputs.TotalProgressTitleOut
 
 	trimmed, found := strings.CutPrefix(input, TOTAL_PROGRESS_TITLE_PREFIX)
 	if !found {
-		// TODO: figure out how to handle errors
 		return nil, errors.New("Prefix did not match expected")
 	}
 

@@ -21,4 +21,13 @@ WORKDIR /makemkv/makemkv-bin
 RUN yes yes | make
 RUN make install
 
-CMD ["makemkvcon"]
+RUN apt install software-properties-common -y
+RUN add-apt-repository ppa:longsleep/golang-backports
+RUN apt update
+RUN apt install golang-go -y
+
+WORKDIR /code
+COPY . .
+RUN go build .
+
+CMD ["/code/servermakemkv"]
