@@ -3,51 +3,64 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"servermakemkv/parsers"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
-func ServerSideEventHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+type JsonWrapper struct {
+	Type string `json:"type"`
+	Data any    `json:"data"`
+}
 
-	clientGone := r.Context().Done()
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true // Allow all origins (for development).  **SECURITY WARNING**:  In production, restrict this!
+	},
+}
 
-	rc := http.NewResponseController(w)
-	t := time.NewTicker(time.Second)
-	defer t.Stop()
+func websocketHandler(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
 	for {
 		select {
-		case <-clientGone:
-			fmt.Println("Client disconnected")
-			return
-		case <-t.C:
-			// Send an event to the client
-			// Here we send only the "data" field, but there are few others
-			eventTest := struct {
-				Hello string `json:"hello"`
-			}{
-				Hello: "hello there",
+		case _ = <-ticker.C:
+			titleInformation, err := parsers.Parse("test")
+			eventData := JsonWrapper{
+				Type: titleInformation.GetTypeName(),
+				Data: titleInformation,
 			}
-			stringifiedEvent, _ := json.Marshal(eventTest)
-			_, err := fmt.Fprintf(w, "%s\n\n", string(stringifiedEvent))
+
+			jsonData, _ := json.Marshal(eventData)
+
+			err = conn.WriteMessage(websocket.TextMessage, jsonData)
 			if err != nil {
-				return
-			}
-			err = rc.Flush()
-			if err != nil {
-				return
+				log.Println("write error:", err)
+				return // Exit if we can't write (client likely disconnected)
 			}
 		}
 	}
 }
 
 func main() {
-	http.HandleFunc("/events", ServerSideEventHandler)
-	fmt.Println("server is running on :8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		fmt.Println(err.Error())
+	http.HandleFunc("/events", websocketHandler)
+
+	fmt.Println("WebSocket server started on :8080")
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal("ListenAndServe:", err)
 	}
 }

@@ -1,11 +1,14 @@
 package parsers
 
-import "errors"
+import (
+	"errors"
+	"servermakemkv/outputs"
+)
 
-func errorPrefixNotFound[T interface{}]() (*T, error) {
+func errorPrefixNotFound[T outputs.MakeMkvOutput]() (*T, error) {
 	return nil, errors.New("Prefix did not match expected")
 }
 
-func errorNotEnoughValues[T interface{}]() (*T, error) {
+func errorNotEnoughValues[T outputs.MakeMkvOutput]() (*T, error) {
 	return nil, errors.New("Not enough values found in input")
 }
