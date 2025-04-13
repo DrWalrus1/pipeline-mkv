@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"servermakemkv/parsers"
+	"servermakemkv/parser"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -38,7 +38,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		select {
 		case _ = <-ticker.C:
-			titleInformation, err := parsers.Parse("test")
+			titleInformation, err := parser.Parse("test")
 			eventData := JsonWrapper{
 				Type: titleInformation.GetTypeName(),
 				Data: titleInformation,

@@ -1,8 +1,8 @@
-package parsers_test
+package parser_test
 
 import (
 	"servermakemkv/outputs"
-	"servermakemkv/parsers"
+	"servermakemkv/parser"
 	"testing"
 
 	"github.com/go-playground/assert/v2"
@@ -18,7 +18,7 @@ func TestCurrentProgressTitleOutputParser(t *testing.T) {
 
 		input := "PRGC:1,1,Test"
 
-		actual, err := parsers.ParseCurrentProgressTitleOutput(input)
+		actual, err := parser.Parse(input)
 
 		assert.Equal(t, nil, err)
 		assert.Equal(t, expected, actual)
@@ -27,7 +27,7 @@ func TestCurrentProgressTitleOutputParser(t *testing.T) {
 	t.Run("Fails when missing prefix", func(t *testing.T) {
 		input := "1,1,Test"
 
-		actual, err := parsers.ParseCurrentProgressTitleOutput(input)
+		actual, err := parser.Parse(input)
 
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, nil, actual)
@@ -36,7 +36,7 @@ func TestCurrentProgressTitleOutputParser(t *testing.T) {
 	t.Run("Fails when missing values", func(t *testing.T) {
 		input := "1,1"
 
-		actual, err := parsers.ParseCurrentProgressTitleOutput(input)
+		actual, err := parser.Parse(input)
 
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, nil, actual)
@@ -51,7 +51,7 @@ func TestParseDiscInformationOutput(t *testing.T) {
 
 		input := "TCOUT:1"
 
-		actual, err := parsers.ParseDiscInformationOutputMessage(input)
+		actual, err := parser.Parse(input)
 
 		assert.Equal(t, nil, err)
 		assert.Equal(t, expected, actual)
@@ -60,7 +60,7 @@ func TestParseDiscInformationOutput(t *testing.T) {
 	t.Run("Fails when missing prefix", func(t *testing.T) {
 		input := "1"
 
-		actual, err := parsers.ParseDiscInformationOutputMessage(input)
+		actual, err := parser.Parse(input)
 
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, nil, actual)
@@ -68,7 +68,7 @@ func TestParseDiscInformationOutput(t *testing.T) {
 
 	t.Run("Fails when missing values", func(t *testing.T) {
 		input := "TCOUT:"
-		actual, err := parsers.ParseDiscInformationOutputMessage(input)
+		actual, err := parser.Parse(input)
 
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, nil, actual)
@@ -77,7 +77,7 @@ func TestParseDiscInformationOutput(t *testing.T) {
 	t.Run("Fails when invalid value is provided", func(t *testing.T) {
 		input := "TCOUT:THISISNOTANUMBER"
 
-		actual, err := parsers.ParseDiscInformationOutputMessage(input)
+		actual, err := parser.Parse(input)
 
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, nil, actual)
@@ -94,7 +94,7 @@ func TestParseDiscInfo(t *testing.T) {
 
 		input := "CINFO:1,CODE,Value"
 
-		actual, err := parsers.ParseDiscInfo(input)
+		actual, err := parser.Parse(input)
 
 		assert.Equal(t, nil, err)
 		assert.Equal(t, expected, actual)
@@ -103,7 +103,7 @@ func TestParseDiscInfo(t *testing.T) {
 	t.Run("Fails when missing prefix", func(t *testing.T) {
 		input := "1,CODE,Value"
 
-		actual, err := parsers.ParseDiscInfo(input)
+		actual, err := parser.Parse(input)
 
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, nil, actual)
@@ -112,7 +112,7 @@ func TestParseDiscInfo(t *testing.T) {
 	t.Run("Fails when missing values", func(t *testing.T) {
 		input := "CINFO:1,CODE"
 
-		actual, err := parsers.ParseDiscInfo(input)
+		actual, err := parser.Parse(input)
 
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, nil, actual)
@@ -132,7 +132,7 @@ func DriveScanMessageParser(t *testing.T) {
 
 		input := "DRV:1,true,true,Flags,Drive1,Disc1"
 
-		actual, err := parsers.ParseDriveScanMessage(input)
+		actual, err := parser.Parse(input)
 
 		assert.Equal(t, nil, err)
 		assert.Equal(t, expected, actual)
@@ -141,7 +141,7 @@ func DriveScanMessageParser(t *testing.T) {
 	t.Run("Fails when missing prefix", func(t *testing.T) {
 		input := "1,true,true,Flags,Drive1,Disc1"
 
-		actual, err := parsers.ParseDriveScanMessage(input)
+		actual, err := parser.Parse(input)
 
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, nil, actual)
@@ -150,7 +150,7 @@ func DriveScanMessageParser(t *testing.T) {
 	t.Run("Fails when there are not enough values", func(t *testing.T) {
 		input := "DRV:1,true,true,Flags,Drive1"
 
-		actual, err := parsers.ParseDriveScanMessage(input)
+		actual, err := parser.Parse(input)
 
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, nil, actual)
@@ -161,17 +161,17 @@ func DriveScanMessageParser(t *testing.T) {
 		input2 := "DRV:1,true,NOTABOOL,Flags,Drive1,Disc1"
 		input3 := "DRV:1,NOTABOOL,NOTABOOL,Flags,Drive1,Disc1"
 
-		actual1, err1 := parsers.ParseDriveScanMessage(input1)
+		actual1, err1 := parser.Parse(input1)
 
 		assert.NotEqual(t, nil, err1)
 		assert.Equal(t, nil, actual1)
 
-		actual2, err2 := parsers.ParseDriveScanMessage(input2)
+		actual2, err2 := parser.Parse(input2)
 
 		assert.NotEqual(t, nil, err2)
 		assert.Equal(t, nil, actual2)
 
-		actual3, err3 := parsers.ParseDriveScanMessage(input3)
+		actual3, err3 := parser.Parse(input3)
 
 		assert.NotEqual(t, nil, err3)
 		assert.Equal(t, nil, actual3)
@@ -191,7 +191,7 @@ func TestParseMessageOutput(t *testing.T) {
 
 			input := "MSG:1,test,0,Test Message,Test Message"
 
-			actual, err := parsers.ParseMessageOutput(input)
+			actual, err := parser.Parse(input)
 
 			assert.Equal(t, nil, err)
 			assert.Equal(t, expected, actual)
@@ -209,7 +209,7 @@ func TestParseMessageOutput(t *testing.T) {
 
 			input := "MSG:1,test,1,Test Message,Test Message,Test"
 
-			actual, err := parsers.ParseMessageOutput(input)
+			actual, err := parser.Parse(input)
 
 			assert.Equal(t, nil, err)
 			assert.Equal(t, expected, actual)
@@ -227,7 +227,7 @@ func TestParseMessageOutput(t *testing.T) {
 
 			input := "MSG:1,test,3,Test Message,Test Message,Test1,Test2,Test3"
 
-			actual, err := parsers.ParseMessageOutput(input)
+			actual, err := parser.Parse(input)
 
 			assert.Equal(t, nil, err)
 			assert.Equal(t, expected, actual)
@@ -237,7 +237,7 @@ func TestParseMessageOutput(t *testing.T) {
 	t.Run("Fails when missing prefix", func(t *testing.T) {
 		input := "1,test,3,Test Message,Test Message,Test1,Test2,Test3"
 
-		actual, err := parsers.ParseMessageOutput(input)
+		actual, err := parser.Parse(input)
 
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, nil, actual)
@@ -256,7 +256,7 @@ func TestParseMessageOutput(t *testing.T) {
 
 			input := "MSG:1,test,1,Test Message,Test Message,Test1,Test2,Test3"
 
-			actual, err := parsers.ParseMessageOutput(input)
+			actual, err := parser.Parse(input)
 
 			assert.Equal(t, nil, err)
 			assert.Equal(t, expected, actual)
@@ -273,7 +273,7 @@ func TestParseMessageOutput(t *testing.T) {
 
 			input := "MSG:1,test,3,Test Message,Test Message,Test1"
 
-			actual, err := parsers.ParseMessageOutput(input)
+			actual, err := parser.Parse(input)
 
 			assert.Equal(t, nil, err)
 			assert.Equal(t, expected, actual)
@@ -290,7 +290,7 @@ func TestParseProgressBarOutput(t *testing.T) {
 		}
 		input := "PRGV:1,100,200"
 
-		actual, err := parsers.ParseProgressBarOutput(input)
+		actual, err := parser.Parse(input)
 
 		assert.Equal(t, nil, err)
 		assert.Equal(t, expected, actual)
@@ -300,7 +300,7 @@ func TestParseProgressBarOutput(t *testing.T) {
 		t.Run("Missing prefix", func(t *testing.T) {
 			input := "1,100,200"
 
-			actual, err := parsers.ParseProgressBarOutput(input)
+			actual, err := parser.Parse(input)
 
 			assert.NotEqual(t, nil, err)
 			assert.Equal(t, nil, actual)
@@ -309,7 +309,7 @@ func TestParseProgressBarOutput(t *testing.T) {
 		t.Run("Progress bar missing values", func(t *testing.T) {
 			input := "PRGV:1,100"
 
-			actual, err := parsers.ParseProgressBarOutput(input)
+			actual, err := parser.Parse(input)
 
 			assert.NotEqual(t, nil, err)
 			assert.Equal(t, nil, actual)
@@ -327,7 +327,7 @@ func TestParseStreamInfo(t *testing.T) {
 
 		input := "SINFO:1,CODE,Value"
 
-		actual, err := parsers.ParseStreamInfo(input)
+		actual, err := parser.Parse(input)
 
 		assert.Equal(t, nil, err)
 		assert.Equal(t, expected, actual)
@@ -337,7 +337,7 @@ func TestParseStreamInfo(t *testing.T) {
 		t.Run("Missing prefix", func(t *testing.T) {
 			input := "1,CODE,Value"
 
-			actual, err := parsers.ParseStreamInfo(input)
+			actual, err := parser.Parse(input)
 
 			assert.NotEqual(t, nil, err)
 			assert.Equal(t, nil, actual)
@@ -346,7 +346,7 @@ func TestParseStreamInfo(t *testing.T) {
 		t.Run("Missing values", func(t *testing.T) {
 			input := "SINFO:1,CODE"
 
-			actual, err := parsers.ParseStreamInfo(input)
+			actual, err := parser.Parse(input)
 
 			assert.NotEqual(t, nil, err)
 			assert.Equal(t, nil, actual)
@@ -364,7 +364,7 @@ func TestParseTitleInfo(t *testing.T) {
 
 		input := "TINFO:1,CODE,Value"
 
-		actual, err := parsers.ParseTitleInfo(input)
+		actual, err := parser.Parse(input)
 
 		assert.Equal(t, nil, err)
 		assert.Equal(t, expected, actual)
@@ -373,7 +373,7 @@ func TestParseTitleInfo(t *testing.T) {
 	t.Run("Fails to parse", func(t *testing.T) {
 		input := "1,CODE,Value"
 
-		actual, err := parsers.ParseTitleInfo(input)
+		actual, err := parser.Parse(input)
 
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, nil, actual)
@@ -382,7 +382,7 @@ func TestParseTitleInfo(t *testing.T) {
 	t.Run("Missing values", func(t *testing.T) {
 		input := "TINFO:1,CODE"
 
-		actual, err := parsers.ParseTitleInfo(input)
+		actual, err := parser.Parse(input)
 
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, nil, actual)
@@ -399,7 +399,7 @@ func TestParseTotalTitleOutput(t *testing.T) {
 
 		input := "PRGT:1,1,Test"
 
-		actual, err := parsers.ParseTotalProgressTitleOutput(input)
+		actual, err := parser.Parse(input)
 
 		assert.Equal(t, nil, err)
 		assert.Equal(t, expected, actual)
@@ -409,7 +409,7 @@ func TestParseTotalTitleOutput(t *testing.T) {
 		t.Run("Missing prefix", func(t *testing.T) {
 			input := "1,1,Test"
 
-			actual, err := parsers.ParseTotalProgressTitleOutput(input)
+			actual, err := parser.Parse(input)
 
 			assert.NotEqual(t, nil, err)
 			assert.Equal(t, nil, actual)
@@ -418,7 +418,7 @@ func TestParseTotalTitleOutput(t *testing.T) {
 		t.Run("Missing values", func(t *testing.T) {
 			input := "1,1"
 
-			actual, err := parsers.ParseTotalProgressTitleOutput(input)
+			actual, err := parser.Parse(input)
 
 			assert.NotEqual(t, nil, err)
 			assert.Equal(t, nil, actual)
