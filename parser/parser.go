@@ -74,10 +74,7 @@ func Parse(input string) (outputs.MakeMkvOutput, error) {
 func parseMessageOutput(input string) (*outputs.MessageOutput, error) {
 	var parsedMessage outputs.MessageOutput
 
-	trimmed, found := strings.CutPrefix(input, messageOutputPrefix)
-	if !found {
-		return nil, PrefixNotFound
-	}
+	trimmed, _ := strings.CutPrefix(input, messageOutputPrefix)
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 5 {
@@ -115,10 +112,7 @@ func parseMessageOutput(input string) (*outputs.MessageOutput, error) {
 func parseDriveScanMessage(input string) (*outputs.DriveScanMessage, error) {
 	var driveScanMessage outputs.DriveScanMessage
 
-	trimmed, found := strings.CutPrefix(input, progressBarOutputPrefix)
-	if !found {
-		return nil, PrefixNotFound
-	}
+	trimmed, _ := strings.CutPrefix(input, progressBarOutputPrefix)
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 6 {
@@ -145,10 +139,7 @@ func parseDriveScanMessage(input string) (*outputs.DriveScanMessage, error) {
 func parseCurrentProgressTitleOutput(input string) (*outputs.CurrentProgressTitleOutput, error) {
 	var currentProgressTitleOutput outputs.CurrentProgressTitleOutput
 
-	trimmed, found := strings.CutPrefix(input, currentProgressTitlePrefix)
-	if !found {
-		return nil, PrefixNotFound
-	}
+	trimmed, _ := strings.CutPrefix(input, currentProgressTitlePrefix)
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 3 {
@@ -165,10 +156,7 @@ func parseCurrentProgressTitleOutput(input string) (*outputs.CurrentProgressTitl
 func parseDiscInformationOutputMessage(input string) (*outputs.DiscInformationOutputMessage, error) {
 	var discInformationOutput outputs.DiscInformationOutputMessage
 
-	trimmed, found := strings.CutPrefix(input, discInfoOutputPrefix)
-	if !found {
-		return nil, PrefixNotFound
-	}
+	trimmed, _ := strings.CutPrefix(input, discInfoOutputPrefix)
 
 	titleCount, err := strconv.Atoi(trimmed)
 	if err != nil {
@@ -181,10 +169,7 @@ func parseDiscInformationOutputMessage(input string) (*outputs.DiscInformationOu
 func parseDiscInfo(input string) (*outputs.DiscInformation, error) {
 	var discInfo outputs.DiscInformation
 
-	trimmed, found := strings.CutPrefix(input, discInfoPrefix)
-	if !found {
-		return nil, PrefixNotFound
-	}
+	trimmed, _ := strings.CutPrefix(input, discInfoPrefix)
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 3 {
@@ -201,10 +186,7 @@ func parseDiscInfo(input string) (*outputs.DiscInformation, error) {
 func parseProgressBarOutput(input string) (*outputs.ProgressBarOutput, error) {
 	var progressOutput outputs.ProgressBarOutput
 
-	trimmed, found := strings.CutPrefix(input, progressBarOutputPrefix)
-	if !found {
-		return nil, PrefixNotFound
-	}
+	trimmed, _ := strings.CutPrefix(input, progressBarOutputPrefix)
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 3 {
@@ -239,10 +221,7 @@ func parseStreamInfo(input string) (*outputs.StreamInformation, error) {
 func parseTitleInfo(input string) (*outputs.TitleInformation, error) {
 	var titleInfo outputs.TitleInformation
 
-	trimmed, found := strings.CutPrefix(input, titleInfoPrefix)
-	if !found {
-		return nil, PrefixNotFound
-	}
+	trimmed, _ := strings.CutPrefix(input, titleInfoPrefix)
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 3 {
@@ -259,10 +238,7 @@ func parseTitleInfo(input string) (*outputs.TitleInformation, error) {
 func parseTotalProgressTitleOutput(input string) (*outputs.TotalProgressTitleOutput, error) {
 	var currentProgressTitleOutput outputs.TotalProgressTitleOutput
 
-	trimmed, found := strings.CutPrefix(input, totalProgressTitlePrefix)
-	if !found {
-		return nil, PrefixNotFound
-	}
+	trimmed, _ := strings.CutPrefix(input, totalProgressTitlePrefix)
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 3 {
