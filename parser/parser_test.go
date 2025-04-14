@@ -29,16 +29,16 @@ func TestCurrentProgressTitleOutputParser(t *testing.T) {
 
 		actual, err := parser.Parse(input)
 
-		assert.NotEqual(t, nil, err)
+		assert.Equal(t, parser.PrefixNotFound, err)
 		assert.Equal(t, nil, actual)
 	})
 
 	t.Run("Fails when missing values", func(t *testing.T) {
-		input := "1,1"
+		input := "PRGC:1,1"
 
 		actual, err := parser.Parse(input)
 
-		assert.NotEqual(t, nil, err)
+		assert.Equal(t, parser.NotEnoughValues, err)
 		assert.Equal(t, nil, actual)
 	})
 }
@@ -62,7 +62,7 @@ func TestParseDiscInformationOutput(t *testing.T) {
 
 		actual, err := parser.Parse(input)
 
-		assert.NotEqual(t, nil, err)
+		assert.Equal(t, parser.PrefixNotFound, err)
 		assert.Equal(t, nil, actual)
 	})
 
@@ -105,7 +105,7 @@ func TestParseDiscInfo(t *testing.T) {
 
 		actual, err := parser.Parse(input)
 
-		assert.NotEqual(t, nil, err)
+		assert.Equal(t, parser.PrefixNotFound, err)
 		assert.Equal(t, nil, actual)
 	})
 
@@ -114,7 +114,7 @@ func TestParseDiscInfo(t *testing.T) {
 
 		actual, err := parser.Parse(input)
 
-		assert.NotEqual(t, nil, err)
+		assert.Equal(t, parser.NotEnoughValues, err)
 		assert.Equal(t, nil, actual)
 	})
 }
@@ -143,7 +143,7 @@ func DriveScanMessageParser(t *testing.T) {
 
 		actual, err := parser.Parse(input)
 
-		assert.NotEqual(t, nil, err)
+		assert.Equal(t, parser.PrefixNotFound, err)
 		assert.Equal(t, nil, actual)
 	})
 
@@ -152,7 +152,7 @@ func DriveScanMessageParser(t *testing.T) {
 
 		actual, err := parser.Parse(input)
 
-		assert.NotEqual(t, nil, err)
+		assert.Equal(t, parser.NotEnoughValues, err)
 		assert.Equal(t, nil, actual)
 	})
 
@@ -239,7 +239,7 @@ func TestParseMessageOutput(t *testing.T) {
 
 		actual, err := parser.Parse(input)
 
-		assert.NotEqual(t, nil, err)
+		assert.Equal(t, parser.PrefixNotFound, err)
 		assert.Equal(t, nil, actual)
 	})
 
@@ -302,7 +302,7 @@ func TestParseProgressBarOutput(t *testing.T) {
 
 			actual, err := parser.Parse(input)
 
-			assert.NotEqual(t, nil, err)
+			assert.Equal(t, parser.PrefixNotFound, err)
 			assert.Equal(t, nil, actual)
 		})
 
@@ -311,7 +311,7 @@ func TestParseProgressBarOutput(t *testing.T) {
 
 			actual, err := parser.Parse(input)
 
-			assert.NotEqual(t, nil, err)
+			assert.Equal(t, parser.NotEnoughValues, err)
 			assert.Equal(t, nil, actual)
 		})
 	})
@@ -339,7 +339,7 @@ func TestParseStreamInfo(t *testing.T) {
 
 			actual, err := parser.Parse(input)
 
-			assert.NotEqual(t, nil, err)
+			assert.Equal(t, parser.PrefixNotFound, err)
 			assert.Equal(t, nil, actual)
 		})
 
@@ -348,7 +348,7 @@ func TestParseStreamInfo(t *testing.T) {
 
 			actual, err := parser.Parse(input)
 
-			assert.NotEqual(t, nil, err)
+			assert.Equal(t, parser.NotEnoughValues, err)
 			assert.Equal(t, nil, actual)
 		})
 	})
@@ -384,7 +384,7 @@ func TestParseTitleInfo(t *testing.T) {
 
 		actual, err := parser.Parse(input)
 
-		assert.NotEqual(t, nil, err)
+		assert.Equal(t, parser.NotEnoughValues, err)
 		assert.Equal(t, nil, actual)
 	})
 }
@@ -411,16 +411,16 @@ func TestParseTotalTitleOutput(t *testing.T) {
 
 			actual, err := parser.Parse(input)
 
-			assert.NotEqual(t, nil, err)
+			assert.Equal(t, parser.PrefixNotFound, err)
 			assert.Equal(t, nil, actual)
 		})
 
 		t.Run("Missing values", func(t *testing.T) {
-			input := "1,1"
+			input := "PRGT:1,1"
 
 			actual, err := parser.Parse(input)
 
-			assert.NotEqual(t, nil, err)
+			assert.Equal(t, parser.NotEnoughValues, err)
 			assert.Equal(t, nil, actual)
 		})
 	})

@@ -9,6 +9,9 @@ import (
 
 const delimiter = ","
 
+var PrefixNotFound = errors.New("Prefix did not match expected")
+var NotEnoughValues = errors.New("Not enough values found in input")
+
 type ParseError struct {
 	Error error
 }
@@ -54,7 +57,7 @@ func Parse(input string) (outputs.MakeMkvOutput, error) {
 			return parser.fn(input)
 		}
 	}
-	return nil, errors.New("Expected prefix was not found")
+	return nil, PrefixNotFound
 }
 
 const message_output_prefix = "MSG:"
@@ -64,18 +67,18 @@ func parseMessageOutput(input string) (*outputs.MessageOutput, error) {
 
 	trimmed, found := strings.CutPrefix(input, message_output_prefix)
 	if !found {
-		return errorPrefixNotFound[outputs.MessageOutput]()
+		return nil, PrefixNotFound
 	}
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 5 {
-		return errorNotEnoughValues[outputs.MessageOutput]()
+		return nil, NotEnoughValues
 	}
 	parsedMessage.Code = split[0]
 	parsedMessage.Flags = split[1]
 	parsedParamCount, err := strconv.Atoi(split[2])
 	if err != nil {
-		return errorNotEnoughValues[outputs.MessageOutput]()
+		return nil, NotEnoughValues
 	}
 	parsedMessage.ParameterCount = parsedParamCount
 	parsedMessage.RawMessage = split[3]
@@ -107,12 +110,12 @@ func parseDriveScanMessage(input string) (*outputs.DriveScanMessage, error) {
 
 	trimmed, found := strings.CutPrefix(input, progress_bar_output_prefix)
 	if !found {
-		return errorPrefixNotFound[outputs.DriveScanMessage]()
+		return nil, PrefixNotFound
 	}
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 6 {
-		return errorNotEnoughValues[outputs.DriveScanMessage]()
+		return nil, NotEnoughValues
 	}
 
 	driveScanMessage.DriveIndex = split[0]
@@ -139,12 +142,12 @@ func parseCurrentProgressTitleOutput(input string) (*outputs.CurrentProgressTitl
 
 	trimmed, found := strings.CutPrefix(input, current_progress_title_prefix)
 	if !found {
-		return errorPrefixNotFound[outputs.CurrentProgressTitleOutput]()
+		return nil, PrefixNotFound
 	}
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 3 {
-		return errorNotEnoughValues[outputs.CurrentProgressTitleOutput]()
+		return nil, NotEnoughValues
 	}
 
 	currentProgressTitleOutput.Code = split[0]
@@ -161,7 +164,7 @@ func parseDiscInformationOutputMessage(input string) (*outputs.DiscInformationOu
 
 	trimmed, found := strings.CutPrefix(input, disc_info_output_prefix)
 	if !found {
-		return errorPrefixNotFound[outputs.DiscInformationOutputMessage]()
+		return nil, PrefixNotFound
 	}
 
 	titleCount, err := strconv.Atoi(trimmed)
@@ -179,12 +182,12 @@ func parseDiscInfo(input string) (*outputs.DiscInformation, error) {
 
 	trimmed, found := strings.CutPrefix(input, disc_info_prefix)
 	if !found {
-		return errorPrefixNotFound[outputs.DiscInformation]()
+		return nil, PrefixNotFound
 	}
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 3 {
-		return errorNotEnoughValues[outputs.DiscInformation]()
+		return nil, NotEnoughValues
 	}
 
 	discInfo.ID = split[0]
@@ -201,12 +204,12 @@ func parseProgressBarOutput(input string) (*outputs.ProgressBarOutput, error) {
 
 	trimmed, found := strings.CutPrefix(input, progress_bar_output_prefix)
 	if !found {
-		return errorPrefixNotFound[outputs.ProgressBarOutput]()
+		return nil, PrefixNotFound
 	}
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 3 {
-		return errorNotEnoughValues[outputs.ProgressBarOutput]()
+		return nil, NotEnoughValues
 	}
 	progressOutput.CurrentProgress = split[0]
 	progressOutput.TotalProgress = split[1]
@@ -221,12 +224,12 @@ func parseStreamInfo(input string) (*outputs.StreamInformation, error) {
 
 	trimmed, found := strings.CutPrefix(input, stream_info_prefix)
 	if !found {
-		return errorPrefixNotFound[outputs.StreamInformation]()
+		return nil, PrefixNotFound
 	}
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 3 {
-		return errorNotEnoughValues[outputs.StreamInformation]()
+		return nil, NotEnoughValues
 	}
 
 	streamInfo.ID = split[0]
@@ -243,12 +246,12 @@ func parseTitleInfo(input string) (*outputs.TitleInformation, error) {
 
 	trimmed, found := strings.CutPrefix(input, title_info_prefix)
 	if !found {
-		return errorPrefixNotFound[outputs.TitleInformation]()
+		return nil, PrefixNotFound
 	}
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 3 {
-		return errorNotEnoughValues[outputs.TitleInformation]()
+		return nil, NotEnoughValues
 	}
 
 	titleInfo.ID = split[0]
@@ -265,12 +268,12 @@ func parseTotalProgressTitleOutput(input string) (*outputs.TotalProgressTitleOut
 
 	trimmed, found := strings.CutPrefix(input, total_progress_title_prefix)
 	if !found {
-		return nil, errors.New("Prefix did not match expected")
+		return nil, PrefixNotFound
 	}
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 3 {
-		return nil, errors.New("Not enough values found")
+		return nil, NotEnoughValues
 	}
 
 	currentProgressTitleOutput.Code = split[0]
