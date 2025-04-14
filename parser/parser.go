@@ -7,7 +7,18 @@ import (
 	"strings"
 )
 
-const delimiter = ","
+const (
+	messageOutputPrefix        = "MSG:"
+	driveScanMessagePrefix     = "DRV:"
+	currentProgressTitlePrefix = "PRGC:"
+	discInfoOutputPrefix       = "TCOUT:"
+	discInfoPrefix             = "CINFO:"
+	progressBarOutputPrefix    = "PRGV:"
+	streamInfoPrefix           = "SINFO:"
+	titleInfoPrefix            = "TINFO:"
+	totalProgressTitlePrefix   = "PRGT:"
+	delimiter                  = ","
+)
 
 var PrefixNotFound = errors.New("Prefix did not match expected")
 var NotEnoughValues = errors.New("Not enough values found in input")
@@ -22,31 +33,31 @@ var parsers = []struct {
 	prefix string
 	fn     func(string) (outputs.MakeMkvOutput, error)
 }{
-	{message_output_prefix, func(s string) (outputs.MakeMkvOutput, error) {
+	{messageOutputPrefix, func(s string) (outputs.MakeMkvOutput, error) {
 		return parseMessageOutput(s)
 	}},
-	{drive_scan_message_prefix, func(s string) (outputs.MakeMkvOutput, error) {
+	{driveScanMessagePrefix, func(s string) (outputs.MakeMkvOutput, error) {
 		return parseDriveScanMessage(s)
 	}},
-	{current_progress_title_prefix, func(s string) (outputs.MakeMkvOutput, error) {
+	{currentProgressTitlePrefix, func(s string) (outputs.MakeMkvOutput, error) {
 		return parseCurrentProgressTitleOutput(s)
 	}},
-	{disc_info_output_prefix, func(s string) (outputs.MakeMkvOutput, error) {
+	{discInfoOutputPrefix, func(s string) (outputs.MakeMkvOutput, error) {
 		return parseDiscInformationOutputMessage(s)
 	}},
-	{disc_info_prefix, func(s string) (outputs.MakeMkvOutput, error) {
+	{discInfoPrefix, func(s string) (outputs.MakeMkvOutput, error) {
 		return parseDiscInfo(s)
 	}},
-	{progress_bar_output_prefix, func(s string) (outputs.MakeMkvOutput, error) {
+	{progressBarOutputPrefix, func(s string) (outputs.MakeMkvOutput, error) {
 		return parseProgressBarOutput(s)
 	}},
-	{stream_info_prefix, func(s string) (outputs.MakeMkvOutput, error) {
+	{streamInfoPrefix, func(s string) (outputs.MakeMkvOutput, error) {
 		return parseStreamInfo(s)
 	}},
-	{title_info_prefix, func(s string) (outputs.MakeMkvOutput, error) {
+	{titleInfoPrefix, func(s string) (outputs.MakeMkvOutput, error) {
 		return parseTitleInfo(s)
 	}},
-	{total_progress_title_prefix, func(s string) (outputs.MakeMkvOutput, error) {
+	{totalProgressTitlePrefix, func(s string) (outputs.MakeMkvOutput, error) {
 		return parseTotalProgressTitleOutput(s)
 	}},
 }
@@ -60,12 +71,10 @@ func Parse(input string) (outputs.MakeMkvOutput, error) {
 	return nil, PrefixNotFound
 }
 
-const message_output_prefix = "MSG:"
-
 func parseMessageOutput(input string) (*outputs.MessageOutput, error) {
 	var parsedMessage outputs.MessageOutput
 
-	trimmed, found := strings.CutPrefix(input, message_output_prefix)
+	trimmed, found := strings.CutPrefix(input, messageOutputPrefix)
 	if !found {
 		return nil, PrefixNotFound
 	}
@@ -103,12 +112,10 @@ func parseMessageOutput(input string) (*outputs.MessageOutput, error) {
 	return &parsedMessage, nil
 }
 
-const drive_scan_message_prefix = "DRV:"
-
 func parseDriveScanMessage(input string) (*outputs.DriveScanMessage, error) {
 	var driveScanMessage outputs.DriveScanMessage
 
-	trimmed, found := strings.CutPrefix(input, progress_bar_output_prefix)
+	trimmed, found := strings.CutPrefix(input, progressBarOutputPrefix)
 	if !found {
 		return nil, PrefixNotFound
 	}
@@ -135,12 +142,10 @@ func parseDriveScanMessage(input string) (*outputs.DriveScanMessage, error) {
 	return &driveScanMessage, nil
 }
 
-const current_progress_title_prefix = "PRGC:"
-
 func parseCurrentProgressTitleOutput(input string) (*outputs.CurrentProgressTitleOutput, error) {
 	var currentProgressTitleOutput outputs.CurrentProgressTitleOutput
 
-	trimmed, found := strings.CutPrefix(input, current_progress_title_prefix)
+	trimmed, found := strings.CutPrefix(input, currentProgressTitlePrefix)
 	if !found {
 		return nil, PrefixNotFound
 	}
@@ -157,12 +162,10 @@ func parseCurrentProgressTitleOutput(input string) (*outputs.CurrentProgressTitl
 	return &currentProgressTitleOutput, nil
 }
 
-const disc_info_output_prefix = "TCOUT:"
-
 func parseDiscInformationOutputMessage(input string) (*outputs.DiscInformationOutputMessage, error) {
 	var discInformationOutput outputs.DiscInformationOutputMessage
 
-	trimmed, found := strings.CutPrefix(input, disc_info_output_prefix)
+	trimmed, found := strings.CutPrefix(input, discInfoOutputPrefix)
 	if !found {
 		return nil, PrefixNotFound
 	}
@@ -175,12 +178,10 @@ func parseDiscInformationOutputMessage(input string) (*outputs.DiscInformationOu
 	return &discInformationOutput, nil
 }
 
-const disc_info_prefix = "CINFO:"
-
 func parseDiscInfo(input string) (*outputs.DiscInformation, error) {
 	var discInfo outputs.DiscInformation
 
-	trimmed, found := strings.CutPrefix(input, disc_info_prefix)
+	trimmed, found := strings.CutPrefix(input, discInfoPrefix)
 	if !found {
 		return nil, PrefixNotFound
 	}
@@ -197,12 +198,10 @@ func parseDiscInfo(input string) (*outputs.DiscInformation, error) {
 	return &discInfo, nil
 }
 
-const progress_bar_output_prefix = "PRGV:"
-
 func parseProgressBarOutput(input string) (*outputs.ProgressBarOutput, error) {
 	var progressOutput outputs.ProgressBarOutput
 
-	trimmed, found := strings.CutPrefix(input, progress_bar_output_prefix)
+	trimmed, found := strings.CutPrefix(input, progressBarOutputPrefix)
 	if !found {
 		return nil, PrefixNotFound
 	}
@@ -217,12 +216,10 @@ func parseProgressBarOutput(input string) (*outputs.ProgressBarOutput, error) {
 	return &progressOutput, nil
 }
 
-const stream_info_prefix = "SINFO:"
-
 func parseStreamInfo(input string) (*outputs.StreamInformation, error) {
 	var streamInfo outputs.StreamInformation
 
-	trimmed, found := strings.CutPrefix(input, stream_info_prefix)
+	trimmed, found := strings.CutPrefix(input, streamInfoPrefix)
 	if !found {
 		return nil, PrefixNotFound
 	}
@@ -239,12 +236,10 @@ func parseStreamInfo(input string) (*outputs.StreamInformation, error) {
 	return &streamInfo, nil
 }
 
-const title_info_prefix = "TINFO:"
-
 func parseTitleInfo(input string) (*outputs.TitleInformation, error) {
 	var titleInfo outputs.TitleInformation
 
-	trimmed, found := strings.CutPrefix(input, title_info_prefix)
+	trimmed, found := strings.CutPrefix(input, titleInfoPrefix)
 	if !found {
 		return nil, PrefixNotFound
 	}
@@ -261,12 +256,10 @@ func parseTitleInfo(input string) (*outputs.TitleInformation, error) {
 	return &titleInfo, nil
 }
 
-const total_progress_title_prefix = "PRGT:"
-
 func parseTotalProgressTitleOutput(input string) (*outputs.TotalProgressTitleOutput, error) {
 	var currentProgressTitleOutput outputs.TotalProgressTitleOutput
 
-	trimmed, found := strings.CutPrefix(input, total_progress_title_prefix)
+	trimmed, found := strings.CutPrefix(input, totalProgressTitlePrefix)
 	if !found {
 		return nil, PrefixNotFound
 	}
