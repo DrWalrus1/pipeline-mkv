@@ -23,10 +23,6 @@ const (
 var PrefixNotFound = errors.New("Prefix did not match expected")
 var NotEnoughValues = errors.New("Not enough values found in input")
 
-type ParseError struct {
-	Error error
-}
-
 type parserFunc func(string) (outputs.MakeMkvOutput, error)
 
 var parsers = []struct {
