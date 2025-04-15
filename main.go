@@ -5,16 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"servermakemkv/outputs"
 	"servermakemkv/parser"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
-
-type JsonWrapper struct {
-	Type string `json:"type"`
-	Data any    `json:"data"`
-}
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -39,7 +35,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		select {
 		case _ = <-ticker.C:
 			titleInformation, err := parser.Parse("test")
-			eventData := JsonWrapper{
+			eventData := outputs.JsonWrapper{
 				Type: titleInformation.GetTypeName(),
 				Data: titleInformation,
 			}

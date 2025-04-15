@@ -4,6 +4,11 @@ type MakeMkvOutput interface {
 	GetTypeName() string
 }
 
+type JsonWrapper struct {
+	Type string `json:"type"`
+	Data any    `json:"data"`
+}
+
 type MessageOutput struct {
 	Code           string
 	Flags          string
