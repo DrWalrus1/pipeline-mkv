@@ -1,0 +1,7 @@
+services:
+  makemkv:
+    image: thedrwalrus/makemkv
+    devices:
+      - /dev/sr0:/dev/sr0
+      - /dev/sg0:/dev/sg0
+    restart: unless-stopped
