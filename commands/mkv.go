@@ -3,6 +3,7 @@ package command
 import (
 	"log"
 	"os/exec"
+	"servermakemkv/outputs"
 	"servermakemkv/stream"
 )
 
@@ -17,13 +18,10 @@ func Mkv() {
 	if err := cmd.Start(); err != nil {
 		log.Fatal(err)
 	}
-	stream.ProcessStream(outputPipe, handleLine)
+	// TODO:
+	c := make(chan outputs.MakeMkvOutput)
+	go stream.ParseStream(outputPipe, c)
 	if err := cmd.Wait(); err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Hello2")
-}
-
-func handleLine(line string) {
-	log.Println(line)
 }

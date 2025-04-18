@@ -4,19 +4,18 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"strings"
+	"servermakemkv/outputs"
+	"servermakemkv/parser"
 )
 
-func ProcessStream(reader io.Reader, lineHandler func(string)) error {
+func ParseStream(reader io.Reader, c chan outputs.MakeMkvOutput) {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line != "" {
-			lineHandler(line)
+		output, err := parser.Parse(scanner.Text())
+		if err != nil {
+			fmt.Println(err.Error())
 		}
+		c <- output
 	}
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("error reading stream: %w", err)
-	}
-	return nil
+	close(c)
 }

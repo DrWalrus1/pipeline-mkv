@@ -22,6 +22,7 @@ const (
 
 var PrefixNotFound = errors.New("Prefix did not match expected")
 var NotEnoughValues = errors.New("Not enough values found in input")
+var EmptyInput = errors.New("input is empty")
 
 type parserFunc func(string) (outputs.MakeMkvOutput, error)
 
@@ -59,9 +60,14 @@ var parsers = []struct {
 }
 
 func Parse(input string) (outputs.MakeMkvOutput, error) {
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return nil, EmptyInput
+	}
+	sanitised := strings.ReplaceAll(input, "\"", "")
 	for _, parser := range parsers {
-		if strings.HasPrefix(input, parser.prefix) {
-			return parser.fn(input)
+		if strings.HasPrefix(sanitised, parser.prefix) {
+			return parser.fn(sanitised)
 		}
 	}
 	return nil, PrefixNotFound

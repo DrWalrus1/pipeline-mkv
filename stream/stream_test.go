@@ -1,8 +1,10 @@
 package stream_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
+	"servermakemkv/outputs"
 	"servermakemkv/stream"
 	"testing"
 )
@@ -13,8 +15,8 @@ func simulateMakeMkvProgressOutput(t *testing.T) io.Reader {
 	go func() {
 		defer writer.Close()
 
-		maxPercentage := 200
-		totalPercentage := 100
+		maxPercentage := 20
+		totalPercentage := 10
 		for currentPercentage := 0; currentPercentage <= totalPercentage; currentPercentage++ {
 			line := fmt.Sprintf("PRGV:%d,%d,%d\n", currentPercentage, totalPercentage, maxPercentage)
 			_, err := writer.Write([]byte(line))
@@ -31,11 +33,10 @@ func simulateMakeMkvProgressOutput(t *testing.T) io.Reader {
 
 func TestProcessStream(t *testing.T) {
 	mockOutput := simulateMakeMkvProgressOutput(t)
-	lineHandler := func(line string) {
-		t.Log(line)
-	}
-	err := stream.ProcessStream(mockOutput, lineHandler)
-	if err != nil {
-		t.Fatalf("processStream returned an error: %v", err)
+	c := make(chan outputs.MakeMkvOutput)
+	go stream.ParseStream(mockOutput, c)
+	for i := range c {
+		str, _ := json.Marshal(i)
+		t.Log(string(str))
 	}
 }

@@ -8,6 +8,13 @@ import (
 	"github.com/go-playground/assert/v2"
 )
 
+func TestEmptyStringFailsParsing(t *testing.T) {
+	actual, err := parser.Parse("")
+
+	assert.Equal(t, parser.EmptyInput, err)
+	assert.Equal(t, nil, actual)
+}
+
 func TestCurrentProgressTitleOutputParser(t *testing.T) {
 	t.Run("Successful Parse", func(t *testing.T) {
 		expected := outputs.CurrentProgressTitleOutput{
@@ -195,6 +202,21 @@ func TestParseMessageOutput(t *testing.T) {
 
 			assert.Equal(t, nil, err)
 			assert.Equal(t, expected, actual)
+
+			expected2 := outputs.MessageOutput{
+				Code:           "1011",
+				Flags:          "0",
+				ParameterCount: 1,
+				RawMessage:     "Using LibreDrive mode (v06.3 id=0FA242DD4D0B)",
+				FormatMessage:  "%1",
+				MessageParams:  []string{"Using LibreDrive mode (v06.3 id=0FA242DD4D0B)"},
+			}
+			input2 := `MSG:1011,0,1,"Using LibreDrive mode (v06.3 id=0FA242DD4D0B)","%1","Using LibreDrive mode (v06.3 id=0FA242DD4D0B)"`
+
+			actual2, err2 := parser.Parse(input2)
+
+			assert.Equal(t, nil, err2)
+			assert.Equal(t, expected2, actual2)
 		})
 
 		t.Run("One param", func(t *testing.T) {
