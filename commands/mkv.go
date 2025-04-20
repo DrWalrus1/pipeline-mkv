@@ -7,9 +7,9 @@ import (
 	"servermakemkv/stream"
 )
 
-// Mkv calls the MakeMKV executable with the given arguments.
-func Mkv() {
-	cmd := exec.Command("makemkvcon -r --cache=1 info disc:9999")
+// MkvInfo calls the MakeMKV executable with the given arguments.
+func GetInfo() {
+	cmd := exec.Command("makemkvcon -r info disc:9999")
 
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {
@@ -24,4 +24,16 @@ func Mkv() {
 	if err := cmd.Wait(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func SaveMkv() {
+
+}
+
+func BackupDisk() {
+
+}
+
+func RegisterMkvKey() {
+
 }
