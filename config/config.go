@@ -5,9 +5,12 @@ import (
 )
 
 type Arguments struct {
-	DirectIO       bool `json:"direct_io"`
-	TitleMinLength int  `json:"title_min_length"`
-	Cache          int  `json:"cache"` // TODO: Should provide the suggestions from the usage file so end users to set this incorrectly
+	// Enables or disables direct disc access
+	DirectIO bool `json:"direct_io"`
+	// Default is 120 seconds
+	TitleMinLength int `json:"title_min_length"`
+	// Specifies size of read cache in megabytes used by MakeMKV. By default program uses huge amount of memory. About 128 MB is recommended for streaming and backup, 512MB for DVD conversion and 1024MB for Blu-ray conversion.
+	Cache int `json:"cache"`
 }
 
 func (a *Arguments) ConvertArgumentsToArgs() []string {
