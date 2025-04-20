@@ -1,7 +1,6 @@
 package config_test
 
 import (
-	"encoding/json"
 	"servermakemkv/config"
 	"strings"
 	"testing"
@@ -20,9 +19,10 @@ func TestCanParseConfig(t *testing.T) {
 		}
 	}
 	`
-	var config config.Config
+	reader := strings.NewReader(input)
 
-	json.Unmarshal([]byte(input), &config)
+	config, err := config.LoadConfig(reader)
+	assert.Equal(t, nil, err)
 
 	assert.Equal(t, config.Arguments.DirectIO, true)
 	assert.Equal(t, config.Arguments.Cache, 1024)

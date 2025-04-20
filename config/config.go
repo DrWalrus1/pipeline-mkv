@@ -1,7 +1,10 @@
 package config
 
 import (
+	"bufio"
+	"encoding/json"
 	"fmt"
+	"io"
 )
 
 type Arguments struct {
@@ -11,6 +14,20 @@ type Arguments struct {
 	TitleMinLength int `json:"title_min_length"`
 	// Specifies size of read cache in megabytes used by MakeMKV. By default program uses huge amount of memory. About 128 MB is recommended for streaming and backup, 512MB for DVD conversion and 1024MB for Blu-ray conversion.
 	Cache int `json:"cache"`
+}
+
+func LoadConfig(r io.Reader) (*Config, error) {
+	var loadedConfig Config
+	reader := bufio.NewReader(r)
+	contents, err := reader.ReadBytes(byte(reader.Buffered()))
+	if err != nil && err != io.EOF {
+		return nil, fmt.Errorf("Could not load config. %w", err)
+	}
+	err = json.Unmarshal(contents, &loadedConfig)
+	if err != nil {
+		return nil, fmt.Errorf("Could not parse config json. %w", err)
+	}
+	return &loadedConfig, nil
 }
 
 func (a *Arguments) ConvertArgumentsToArgs() []string {
