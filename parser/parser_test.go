@@ -126,7 +126,7 @@ func TestParseDiscInfo(t *testing.T) {
 	})
 }
 
-func DriveScanMessageParser(t *testing.T) {
+func TestDriveScanMessageParser(t *testing.T) {
 	t.Run("Parse Successfully", func(t *testing.T) {
 		expected := outputs.DriveScanMessage{
 			DriveIndex: "1",
@@ -137,7 +137,7 @@ func DriveScanMessageParser(t *testing.T) {
 			DiscName:   "Disc1",
 		}
 
-		input := "DRV:1,true,true,Flags,Drive1,Disc1"
+		input := "DRV:1,1,1,Flags,Drive1,Disc1"
 
 		actual, err := parser.Parse(input)
 
@@ -163,25 +163,22 @@ func DriveScanMessageParser(t *testing.T) {
 		assert.Equal(t, nil, actual)
 	})
 
-	t.Run("Fails when boolean values are not valid", func(t *testing.T) {
-		input1 := "DRV:1,NOTABOOL,true,Flags,Drive1,Disc1"
-		input2 := "DRV:1,true,NOTABOOL,Flags,Drive1,Disc1"
-		input3 := "DRV:1,NOTABOOL,NOTABOOL,Flags,Drive1,Disc1"
+	t.Run("Parses when drives are not visible or enabled", func(t *testing.T) {
+		input := "DRV:1,255,999,Flags,Drive1,Disc1"
 
-		actual1, err1 := parser.Parse(input1)
+		expected := outputs.DriveScanMessage{
+			DriveIndex: "1",
+			Visible:    false,
+			Enabled:    false,
+			Flags:      "Flags",
+			DriveName:  "Drive1",
+			DiscName:   "Disc1",
+		}
+		actual, err := parser.Parse(input)
 
-		assert.NotEqual(t, nil, err1)
-		assert.Equal(t, nil, actual1)
+		assert.Equal(t, nil, err)
+		assert.Equal(t, expected, actual)
 
-		actual2, err2 := parser.Parse(input2)
-
-		assert.NotEqual(t, nil, err2)
-		assert.Equal(t, nil, actual2)
-
-		actual3, err3 := parser.Parse(input3)
-
-		assert.NotEqual(t, nil, err3)
-		assert.Equal(t, nil, actual3)
 	})
 }
 

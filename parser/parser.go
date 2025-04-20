@@ -114,7 +114,7 @@ func parseMessageOutput(input string) (*outputs.MessageOutput, error) {
 func parseDriveScanMessage(input string) (*outputs.DriveScanMessage, error) {
 	var driveScanMessage outputs.DriveScanMessage
 
-	trimmed, _ := strings.CutPrefix(input, progressBarOutputPrefix)
+	trimmed, _ := strings.CutPrefix(input, driveScanMessagePrefix)
 
 	split := strings.Split(trimmed, delimiter)
 	if len(split) < 6 {
@@ -122,16 +122,8 @@ func parseDriveScanMessage(input string) (*outputs.DriveScanMessage, error) {
 	}
 
 	driveScanMessage.DriveIndex = split[0]
-	visible, err := strconv.ParseBool(split[1])
-	if err != nil {
-		return nil, err
-	}
-	driveScanMessage.Visible = visible
-	enabled, err := strconv.ParseBool(split[2])
-	if err != nil {
-		return nil, err
-	}
-	driveScanMessage.Enabled = enabled
+	driveScanMessage.Visible = split[1] == "1"
+	driveScanMessage.Enabled = split[2] == "1"
 	driveScanMessage.Flags = split[3]
 	driveScanMessage.DriveName = split[4]
 	driveScanMessage.DiscName = split[5]
