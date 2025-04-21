@@ -19,3 +19,11 @@ func ParseStream(reader io.Reader, c chan outputs.MakeMkvOutput) {
 	}
 	close(c)
 }
+
+func ReadStream(reader io.Reader, c chan string) {
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+		c <- scanner.Text()
+	}
+	close(c)
+}
