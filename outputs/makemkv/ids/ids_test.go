@@ -8,31 +8,37 @@ import (
 )
 
 func TestConvertItemAttributeIntoToString(t *testing.T) {
-	tests := map[string]uint{
+	tests := map[string]int{
 		`Unknown`:                            0,
 		"Type":                               1,
 		"Name":                               2,
-		"Language Code":                      3,
-		"Language Name":                      4,
-		"Codec ID":                           5,
-		"Short Codec Name":                   6,
-		"Long Codec Name":                    7,
-		"Number of Chapters":                 8,
+		"LanguageCode":                       3,
+		"LanguageName":                       4,
+		"CodecID":                            5,
+		"ShortCodecName":                     6,
+		"LongCodecName":                      7,
+		"NumberOfChapters":                   8,
 		"Duration":                           9,
-		"Disk Size":                          10,
-		"Disk Size in Bytes":                 11,
-		"Stream Type Extension":              12,
+		"DiskSize":                           10,
+		"DiskSizeInBytes":                    11,
+		"StreamTypeExtension":                12,
 		"Bitrate":                            13,
-		"Number of Audio Channels":           14,
-		"Angle Information":                  15,
+		"NumberOfAudioChannels":              14,
+		"AngleInformation":                   15,
 		"Comment":                            49,
-		"Offset Sequence ID":                 50,
-		"Maximum Value":                      51,
+		"OffsetSequenceID":                   50,
+		"MaxValue":                           51,
 		"Unknown Application Item Attribute": 60,
 	}
 	for expected, tt := range tests {
 		t.Run(expected, func(t *testing.T) {
-			assert.Equal(t, expected, ids.GetItemAttributeDescription(tt))
+			id, err := ids.GetItemAttributeDescription(tt)
+			if err != nil {
+				assert.Equal(t, expected, err.Error())
+			} else {
+				assert.Equal(t, expected, id)
+			}
 		})
+
 	}
 }

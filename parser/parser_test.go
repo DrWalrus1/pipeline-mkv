@@ -94,7 +94,7 @@ func TestParseDiscInformationOutput(t *testing.T) {
 func TestParseDiscInfo(t *testing.T) {
 	t.Run("Successful Parse", func(t *testing.T) {
 		expected := outputs.DiscInformation{
-			ID:    "1",
+			ID:    1,
 			Code:  "CODE",
 			Value: "Value",
 		}
@@ -339,12 +339,14 @@ func TestParseProgressBarOutput(t *testing.T) {
 func TestParseStreamInfo(t *testing.T) {
 	t.Run("Successful parse", func(t *testing.T) {
 		expected := outputs.StreamInformation{
-			ID:    "1",
-			Code:  "CODE",
-			Value: "Value",
+			TitleIndex:    1,
+			StreamIndex:   1,
+			AttributeId:   1,
+			MessageCodeId: "CODE",
+			Value:         "Value",
 		}
 
-		input := "SINFO:1,CODE,Value"
+		input := "SINFO:1,1,1,CODE,Value"
 
 		actual, err := parser.Parse(input)
 
@@ -376,12 +378,13 @@ func TestParseStreamInfo(t *testing.T) {
 func TestParseTitleInfo(t *testing.T) {
 	t.Run("Successful parse", func(t *testing.T) {
 		expected := outputs.TitleInformation{
-			ID:    "1",
-			Code:  "CODE",
-			Value: "Value",
+			TitleIndex:    1,
+			AttributeId:   1,
+			MessageCodeId: "1",
+			Value:         "Value",
 		}
 
-		input := "TINFO:1,CODE,Value"
+		input := "TINFO:1,1,1,Value"
 
 		actual, err := parser.Parse(input)
 

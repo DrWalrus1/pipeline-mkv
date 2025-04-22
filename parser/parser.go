@@ -2,6 +2,7 @@ package parser
 
 import (
 	"errors"
+	"fmt"
 	"servermakemkv/outputs"
 	"strconv"
 	"strings"
@@ -170,7 +171,11 @@ func parseDiscInfo(input string) (*outputs.DiscInformation, error) {
 		return nil, NotEnoughValues
 	}
 
-	discInfo.ID = split[0]
+	id, err := strconv.Atoi(split[0])
+	if err != nil {
+		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[0], err)
+	}
+	discInfo.ID = id
 	discInfo.Code = split[1]
 	discInfo.Value = split[2]
 
@@ -201,13 +206,27 @@ func parseStreamInfo(input string) (*outputs.StreamInformation, error) {
 	}
 
 	split := strings.Split(trimmed, delimiter)
-	if len(split) < 3 {
+	if len(split) < 5 {
 		return nil, NotEnoughValues
 	}
 
-	streamInfo.ID = split[0]
-	streamInfo.Code = split[1]
-	streamInfo.Value = split[2]
+	titleIndex, err := strconv.Atoi(split[0])
+	if err != nil {
+		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[1], err)
+	}
+	streamInfo.TitleIndex = titleIndex
+	streamIndex, err := strconv.Atoi(split[1])
+	if err != nil {
+		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[1], err)
+	}
+	streamInfo.StreamIndex = streamIndex
+	streamType, err := strconv.Atoi(split[2])
+	if err != nil {
+		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[2], err)
+	}
+	streamInfo.AttributeId = streamType
+	streamInfo.MessageCodeId = split[3]
+	streamInfo.Value = split[4]
 
 	return &streamInfo, nil
 }
@@ -218,13 +237,22 @@ func parseTitleInfo(input string) (*outputs.TitleInformation, error) {
 	trimmed, _ := strings.CutPrefix(input, titleInfoPrefix)
 
 	split := strings.Split(trimmed, delimiter)
-	if len(split) < 3 {
+	if len(split) < 4 {
 		return nil, NotEnoughValues
 	}
 
-	titleInfo.ID = split[0]
-	titleInfo.Code = split[1]
-	titleInfo.Value = split[2]
+	titleIndex, err := strconv.Atoi(split[0])
+	if err != nil {
+		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[0], err)
+	}
+	titleInfo.TitleIndex = titleIndex
+	attributeId, err := strconv.Atoi(split[1])
+	if err != nil {
+		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[1], err)
+	}
+	titleInfo.AttributeId = attributeId
+	titleInfo.MessageCodeId = split[2]
+	titleInfo.Value = split[3]
 
 	return &titleInfo, nil
 }

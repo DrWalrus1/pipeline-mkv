@@ -31,3 +31,15 @@ func TestCanParseConfig(t *testing.T) {
 
 	assert.Equal(t, argsAsString, "--directio=true --minlength=10 --cache=1024")
 }
+
+func TestHasExecutablePath(t *testing.T) {
+	config := config.Config{
+		ExecutablePath: "../makemkvcon",
+	}
+
+	assert.Equal(t, true, config.HasAlternateExecutablePath())
+
+	config.ExecutablePath = ""
+
+	assert.Equal(t, false, config.HasAlternateExecutablePath())
+}

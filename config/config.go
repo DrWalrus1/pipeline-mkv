@@ -16,20 +16,6 @@ type Arguments struct {
 	Cache int `json:"cache"`
 }
 
-func LoadConfig(r io.Reader) (*Config, error) {
-	var loadedConfig Config
-	reader := bufio.NewReader(r)
-	contents, err := reader.ReadBytes(byte(reader.Buffered()))
-	if err != nil && err != io.EOF {
-		return nil, fmt.Errorf("Could not load config. %w", err)
-	}
-	err = json.Unmarshal(contents, &loadedConfig)
-	if err != nil {
-		return nil, fmt.Errorf("Could not parse config json. %w", err)
-	}
-	return &loadedConfig, nil
-}
-
 func (a *Arguments) ConvertArgumentsToArgs() []string {
 	args := []string{}
 
@@ -49,6 +35,24 @@ type Config struct {
 	ExecutablePath  string `json:"executable_path"`
 	RegistrationKey string `json:"registration_key"`
 	Arguments       Arguments
+}
+
+func (c *Config) HasAlternateExecutablePath() bool {
+	return c.ExecutablePath != ""
+}
+
+func LoadConfig(r io.Reader) (*Config, error) {
+	var loadedConfig Config
+	reader := bufio.NewReader(r)
+	contents, err := reader.ReadBytes(byte(reader.Buffered()))
+	if err != nil && err != io.EOF {
+		return nil, fmt.Errorf("Could not load config. %w", err)
+	}
+	err = json.Unmarshal(contents, &loadedConfig)
+	if err != nil {
+		return nil, fmt.Errorf("Could not parse config json. %w", err)
+	}
+	return &loadedConfig, nil
 }
 
 func (c *Config) ConvertConfigToArgs() []string {

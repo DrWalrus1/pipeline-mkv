@@ -1,5 +1,7 @@
 package ids
 
+import "errors"
+
 type ApItemAttributeId int
 
 const (
@@ -51,7 +53,7 @@ const (
 	AP_vastr_KeyString              uint = 25
 )
 
-type AppItemAttributeId = uint
+type AppItemAttributeId = int
 
 const (
 	Unknown                      AppItemAttributeId = 0
@@ -112,62 +114,62 @@ var attributeDetailedDescription = map[AppItemAttributeId]string{
 	Unknown:                      "Unknown",
 	Type:                         "Type",
 	Name:                         "Name",
-	LangCode:                     "Language Code",
-	LangName:                     "Language Name",
-	CodecId:                      "Codec ID",
-	CodecShort:                   "Short Codec Name",
-	CodecLong:                    "Long Codec Name",
-	ChapterCount:                 "Number of Chapters",
+	LangCode:                     "LanguageCode",
+	LangName:                     "LanguageName",
+	CodecId:                      "CodecID",
+	CodecShort:                   "ShortCodecName",
+	CodecLong:                    "LongCodecName",
+	ChapterCount:                 "NumberOfChapters",
 	Duration:                     "Duration",
-	DiskSize:                     "Disk Size",
-	DiskSizeBytes:                "Disk Size in Bytes",
-	StreamTypeExtension:          "Stream Type Extension",
+	DiskSize:                     "DiskSize",
+	DiskSizeBytes:                "DiskSizeInBytes",
+	StreamTypeExtension:          "StreamTypeExtension",
 	Bitrate:                      "Bitrate",
-	AudioChannelsCount:           "Number of Audio Channels",
-	AngleInfo:                    "Angle Information",
-	SourceFileName:               "Source File Name",
-	AudioSampleRate:              "Audio Sample Rate",
-	AudioSampleSize:              "Audio Sample Size",
-	VideoSize:                    "Video Size",
-	VideoAspectRatio:             "Video Aspect Ratio",
-	VideoFrameRate:               "Video Frame Rate",
-	StreamFlags:                  "Stream Flags",
-	DateTime:                     "Date and Time",
-	OriginalTitleId:              "Original Title ID",
-	SegmentsCount:                "Number of Segments",
-	SegmentsMap:                  "Segments Map",
-	OutputFileName:               "Output File Name",
-	MetadataLanguageCode:         "Metadata Language Code",
-	MetadataLanguageName:         "Metadata Language Name",
-	TreeInfo:                     "Tree Information",
-	PanelTitle:                   "Panel Title",
-	VolumeName:                   "Volume Name",
-	OrderWeight:                  "Order Weight",
-	OutputFormat:                 "Output Format",
-	OutputFormatDescription:      "Output Format Description",
-	SeamlessInfo:                 "Seamless Information",
-	PanelText:                    "Panel Text",
-	MkvFlags:                     "MKV Flags",
-	MkvFlagsText:                 "MKV Flags Text",
-	AudioChannelLayoutName:       "Audio Channel Layout Name",
-	OutputCodecShort:             "Output Short Codec Name",
-	OutputConversionType:         "Output Conversion Type",
-	OutputAudioSampleRate:        "Output Audio Sample Rate",
-	OutputAudioSampleSize:        "Output Audio Sample Size",
-	OutputAudioChannelsCount:     "Output Number of Audio Channels",
-	OutputAudioChannelLayoutName: "Output Audio Channel Layout Name",
-	OutputAudioChannelLayout:     "Output Audio Channel Layout",
-	OutputAudioMixDescription:    "Output Audio Mix Description",
+	AudioChannelsCount:           "NumberOfAudioChannels",
+	AngleInfo:                    "AngleInformation",
+	SourceFileName:               "SourceFileName",
+	AudioSampleRate:              "AudioSampleRate",
+	AudioSampleSize:              "AudioSampleSize",
+	VideoSize:                    "VideoSize",
+	VideoAspectRatio:             "VideoAspectRatio",
+	VideoFrameRate:               "VideoFrameRate",
+	StreamFlags:                  "StreamFlags",
+	DateTime:                     "DateAndTime",
+	OriginalTitleId:              "OriginalTitleID",
+	SegmentsCount:                "NumberofSegments",
+	SegmentsMap:                  "SegmentsMap",
+	OutputFileName:               "OutputFileName",
+	MetadataLanguageCode:         "MetadataLanguageCode",
+	MetadataLanguageName:         "MetadataLanguageName",
+	TreeInfo:                     "TreeInformation",
+	PanelTitle:                   "PanelTitle",
+	VolumeName:                   "VolumeName",
+	OrderWeight:                  "OrderWeight",
+	OutputFormat:                 "OutputFormat",
+	OutputFormatDescription:      "OutputFormatDescription",
+	SeamlessInfo:                 "SeamlessInformation",
+	PanelText:                    "PanelText",
+	MkvFlags:                     "MKVFlags",
+	MkvFlagsText:                 "MKVFlagsText",
+	AudioChannelLayoutName:       "AudioChannelLayoutName",
+	OutputCodecShort:             "OutputShortCodecName",
+	OutputConversionType:         "OutputConversionType",
+	OutputAudioSampleRate:        "OutputAudioSampleRate",
+	OutputAudioSampleSize:        "OutputAudioSampleSize",
+	OutputAudioChannelsCount:     "OutputNumberOfAudioChannels",
+	OutputAudioChannelLayoutName: "OutputAudioChannelLayout Name",
+	OutputAudioChannelLayout:     "OutputAudioChannelLayout",
+	OutputAudioMixDescription:    "OutputAudioMixDescription",
 	Comment:                      "Comment",
-	OffsetSequenceId:             "Offset Sequence ID",
-	MaxValue:                     "Maximum Value",
+	OffsetSequenceId:             "OffsetSequenceID",
+	MaxValue:                     "MaxValue",
 }
 
-func GetItemAttributeDescription(id uint) string {
+func GetItemAttributeDescription(id int) (string, error) {
 	if desc, ok := attributeDetailedDescription[id]; ok {
-		return desc
+		return desc, nil
 	}
-	return "Unknown Application Item Attribute"
+	return "", errors.New("Unknown Application Item Attribute")
 }
 
 const (
