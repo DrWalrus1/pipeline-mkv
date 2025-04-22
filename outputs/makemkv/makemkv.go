@@ -17,7 +17,7 @@ type MakeMkvTitle struct {
 
 type MakeMkvValue struct {
 	MessageCodeValue string `json:"messageCodeValue,omitempty"`
-	Value            string `json:"value"`
+	Value            string `json:"value,omitempty"`
 }
 
 func MakeMkvOutputsIntoMakeMkvDiscInfo(makemkvOutputs []outputs.MakeMkvOutput) MakeMkvDiscInfo {
@@ -35,7 +35,7 @@ func MakeMkvOutputsIntoMakeMkvDiscInfo(makemkvOutputs []outputs.MakeMkvOutput) M
 			}
 			mkvValue := MakeMkvValue{
 				MessageCodeValue: messagecode,
-				Value:            desc,
+				Value:            i.Value,
 			}
 			mkvDiscInfo.Properties[desc] = mkvValue
 		}
@@ -62,11 +62,14 @@ func MakeMkvOutputsIntoMakeMkvTitles(makeMkvOutputs []outputs.MakeMkvOutput) map
 			}
 			mkvValue := MakeMkvValue{
 				MessageCodeValue: messagecode,
-				Value:            desc,
+				Value:            i.Value,
 			}
 			newTitles[i.TitleIndex].Properties[desc] = mkvValue
 		} else if i, ok := x.(*outputs.StreamInformation); ok {
 			// if title doesn't exist
+			if i.Value == "" {
+				continue
+			}
 			if _, ok := newTitles[i.TitleIndex]; !ok {
 				newTitles[i.TitleIndex] = MakeMkvTitle{
 					Properties: make(map[string]MakeMkvValue),
@@ -84,7 +87,7 @@ func MakeMkvOutputsIntoMakeMkvTitles(makeMkvOutputs []outputs.MakeMkvOutput) map
 			}
 			mkvValue := MakeMkvValue{
 				MessageCodeValue: messagecode,
-				Value:            desc,
+				Value:            i.Value,
 			}
 			newTitles[i.TitleIndex].Streams[i.StreamIndex][desc] = mkvValue
 		}

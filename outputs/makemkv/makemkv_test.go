@@ -1,7 +1,6 @@
 package makemkv_test
 
 import (
-	"encoding/json"
 	"servermakemkv/outputs"
 	"servermakemkv/outputs/makemkv"
 	"servermakemkv/stream"
@@ -10,7 +9,6 @@ import (
 )
 
 func TestParseCompleteDiscMetaData(t *testing.T) {
-
 	input :=
 		`CINFO:1,6209,"Blu-ray disc"
 CINFO:2,0,"Demon Slayer: Kimetsu no Yaiba Swordsmith Village Arc Complete Blu-ray Set Standard Edition Disc 1"
@@ -159,7 +157,5 @@ SINFO:0,6,42,5088,"( Lossless conversion )"	`
 		o = append(o, i)
 	}
 
-	actual := makemkv.MakeMkvOutputsIntoMakeMkvDiscInfo(o)
-	stringified, _ := json.MarshalIndent(actual, "", "\t")
-	t.Log(string(stringified))
+	makemkv.MakeMkvOutputsIntoMakeMkvDiscInfo(o)
 }

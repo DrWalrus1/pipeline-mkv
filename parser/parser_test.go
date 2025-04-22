@@ -94,12 +94,12 @@ func TestParseDiscInformationOutput(t *testing.T) {
 func TestParseDiscInfo(t *testing.T) {
 	t.Run("Successful Parse", func(t *testing.T) {
 		expected := outputs.DiscInformation{
-			ID:    1,
-			Code:  "CODE",
-			Value: "Value",
+			ID:            1,
+			MessageCodeId: 1,
+			Value:         "Value",
 		}
 
-		input := "CINFO:1,CODE,Value"
+		input := "CINFO:1,1,Value"
 
 		actual, err := parser.Parse(input)
 
@@ -342,11 +342,11 @@ func TestParseStreamInfo(t *testing.T) {
 			TitleIndex:    1,
 			StreamIndex:   1,
 			AttributeId:   1,
-			MessageCodeId: "CODE",
+			MessageCodeId: 1,
 			Value:         "Value",
 		}
 
-		input := "SINFO:1,1,1,CODE,Value"
+		input := "SINFO:1,1,1,1,Value"
 
 		actual, err := parser.Parse(input)
 
@@ -380,7 +380,7 @@ func TestParseTitleInfo(t *testing.T) {
 		expected := outputs.TitleInformation{
 			TitleIndex:    1,
 			AttributeId:   1,
-			MessageCodeId: "1",
+			MessageCodeId: 1,
 			Value:         "Value",
 		}
 
