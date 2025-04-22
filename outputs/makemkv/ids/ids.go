@@ -2,7 +2,115 @@ package ids
 
 import "errors"
 
-type ApItemAttributeId int
+var attributeDetailedDescription = map[AppItemAttributeId]string{
+	Unknown:                      "Unknown",
+	Type:                         "Type",
+	Name:                         "Name",
+	LangCode:                     "LanguageCode",
+	LangName:                     "LanguageName",
+	CodecId:                      "CodecID",
+	CodecShort:                   "ShortCodecName",
+	CodecLong:                    "LongCodecName",
+	ChapterCount:                 "NumberOfChapters",
+	Duration:                     "Duration",
+	DiskSize:                     "DiskSize",
+	DiskSizeBytes:                "DiskSizeInBytes",
+	StreamTypeExtension:          "StreamTypeExtension",
+	Bitrate:                      "Bitrate",
+	AudioChannelsCount:           "NumberOfAudioChannels",
+	AngleInfo:                    "AngleInformation",
+	SourceFileName:               "SourceFileName",
+	AudioSampleRate:              "AudioSampleRate",
+	AudioSampleSize:              "AudioSampleSize",
+	VideoSize:                    "VideoSize",
+	VideoAspectRatio:             "VideoAspectRatio",
+	VideoFrameRate:               "VideoFrameRate",
+	StreamFlags:                  "StreamFlags",
+	DateTime:                     "DateAndTime",
+	OriginalTitleId:              "OriginalTitleID",
+	SegmentsCount:                "NumberofSegments",
+	SegmentsMap:                  "SegmentsMap",
+	OutputFileName:               "OutputFileName",
+	MetadataLanguageCode:         "MetadataLanguageCode",
+	MetadataLanguageName:         "MetadataLanguageName",
+	TreeInfo:                     "TreeInformation",
+	PanelTitle:                   "PanelTitle",
+	VolumeName:                   "VolumeName",
+	OrderWeight:                  "OrderWeight",
+	OutputFormat:                 "OutputFormat",
+	OutputFormatDescription:      "OutputFormatDescription",
+	SeamlessInfo:                 "SeamlessInformation",
+	PanelText:                    "PanelText",
+	MkvFlags:                     "MKVFlags",
+	MkvFlagsText:                 "MKVFlagsText",
+	AudioChannelLayoutName:       "AudioChannelLayoutName",
+	OutputCodecShort:             "OutputShortCodecName",
+	OutputConversionType:         "OutputConversionType",
+	OutputAudioSampleRate:        "OutputAudioSampleRate",
+	OutputAudioSampleSize:        "OutputAudioSampleSize",
+	OutputAudioChannelsCount:     "OutputNumberOfAudioChannels",
+	OutputAudioChannelLayoutName: "OutputAudioChannelLayout Name",
+	OutputAudioChannelLayout:     "OutputAudioChannelLayout",
+	OutputAudioMixDescription:    "OutputAudioMixDescription",
+	Comment:                      "Comment",
+	OffsetSequenceId:             "OffsetSequenceID",
+	MaxValue:                     "MaxValue",
+}
+
+func GetItemAttributeDescription(id int) (string, error) {
+	if desc, ok := attributeDetailedDescription[id]; ok {
+		return desc, nil
+	}
+	return "", errors.New("Unknown Application Item Attribute")
+}
+
+const (
+	AP_DskFsFlagDvdFilesPresent    int = 1
+	AP_DskFsFlagHdvdFilesPresent   int = 2
+	AP_DskFsFlagBlurayFilesPresent int = 4
+	AP_DskFsFlagAacsFilesPresent   int = 8
+	AP_DskFsFlagBdsvmFilesPresent  int = 16
+)
+
+var diskFileFlagsDescriptions = map[int]string{
+	AP_DskFsFlagDvdFilesPresent:    "DVD files present on disk",
+	AP_DskFsFlagHdvdFilesPresent:   "HD DVD files present on disk",
+	AP_DskFsFlagBlurayFilesPresent: "Blu-ray files present on disk",
+	AP_DskFsFlagAacsFilesPresent:   "Aacs files present on disk",
+	AP_DskFsFlagBdsvmFilesPresent:  "Blu-ray disc movie folder files present on disk",
+}
+
+func GetDiskFileFlagDescription(id int) string {
+	if desc, ok := diskFileFlagsDescriptions[id]; ok {
+		return desc
+	}
+	return "Unknown"
+}
+
+const (
+	AP_DriveStateNoDrive     uint = 256
+	AP_DriveStateUnmounting  uint = 257
+	AP_DriveStateEmptyClosed uint = 0
+	AP_DriveStateEmptyOpen   uint = 1
+	AP_DriveStateInserted    uint = 2
+	AP_DriveStateLoading     uint = 3
+)
+
+var driveStateDescriptions = map[uint]string{
+	AP_DriveStateNoDrive:     "No Drive detected",
+	AP_DriveStateUnmounting:  "Drive is unmounting",
+	AP_DriveStateEmptyClosed: "Drive is empty and closed",
+	AP_DriveStateEmptyOpen:   "Drive is empty and open",
+	AP_DriveStateInserted:    "Drive has disc inserted",
+	AP_DriveStateLoading:     "Drive is loading",
+}
+
+func GetDriveStateDescription(id uint) string {
+	if desc, ok := driveStateDescriptions[id]; ok {
+		return desc
+	}
+	return "Unknown"
+}
 
 const (
 	AP_MaxCdromDevices              int = 16
@@ -109,119 +217,6 @@ const (
 	OffsetSequenceId             AppItemAttributeId = 50
 	MaxValue                     AppItemAttributeId = 51
 )
-
-var attributeDetailedDescription = map[AppItemAttributeId]string{
-	Unknown:                      "Unknown",
-	Type:                         "Type",
-	Name:                         "Name",
-	LangCode:                     "LanguageCode",
-	LangName:                     "LanguageName",
-	CodecId:                      "CodecID",
-	CodecShort:                   "ShortCodecName",
-	CodecLong:                    "LongCodecName",
-	ChapterCount:                 "NumberOfChapters",
-	Duration:                     "Duration",
-	DiskSize:                     "DiskSize",
-	DiskSizeBytes:                "DiskSizeInBytes",
-	StreamTypeExtension:          "StreamTypeExtension",
-	Bitrate:                      "Bitrate",
-	AudioChannelsCount:           "NumberOfAudioChannels",
-	AngleInfo:                    "AngleInformation",
-	SourceFileName:               "SourceFileName",
-	AudioSampleRate:              "AudioSampleRate",
-	AudioSampleSize:              "AudioSampleSize",
-	VideoSize:                    "VideoSize",
-	VideoAspectRatio:             "VideoAspectRatio",
-	VideoFrameRate:               "VideoFrameRate",
-	StreamFlags:                  "StreamFlags",
-	DateTime:                     "DateAndTime",
-	OriginalTitleId:              "OriginalTitleID",
-	SegmentsCount:                "NumberofSegments",
-	SegmentsMap:                  "SegmentsMap",
-	OutputFileName:               "OutputFileName",
-	MetadataLanguageCode:         "MetadataLanguageCode",
-	MetadataLanguageName:         "MetadataLanguageName",
-	TreeInfo:                     "TreeInformation",
-	PanelTitle:                   "PanelTitle",
-	VolumeName:                   "VolumeName",
-	OrderWeight:                  "OrderWeight",
-	OutputFormat:                 "OutputFormat",
-	OutputFormatDescription:      "OutputFormatDescription",
-	SeamlessInfo:                 "SeamlessInformation",
-	PanelText:                    "PanelText",
-	MkvFlags:                     "MKVFlags",
-	MkvFlagsText:                 "MKVFlagsText",
-	AudioChannelLayoutName:       "AudioChannelLayoutName",
-	OutputCodecShort:             "OutputShortCodecName",
-	OutputConversionType:         "OutputConversionType",
-	OutputAudioSampleRate:        "OutputAudioSampleRate",
-	OutputAudioSampleSize:        "OutputAudioSampleSize",
-	OutputAudioChannelsCount:     "OutputNumberOfAudioChannels",
-	OutputAudioChannelLayoutName: "OutputAudioChannelLayout Name",
-	OutputAudioChannelLayout:     "OutputAudioChannelLayout",
-	OutputAudioMixDescription:    "OutputAudioMixDescription",
-	Comment:                      "Comment",
-	OffsetSequenceId:             "OffsetSequenceID",
-	MaxValue:                     "MaxValue",
-}
-
-func GetItemAttributeDescription(id int) (string, error) {
-	if desc, ok := attributeDetailedDescription[id]; ok {
-		return desc, nil
-	}
-	return "", errors.New("Unknown Application Item Attribute")
-}
-
-const (
-	AP_DskFsFlagDvdFilesPresent    int = 1
-	AP_DskFsFlagHdvdFilesPresent   int = 2
-	AP_DskFsFlagBlurayFilesPresent int = 4
-	AP_DskFsFlagAacsFilesPresent   int = 8
-	AP_DskFsFlagBdsvmFilesPresent  int = 16
-)
-
-func GetDiskFileFlagDescription(id int) string {
-	switch id {
-	case AP_DskFsFlagDvdFilesPresent:
-		return "DVD files present on disk"
-	case AP_DskFsFlagHdvdFilesPresent:
-		return "HD DVD files present on disk"
-	case AP_DskFsFlagBlurayFilesPresent:
-		return "Blu-ray files present on disk"
-	case AP_DskFsFlagAacsFilesPresent:
-		return "Aacs files present on disk"
-	case AP_DskFsFlagBdsvmFilesPresent:
-		return "Blu-ray disc movie folder files present on disk"
-	}
-	return "Unknown"
-}
-
-const (
-	AP_DriveStateNoDrive     uint = 256
-	AP_DriveStateUnmounting  uint = 257
-	AP_DriveStateEmptyClosed uint = 0
-	AP_DriveStateEmptyOpen   uint = 1
-	AP_DriveStateInserted    uint = 2
-	AP_DriveStateLoading     uint = 3
-)
-
-func GetDriveStateDescription(id uint) string {
-	switch id {
-	case AP_DriveStateNoDrive:
-		return "No Drive detected"
-	case AP_DriveStateUnmounting:
-		return "Drive is unmounting"
-	case AP_DriveStateEmptyClosed:
-		return "Drive is empty and closed"
-	case AP_DriveStateEmptyOpen:
-		return "Drive is empty and open"
-	case AP_DriveStateInserted:
-		return "Drive has disc inserted"
-	case AP_DriveStateLoading:
-		return "Drive is loading"
-	}
-	return "Unknown"
-}
 
 const (
 	APNotifyUpdateLayoutFlagNoTime   = 1
@@ -482,3 +477,244 @@ const (
 	AppSiDisccbl27                            int = 6331
 	AppSiDevice                               int = 6332
 )
+
+var appConstantsDescriptions = map[int]string{
+	AppDumpDonePartial:                        "Partial dump done",
+	AppDumpDone:                               "Dump done",
+	AppInitFailed:                             "Initialization failed",
+	AppAskFolderCreate:                        "Ask to create folder",
+	AppFolderInvalid:                          "Invalid folder",
+	ProgressAppSaveMkvFreeSpace:               "Save MKV free space progress",
+	ProtDemoKeyExpired:                        "Demo key expired",
+	AppKeytypeInvalid:                         "Invalid key type",
+	AppEvalTimeNever:                          "Evaluation time never",
+	AppBackupFailed:                           "Backup failed",
+	AppBackupCompleted:                        "Backup completed",
+	AppBackupCompletedHashfail:                "Backup completed with hash failure",
+	ProfileNameDefault:                        "Default profile name",
+	VitemName:                                 "Virtual item name",
+	VitemTimestamp:                            "Virtual item timestamp",
+	AppIfaceTitle:                             "Interface title",
+	AppCaptionMsg:                             "Caption message",
+	AppAboutboxTitle:                          "About box title",
+	AppIfaceOpenfileTitle:                     "Open file title",
+	AppSettingdlgTitle:                        "Settings dialog title",
+	AppBackupdlgTitle:                         "Backup dialog title",
+	AppIfaceOpenfileFilterTemplate1:           "Open file filter template 1",
+	AppIfaceOpenfileFilterTemplate2:           "Open file filter template 2",
+	AppIfaceOpenfolderTitle:                   "Open folder title",
+	AppIfaceOpenfolderInfoTitle:               "Open folder info title",
+	AppIfaceProgressTitle:                     "Progress title",
+	AppIfaceProgressElapsedOnly:               "Progress elapsed only",
+	AppIfaceProgressElapsedEta:                "Progress elapsed and ETA",
+	AppIfaceActOpenfilesName:                  "Open files action name",
+	AppIfaceActOpenfilesSkey:                  "Open files shortcut key",
+	AppIfaceActOpenfilesStip:                  "Open files tooltip",
+	AppIfaceActOpenfilesDvdName:               "Open DVD files action name",
+	AppIfaceActOpenfilesDvdStip:               "Open DVD files tooltip",
+	AppIfaceActClosediskName:                  "Close disk action name",
+	AppIfaceActClosediskStip:                  "Close disk tooltip",
+	AppIfaceActSetfolderName:                  "Set folder action name",
+	AppIfaceActSetfolderStip:                  "Set folder tooltip",
+	AppIfaceActSaveallmkvName:                 "Save all MKV action name",
+	AppIfaceActSaveallmkvStip:                 "Save all MKV tooltip",
+	AppIfaceActCancelName:                     "Cancel action name",
+	AppIfaceActCancelStip:                     "Cancel tooltip",
+	AppIfaceActStreamingName:                  "Streaming action name",
+	AppIfaceActStreamingStip:                  "Streaming tooltip",
+	AppIfaceActBackupName:                     "Backup action name",
+	AppIfaceActBackupStip:                     "Backup tooltip",
+	AppIfaceActQuitName:                       "Quit action name",
+	AppIfaceActQuitSkey:                       "Quit shortcut key",
+	AppIfaceActQuitStip:                       "Quit tooltip",
+	AppIfaceActAboutName:                      "About action name",
+	AppIfaceActAboutStip:                      "About tooltip",
+	AppIfaceActSettingsName:                   "Settings action name",
+	AppIfaceActSettingsStip:                   "Settings tooltip",
+	AppIfaceActHelppageName:                   "Help page action name",
+	AppIfaceActHelppageStip:                   "Help page tooltip",
+	AppIfaceActRegisterName:                   "Register action name",
+	AppIfaceActRegisterStip:                   "Register tooltip",
+	AppIfaceActPurchaseName:                   "Purchase action name",
+	AppIfaceActPurchaseStip:                   "Purchase tooltip",
+	AppIfaceActClearlogName:                   "Clear log action name",
+	AppIfaceActClearlogStip:                   "Clear log tooltip",
+	AppIfaceActEjectName:                      "Eject action name",
+	AppIfaceActEjectStip:                      "Eject tooltip",
+	AppIfaceActRevertName:                     "Revert action name",
+	AppIfaceActRevertStip:                     "Revert tooltip",
+	AppIfaceActNewinstanceName:                "New instance action name",
+	AppIfaceActNewinstanceStip:                "New instance tooltip",
+	AppIfaceActOpendiscDvd:                    "Open DVD disc action",
+	AppIfaceActOpendiscHddvd:                  "Open HD DVD disc action",
+	AppIfaceActOpendiscBray:                   "Open Blu-ray disc action",
+	AppIfaceActOpendiscLoading:                "Open disc loading action",
+	AppIfaceActOpendiscUnknown:                "Open unknown disc action",
+	AppIfaceActOpendiscNodisc:                 "Open no disc action",
+	AppIfaceActTtreeToggle:                    "Toggle tree action",
+	AppIfaceActTtreeSelectAll:                 "Select all tree action",
+	AppIfaceActTtreeUnselectAll:               "Unselect all tree action",
+	AppIfaceMenuFile:                          "File menu",
+	AppIfaceMenuView:                          "View menu",
+	AppIfaceMenuHelp:                          "Help menu",
+	AppIfaceMenuToolbar:                       "Toolbar menu",
+	AppIfaceMenuSettings:                      "Settings menu",
+	AppIfaceMenuDrives:                        "Drives menu",
+	AppIfaceCancelConfirm:                     "Cancel confirmation",
+	AppIfaceFatalComm:                         "Fatal communication error",
+	AppIfaceFatalMem:                          "Fatal memory error",
+	AppIfaceGuiVersion:                        "GUI version",
+	AppIfaceLatestVersion:                     "Latest version",
+	AppIfaceLicenseType:                       "License type",
+	AppIfaceEvalState:                         "Evaluation state",
+	AppIfaceEvalExpiration:                    "Evaluation expiration",
+	AppIfaceProgExpiration:                    "Program expiration",
+	AppIfaceWebsiteUrl:                        "Website URL",
+	AppIfaceVideoFolderNameWin:                "Video folder name (Windows)",
+	AppIfaceVideoFolderNameMac:                "Video folder name (Mac)",
+	AppIfaceVideoFolderNameLinux:              "Video folder name (Linux)",
+	AppIfaceDefaultFolderName:                 "Default folder name",
+	AppIfaceMainFrameInfo:                     "Main frame info",
+	AppIfaceMainFrameMakeMkv:                  "Main frame MakeMKV",
+	AppIfaceMainFrameProfile:                  "Main frame profile",
+	AppIfaceMainFrameProperties:               "Main frame properties",
+	AppIfaceEmptyFrameInfo:                    "Empty frame info",
+	AppIfaceEmptyFrameSource:                  "Empty frame source",
+	AppIfaceEmptyFrameType:                    "Empty frame type",
+	AppIfaceEmptyFrameLabel:                   "Empty frame label",
+	AppIfaceEmptyFrameProtection:              "Empty frame protection",
+	AppIfaceEmptyFrameDvdManual:               "Empty frame DVD manual",
+	AppIfaceRegisterText:                      "Register text",
+	AppIfaceRegisterCodeIncorrect:             "Register code incorrect",
+	AppIfaceRegisterCodeNotSaved:              "Register code not saved",
+	AppIfaceRegisterCodeSaved:                 "Register code saved",
+	AppIfaceSettingsIoOptions:                 "Settings IO options",
+	AppIfaceSettingsIoAuto:                    "Settings IO auto",
+	AppIfaceSettingsIoReadRetry:               "Settings IO read retry",
+	AppIfaceSettingsIoReadBuffer:              "Settings IO read buffer",
+	AppIfaceSettingsIoNoDirectAccess:          "Settings IO no direct access",
+	AppIfaceSettingsIoDarwinK2Workaround:      "Settings IO Darwin K2 workaround",
+	AppIfaceSettingsIoSingleDrive:             "Settings IO single drive",
+	AppIfaceSettingsDvdAuto:                   "Settings DVD auto",
+	AppIfaceSettingsDvdMinLength:              "Settings DVD minimum length",
+	AppIfaceSettingsDvdSpRemove:               "Settings DVD SP remove",
+	AppIfaceSettingsAacsKeyDir:                "Settings AACS key directory",
+	AppIfaceSettingsBdpMisc:                   "Settings BDP miscellaneous",
+	AppIfaceSettingsBdpDumpAlways:             "Settings BDP dump always",
+	AppIfaceSettingsDestTypeNone:              "Settings destination type none",
+	AppIfaceSettingsDestTypeAuto:              "Settings destination type auto",
+	AppIfaceSettingsDestTypeSemiauto:          "Settings destination type semi-auto",
+	AppIfaceSettingsDestTypeCustom:            "Settings destination type custom",
+	AppIfaceSettingsDestdir:                   "Settings destination directory",
+	AppIfaceSettingsGeneralMisc:               "Settings general miscellaneous",
+	AppIfaceSettingsLogDebugMsg:               "Settings log debug messages",
+	AppIfaceSettingsDataDir:                   "Settings data directory",
+	AppIfaceSettingsExpertMode:                "Settings expert mode",
+	AppIfaceSettingsShowAvsync:                "Settings show AV sync",
+	AppIfaceSettingsGeneralOnlineUpdates:      "Settings general online updates",
+	AppIfaceSettingsEnableInternetAccess:      "Settings enable internet access",
+	AppIfaceSettingsProxyServer:               "Settings proxy server",
+	AppIfaceSettingsTabGeneral:                "Settings tab general",
+	AppIfaceSettingsMsgFailed:                 "Settings message failed",
+	AppIfaceSettingsMsgRestart:                "Settings message restart",
+	AppIfaceSettingsTabLanguage:               "Settings tab language",
+	AppIfaceSettingsLangInterface:             "Settings language interface",
+	AppIfaceSettingsLangPreferred:             "Settings language preferred",
+	AppIfaceSettingsLanguageAuto:              "Settings language auto",
+	AppIfaceSettingsLanguageNone:              "Settings language none",
+	AppIfaceSettingsTabIo:                     "Settings tab IO",
+	AppIfaceSettingsTabStreaming:              "Settings tab streaming",
+	AppIfaceSettingsTabProt:                   "Settings tab protection",
+	AppIfaceSettingsTabAdvanced:               "Settings tab advanced",
+	AppIfaceSettingsAdvDefaultProfile:         "Settings advanced default profile",
+	AppIfaceSettingsAdvDefaultSelection:       "Settings advanced default selection",
+	AppIfaceSettingsAdvExternExecPath:         "Settings advanced external execution path",
+	AppIfaceSettingsProtJavaPath:              "Settings protection Java path",
+	AppIfaceSettingsAdvOutputFileNameTemplate: "Settings advanced output file name template",
+	AppIfaceSettingsTabIntegration:            "Settings tab integration",
+	AppIfaceSettingsIntText:                   "Settings integration text",
+	AppIfaceSettingsIntHdrPath:                "Settings integration HDR path",
+	AppIfaceKeyText:                           "Key text",
+	AppIfaceKeyName:                           "Key name",
+	AppIfaceKeyType:                           "Key type",
+	AppIfaceKeyDate:                           "Key date",
+	AppIfaceBackupdlgTextCaption:              "Backup dialog text caption",
+	AppIfaceBackupdlgText:                     "Backup dialog text",
+	AppIfaceBackupdlgFolder:                   "Backup dialog folder",
+	AppIfaceBackupdlgOptions:                  "Backup dialog options",
+	AppIfaceBackupdlgDecrypt:                  "Backup dialog decrypt",
+	AppIfaceDriveinfoLoading:                  "Drive info loading",
+	AppIfaceDriveinfoUnmounting:               "Drive info unmounting",
+	AppIfaceDriveinfoWait:                     "Drive info wait",
+	AppIfaceDriveinfoNodisc:                   "Drive info no disc",
+	AppIfaceDriveinfoDatadisc:                 "Drive info data disc",
+	AppIfaceDriveinfoNone:                     "Drive info none",
+	AppIfaceFlagsDirectorsComments:            "Flags director's comments",
+	AppIfaceFlagsAltDirectorsComments:         "Flags alternate director's comments",
+	AppIfaceFlagsSecondaryAudio:               "Flags secondary audio",
+	AppIfaceFlagsForVisuallyImpaired:          "Flags for visually impaired",
+	AppIfaceFlagsCoreAudio:                    "Flags core audio",
+	AppIfaceFlagsForcedSubtitles:              "Flags forced subtitles",
+	AppIfaceFlagsProfileSecondaryStream:       "Flags profile secondary stream",
+	AppIfaceIteminfoSource:                    "Item info source",
+	AppIfaceIteminfoTitle:                     "Item info title",
+	AppIfaceIteminfoTrack:                     "Item info track",
+	AppIfaceIteminfoAttachment:                "Item info attachment",
+	AppIfaceIteminfoChapter:                   "Item info chapter",
+	AppIfaceIteminfoChapters:                  "Item info chapters",
+	AppTtreeTitle:                             "Tree title",
+	AppTtreeVideo:                             "Tree video",
+	AppTtreeAudio:                             "Tree audio",
+	AppTtreeSubpicture:                        "Tree subpicture",
+	AppTtreeAttachment:                        "Tree attachment",
+	AppTtreeChapters:                          "Tree chapters",
+	AppTtreeChapter:                           "Tree chapter",
+	AppTtreeForcedSubtitles:                   "Tree forced subtitles",
+	AppTtreeHdrType:                           "Tree HDR type",
+	AppTtreeHdrDesc:                           "Tree HDR description",
+	DvdTypeDisk:                               "DVD type disk",
+	BrayTypeDisk:                              "Blu-ray type disk",
+	HddvdTypeDisk:                             "HD DVD type disk",
+	MkvTypeFile:                               "MKV type file",
+	AppTtreeChapDesc:                          "Tree chapter description",
+	AppTtreeAngleDesc:                         "Tree angle description",
+	AppDvdManualTitle:                         "DVD manual title",
+	AppDvdManualText:                          "DVD manual text",
+	AppDvdTitlesCount:                         "DVD titles count",
+	AppDvdCountCells:                          "DVD count cells",
+	AppDvdCountPgc:                            "DVD count PGC",
+	AppDvdBrokenTitleEntry:                    "DVD broken title entry",
+	AppSingleDriveTitle:                       "Single drive title",
+	AppSingleDriveText:                        "Single drive text",
+	AppSingleDriveAll:                         "Single drive all",
+	AppSingleDriveCaption:                     "Single drive caption",
+	AppSiDriveinfo:                            "SI drive info",
+	AppSiProfile:                              "SI profile",
+	AppSiManufacturer:                         "SI manufacturer",
+	AppSiProduct:                              "SI product",
+	AppSiRevision:                             "SI revision",
+	AppSiSerial:                               "SI serial",
+	AppSiFirmware:                             "SI firmware",
+	AppSiFirdate:                              "SI firmware date",
+	AppSiBecflags:                             "SI BEC flags",
+	AppSiHighestAacs:                          "SI highest AACS",
+	AppSiDiscinfo:                             "SI disc info",
+	AppSiNodisc:                               "SI no disc",
+	AppSiDiscload:                             "SI disc load",
+	AppSiCapacity:                             "SI capacity",
+	AppSiDisctype:                             "SI disc type",
+	AppSiDiscsize:                             "SI disc size",
+	AppSiDiscrate:                             "SI disc rate",
+	AppSiDisclayers:                           "SI disc layers",
+	AppSiDisccbl:                              "SI disc CBL",
+	AppSiDisccbl25:                            "SI disc CBL 25",
+	AppSiDisccbl27:                            "SI disc CBL 27",
+	AppSiDevice:                               "SI device",
+}
+
+func GetAppConstantDescription(id int) (string, error) {
+	if desc, ok := appConstantsDescriptions[id]; ok {
+		return desc, nil
+	}
+	return "", errors.New("Unknown")
+}

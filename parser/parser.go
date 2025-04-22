@@ -176,7 +176,11 @@ func parseDiscInfo(input string) (*outputs.DiscInformation, error) {
 		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[0], err)
 	}
 	discInfo.ID = id
-	discInfo.Code = split[1]
+	messageCodeId, err := strconv.Atoi(split[1])
+	if err != nil {
+		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[0], err)
+	}
+	discInfo.MessageCodeId = messageCodeId
 	discInfo.Value = split[2]
 
 	return &discInfo, nil
@@ -225,7 +229,11 @@ func parseStreamInfo(input string) (*outputs.StreamInformation, error) {
 		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[2], err)
 	}
 	streamInfo.AttributeId = streamType
-	streamInfo.MessageCodeId = split[3]
+	messageCode, err := strconv.Atoi(split[3])
+	if err != nil {
+		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[2], err)
+	}
+	streamInfo.MessageCodeId = messageCode
 	streamInfo.Value = split[4]
 
 	return &streamInfo, nil
@@ -251,7 +259,11 @@ func parseTitleInfo(input string) (*outputs.TitleInformation, error) {
 		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[1], err)
 	}
 	titleInfo.AttributeId = attributeId
-	titleInfo.MessageCodeId = split[2]
+	messageCode, err := strconv.Atoi(split[2])
+	if err != nil {
+		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[2], err)
+	}
+	titleInfo.MessageCodeId = messageCode
 	titleInfo.Value = split[3]
 
 	return &titleInfo, nil

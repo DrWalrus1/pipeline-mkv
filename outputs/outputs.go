@@ -74,9 +74,9 @@ func (mg DiscInformationOutputMessage) GetTypeName() string {
 }
 
 type DiscInformation struct {
-	ID    int
-	Code  string
-	Value string
+	ID            int
+	MessageCodeId int
+	Value         string
 }
 
 func (mg DiscInformation) GetTypeName() string {
@@ -86,7 +86,7 @@ func (mg DiscInformation) GetTypeName() string {
 type TitleInformation struct {
 	TitleIndex    int
 	AttributeId   int
-	MessageCodeId string
+	MessageCodeId int
 	Value         string
 }
 
@@ -99,7 +99,7 @@ type StreamInformation struct {
 	TitleIndex    int
 	StreamIndex   int
 	AttributeId   int
-	MessageCodeId string
+	MessageCodeId int
 	Value         string
 }
 
