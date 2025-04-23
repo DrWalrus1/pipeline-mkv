@@ -79,7 +79,6 @@ type MakeMkvValue struct {
 }
 
 func MakeMkvOutputsIntoMakeMkvDiscInfo(makemkvOutputs []outputs.MakeMkvOutput) MakeMkvDiscInfo {
-	// just grab all the
 	mkvDiscInfo := MakeMkvDiscInfo{
 		Properties: make(map[string]MakeMkvValue),
 		Titles:     make(map[int]MakeMkvTitle),

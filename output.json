@@ -1,0 +1,445 @@
+{
+  "properties": {
+    "MetadataLanguageCode": {
+      "value": "eng"
+    },
+    "MetadataLanguageName": {
+      "value": "English"
+    },
+    "Name": {
+      "value": "Demon Slayer: Kimetsu no Yaiba Swordsmith Village Arc Complete Blu-ray Set Standard Edition Disc 1"
+    },
+    "OrderWeight": {
+      "value": "0"
+    },
+    "PanelTitle": {
+      "messageCodeValue": "Item info source",
+      "value": "\u003cb\u003eSource information\u003c/b\u003e\u003cbr\u003e"
+    },
+    "TreeInformation": {
+      "value": "Demon Slayer: Kimetsu no Yaiba Swordsmith Village Arc Complete Blu-ray Set Standard Edition Disc 1"
+    },
+    "Type": {
+      "messageCodeValue": "Blu-ray type disk",
+      "value": "Blu-ray disc"
+    },
+    "VolumeName": {
+      "value": "BDROM"
+    }
+  },
+  "titles": {
+    "0": {
+      "properties": {
+        "DiskSize": {
+          "value": "29.6 GB"
+        },
+        "DiskSizeInBytes": {
+          "value": "31843694592"
+        },
+        "Duration": {
+          "value": "1:37:28"
+        },
+        "MetadataLanguageCode": {
+          "value": "eng"
+        },
+        "MetadataLanguageName": {
+          "value": "English"
+        },
+        "Name": {
+          "value": "Demon Slayer: Kimetsu no Yaiba Swordsmith Village Arc Complete Blu-ray Set Standard Edition Disc 1"
+        },
+        "NumberOfChapters": {
+          "value": "21"
+        },
+        "NumberofSegments": {
+          "value": "4"
+        },
+        "OrderWeight": {
+          "value": "0"
+        },
+        "OutputFileName": {
+          "value": "Demon Slayer- Kimetsu no Yaiba Swordsmith Village Arc Complete Blu-ray Set Standard Edition Disc 1_t00.mkv"
+        },
+        "PanelTitle": {
+          "messageCodeValue": "Item info title",
+          "value": "\u003cb\u003eTitle information\u003c/b\u003e\u003cbr\u003e"
+        },
+        "SegmentsMap": {
+          "value": "0"
+        },
+        "SourceFileName": {
+          "value": "00000.mpls"
+        },
+        "TreeInformation": {
+          "value": "Demon Slayer: Kimetsu no Yaiba Swordsmith Village Arc Complete Blu-ray Set Standard Edition Disc 1 - 21 chapter(s) "
+        }
+      },
+      "streams": {
+        "0": {
+          "CodecID": {
+            "value": "V_MPEG4/ISO/AVC"
+          },
+          "LongCodecName": {
+            "value": "Mpeg4 AVC High@L4.1"
+          },
+          "MetadataLanguageCode": {
+            "value": "eng"
+          },
+          "MetadataLanguageName": {
+            "value": "English"
+          },
+          "OrderWeight": {
+            "value": "0"
+          },
+          "OutputConversionType": {
+            "value": "( Lossless conversion )"
+          },
+          "PanelTitle": {
+            "messageCodeValue": "Item info track",
+            "value": "\u003cb\u003eTrack information\u003c/b\u003e\u003cbr\u003e"
+          },
+          "ShortCodecName": {
+            "value": "Mpeg4"
+          },
+          "StreamFlags": {
+            "value": "0"
+          },
+          "TreeInformation": {
+            "value": "Mpeg4 AVC High@L4.1"
+          },
+          "Type": {
+            "messageCodeValue": "Tree video",
+            "value": "Video"
+          },
+          "VideoAspectRatio": {
+            "value": "16:9"
+          },
+          "VideoFrameRate": {
+            "value": "23.976 (24000/1001)"
+          },
+          "VideoSize": {
+            "value": "1920x1080"
+          }
+        },
+        "1": {
+          "AudioChannelLayoutName": {
+            "value": "stereo"
+          },
+          "AudioSampleRate": {
+            "value": "48000"
+          },
+          "AudioSampleSize": {
+            "value": "24"
+          },
+          "Bitrate": {
+            "value": "36 Kb/s"
+          },
+          "CodecID": {
+            "value": "A_PCM/INT/LIT"
+          },
+          "LanguageCode": {
+            "value": "eng"
+          },
+          "LanguageName": {
+            "value": "English"
+          },
+          "LongCodecName": {
+            "value": "Linear PCM"
+          },
+          "MKVFlags": {
+            "value": "d"
+          },
+          "MKVFlagsText": {
+            "value": "Default"
+          },
+          "MetadataLanguageCode": {
+            "value": "eng"
+          },
+          "MetadataLanguageName": {
+            "value": "English"
+          },
+          "Name": {
+            "value": "Stereo"
+          },
+          "NumberOfAudioChannels": {
+            "value": "2"
+          },
+          "OrderWeight": {
+            "value": "90"
+          },
+          "OutputConversionType": {
+            "value": "( Lossless conversion )"
+          },
+          "OutputFormat": {
+            "value": "Raw LPCM audio without channel configuration metadata ( Lossless conversion )"
+          },
+          "OutputFormatDescription": {
+            "value": "Save as raw LPCM"
+          },
+          "PanelTitle": {
+            "messageCodeValue": "Item info track",
+            "value": "\u003cb\u003eTrack information\u003c/b\u003e\u003cbr\u003e"
+          },
+          "ShortCodecName": {
+            "value": "LPCM"
+          },
+          "StreamFlags": {
+            "value": "0"
+          },
+          "TreeInformation": {
+            "value": "LPCM Stereo English"
+          },
+          "Type": {
+            "messageCodeValue": "Tree audio",
+            "value": "Audio"
+          }
+        },
+        "2": {
+          "AudioChannelLayoutName": {
+            "value": "stereo"
+          },
+          "AudioSampleRate": {
+            "value": "48000"
+          },
+          "AudioSampleSize": {
+            "value": "24"
+          },
+          "Bitrate": {
+            "value": "36 Kb/s"
+          },
+          "CodecID": {
+            "value": "A_PCM/INT/LIT"
+          },
+          "LanguageCode": {
+            "value": "jpn"
+          },
+          "LanguageName": {
+            "value": "Japanese"
+          },
+          "LongCodecName": {
+            "value": "Linear PCM"
+          },
+          "MetadataLanguageCode": {
+            "value": "eng"
+          },
+          "MetadataLanguageName": {
+            "value": "English"
+          },
+          "Name": {
+            "value": "Stereo"
+          },
+          "NumberOfAudioChannels": {
+            "value": "2"
+          },
+          "OrderWeight": {
+            "value": "90"
+          },
+          "OutputConversionType": {
+            "value": "( Lossless conversion )"
+          },
+          "OutputFormat": {
+            "value": "Raw LPCM audio without channel configuration metadata ( Lossless conversion )"
+          },
+          "OutputFormatDescription": {
+            "value": "Save as raw LPCM"
+          },
+          "PanelTitle": {
+            "messageCodeValue": "Item info track",
+            "value": "\u003cb\u003eTrack information\u003c/b\u003e\u003cbr\u003e"
+          },
+          "ShortCodecName": {
+            "value": "LPCM"
+          },
+          "StreamFlags": {
+            "value": "0"
+          },
+          "TreeInformation": {
+            "value": "LPCM Stereo Japanese"
+          },
+          "Type": {
+            "messageCodeValue": "Tree audio",
+            "value": "Audio"
+          }
+        },
+        "3": {
+          "CodecID": {
+            "value": "S_HDMV/PGS"
+          },
+          "LanguageCode": {
+            "value": "eng"
+          },
+          "LanguageName": {
+            "value": "English"
+          },
+          "LongCodecName": {
+            "value": "HDMV PGS Subtitles"
+          },
+          "MetadataLanguageCode": {
+            "value": "eng"
+          },
+          "MetadataLanguageName": {
+            "value": "English"
+          },
+          "OrderWeight": {
+            "value": "90"
+          },
+          "OutputConversionType": {
+            "value": "( Lossless conversion )"
+          },
+          "PanelTitle": {
+            "messageCodeValue": "Item info track",
+            "value": "\u003cb\u003eTrack information\u003c/b\u003e\u003cbr\u003e"
+          },
+          "ShortCodecName": {
+            "value": "PGS"
+          },
+          "StreamFlags": {
+            "value": "0"
+          },
+          "TreeInformation": {
+            "value": "PGS English"
+          },
+          "Type": {
+            "messageCodeValue": "Tree subpicture",
+            "value": "Subtitles"
+          }
+        },
+        "4": {
+          "CodecID": {
+            "value": "S_HDMV/PGS"
+          },
+          "LanguageCode": {
+            "value": "eng"
+          },
+          "LanguageName": {
+            "value": "English"
+          },
+          "LongCodecName": {
+            "value": "HDMV PGS Subtitles"
+          },
+          "MKVFlags": {
+            "value": "d"
+          },
+          "MKVFlagsText": {
+            "value": "Default"
+          },
+          "MetadataLanguageCode": {
+            "value": "eng"
+          },
+          "MetadataLanguageName": {
+            "value": "English"
+          },
+          "OrderWeight": {
+            "value": "90"
+          },
+          "OutputConversionType": {
+            "value": "( Lossless conversion )"
+          },
+          "PanelTitle": {
+            "messageCodeValue": "Item info track",
+            "value": "\u003cb\u003eTrack information\u003c/b\u003e\u003cbr\u003e"
+          },
+          "ShortCodecName": {
+            "value": "PGS"
+          },
+          "StreamFlags": {
+            "value": "6144"
+          },
+          "TreeInformation": {
+            "value": "PGS English  (forced only)"
+          },
+          "Type": {
+            "messageCodeValue": "Tree subpicture",
+            "value": "Subtitles"
+          }
+        },
+        "5": {
+          "CodecID": {
+            "value": "S_HDMV/PGS"
+          },
+          "LanguageCode": {
+            "value": "eng"
+          },
+          "LanguageName": {
+            "value": "English"
+          },
+          "LongCodecName": {
+            "value": "HDMV PGS Subtitles"
+          },
+          "MetadataLanguageCode": {
+            "value": "eng"
+          },
+          "MetadataLanguageName": {
+            "value": "English"
+          },
+          "OrderWeight": {
+            "value": "90"
+          },
+          "OutputConversionType": {
+            "value": "( Lossless conversion )"
+          },
+          "PanelTitle": {
+            "messageCodeValue": "Item info track",
+            "value": "\u003cb\u003eTrack information\u003c/b\u003e\u003cbr\u003e"
+          },
+          "ShortCodecName": {
+            "value": "PGS"
+          },
+          "StreamFlags": {
+            "value": "0"
+          },
+          "TreeInformation": {
+            "value": "PGS English"
+          },
+          "Type": {
+            "messageCodeValue": "Tree subpicture",
+            "value": "Subtitles"
+          }
+        },
+        "6": {
+          "CodecID": {
+            "value": "S_HDMV/PGS"
+          },
+          "LanguageCode": {
+            "value": "eng"
+          },
+          "LanguageName": {
+            "value": "English"
+          },
+          "LongCodecName": {
+            "value": "HDMV PGS Subtitles"
+          },
+          "MetadataLanguageCode": {
+            "value": "eng"
+          },
+          "MetadataLanguageName": {
+            "value": "English"
+          },
+          "OrderWeight": {
+            "value": "90"
+          },
+          "OutputConversionType": {
+            "value": "( Lossless conversion )"
+          },
+          "PanelTitle": {
+            "messageCodeValue": "Item info track",
+            "value": "\u003cb\u003eTrack information\u003c/b\u003e\u003cbr\u003e"
+          },
+          "ShortCodecName": {
+            "value": "PGS"
+          },
+          "StreamFlags": {
+            "value": "6144"
+          },
+          "TreeInformation": {
+            "value": "PGS English  (forced only)"
+          },
+          "Type": {
+            "messageCodeValue": "Tree subpicture",
+            "value": "Subtitles"
+          }
+        }
+      }
+    }
+  }
+}

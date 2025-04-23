@@ -1,12 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"servermakemkv/outputs"
-	"servermakemkv/parser"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -28,21 +25,13 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(time.Millisecond)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case _ = <-ticker.C:
-			titleInformation, err := parser.Parse("test")
-			eventData := outputs.JsonWrapper{
-				Type: titleInformation.GetTypeName(),
-				Data: titleInformation,
-			}
-
-			jsonData, _ := json.Marshal(eventData)
-
-			err = conn.WriteMessage(websocket.TextMessage, jsonData)
+			err = conn.WriteMessage(websocket.TextMessage, []byte("Hello There"))
 			if err != nil {
 				log.Println("write error:", err)
 				return // Exit if we can't write (client likely disconnected)
