@@ -23,10 +23,10 @@ func MakeMkvInfoEventHandler(reader io.Reader, standardEventsChan chan outputs.M
 				standardEventsChan <- i
 			}
 		} else {
-			close(standardEventsChan)
 			discInfoEventChan <- makemkv.MakeMkvOutputsIntoMakeMkvDiscInfo(discInfoEvents)
+			close(standardEventsChan)
+			close(discInfoEventChan)
 			break
 		}
 	}
-	close(discInfoEventChan)
 }

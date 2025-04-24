@@ -192,11 +192,17 @@ SINFO:0,6,42,5088,"( Lossless conversion )"`
 
 	standardEventCount := 0
 	discInfoEventCount := 0
-	for range standardEvents {
-		standardEventCount++
-	}
-	for range discInfoEvents {
-		discInfoEventCount++
+loop:
+	for {
+		select {
+		case <-standardEvents:
+			standardEventCount++
+			break
+		case <-discInfoEvents:
+			discInfoEventCount++
+			break loop
+
+		}
 	}
 	assert.Equal(t, 33, standardEventCount)
 	assert.Equal(t, 1, discInfoEventCount)
