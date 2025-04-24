@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"servermakemkv/commands"
+	"strconv"
 
 	"github.com/gorilla/websocket"
 )
@@ -62,9 +63,48 @@ func mkvHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func backupHandler(w http.ResponseWriter, r *http.Request) {
+	decrypt, err := strconv.ParseBool(r.URL.Query().Get("decrypt"))
+	if err != nil {
+		r.Response.StatusCode = 400
+		return
+	}
+	source := r.URL.Query().Get("source")
+	destination := r.URL.Query().Get("destination")
+
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	updates := make(chan []byte)
+	// TODO: add error handling
+	go commands.BackupDisk(decrypt, source, destination, updates)
+	for update := range updates {
+		err = conn.WriteMessage(websocket.TextMessage, update)
+		if err != nil {
+			log.Println("write error:", err)
+			return // Exit if we can't write (client likely disconnected)
+		}
+	}
+}
+
+func registrationHandler(w http.ResponseWriter, r *http.Request) {
+	key := r.URL.Query().Get("key")
+
+	// TODO: add error handling
+	responseStatus := commands.RegisterMkvKey(key)
+	r.Response.StatusCode = responseStatus
+
+}
+
 func main() {
 	http.HandleFunc("/info", infoHandler)
 	http.HandleFunc("/mkv", mkvHandler)
+	http.HandleFunc("/backup", backupHandler)
+	http.HandleFunc("POST /register", registrationHandler)
 
 	fmt.Println("WebSocket server started on :8080")
 	err := http.ListenAndServe(":8080", nil)

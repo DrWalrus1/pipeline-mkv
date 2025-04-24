@@ -93,43 +93,60 @@ func validateSource(source string) error {
 	return fmt.Errorf("invalid source")
 }
 
-func BackupDisk(source string) {
-	destination := "./"
-	exec.Command("makemkvcon", "-r", "backup", source, destination)
+func BackupDisk(decrypt bool, source string, destination string, stringified chan []byte) {
+	flags := []string{"-r "}
+	if decrypt {
+		flags = append(flags, "--decrypt")
+	}
+	cmd := exec.Command("makemkvcon", strings.Join(flags, " "), "backup", source, destination)
+	outputPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Fatalf("error executing makemkvcon: %s", err.Error())
+	}
+	if err := cmd.Start(); err != nil {
+		log.Fatal(err)
+	}
+
+	events := make(chan outputs.MakeMkvOutput)
+	go stream.ParseStream(outputPipe, events)
+	for {
+		if event, ok := <-events; ok {
+			newJson, _ := json.Marshal(event)
+			stringified <- newJson
+		} else {
+			close(stringified)
+			break
+		}
+	}
+	if err := cmd.Wait(); err != nil {
+		log.Fatalf("error waiting for command to finish: %s", err.Error())
+	}
 }
 
-/*
-	only two outputs
-
---- SUCCESS ---
-Found registration key  : <actual key>
-Registration key saved.
----------------
---- FAIL ---
-Key not found or invalid
-------------
-*/
-
-const registerMkvKeySuccessPrefix string = "Found registration key"
-const registerMkvKeyKeyAlreadyExistsPrefix string = "Current registration key"
 const registerMkvKeyBadKeyPrefix string = "Key not found or invalid"
+const registerMkvKeySavedPrefix string = "Registraction key saved."
 
-func RegisterMkvKey(key string) error {
+func RegisterMkvKey(key string) int {
 	executable := "makemkvcon"
 	arguments := "-r"
 	command := "reg"
 	cmd := exec.Command(fmt.Sprintf("%s %s %s %s", executable, arguments, command, key))
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {
-		return fmt.Errorf("error creating pipe to command. %w", err)
+		log.Fatalf("error creating pipe to command. %s", err.Error())
 	}
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("error executing command. %w", err)
+		log.Fatalf("error executing command. %s", err.Error())
 	}
 	c := make(chan string)
 	go stream.ReadStream(outputPipe, c)
 	for s := range c {
-		fmt.Println(s)
+		switch {
+		case strings.HasPrefix(s, registerMkvKeyBadKeyPrefix):
+			return 400
+		case strings.HasPrefix(s, registerMkvKeySavedPrefix):
+			return 200
+		}
 	}
-	return nil
+	return 500
 }
