@@ -50,9 +50,11 @@ loop:
 	}
 }
 
-func SaveMkv(source string, title string, destination string, stringified chan []byte) error {
+func SaveMkv(source string, title string, destination string, stringified chan []byte) {
 	if err := validateSource(source); err != nil {
-		return err
+		stringified <- []byte("Failed to validate")
+		close(stringified)
+		return
 	}
 
 	cmd := exec.Command("makemkvcon", "-r", "--progress=-stdout", "mkv", source, title, destination)
@@ -65,12 +67,12 @@ func SaveMkv(source string, title string, destination string, stringified chan [
 	}
 
 	events := make(chan outputs.MakeMkvOutput)
-	go eventhandlers.MakeMkvMkvEventHandler(outputPipe, events)
+	go stream.ParseStream(outputPipe, events)
 	for event := range events {
 		newJson, _ := json.Marshal(event)
 		stringified <- newJson
 	}
-	return nil
+	close(stringified)
 }
 
 func validateSource(source string) error {
@@ -78,10 +80,10 @@ func validateSource(source string) error {
 		return fmt.Errorf("source cannot be empty")
 	}
 
-	if !strings.HasPrefix(source, "disk:") || !strings.HasPrefix(source, "iso:") || !strings.HasPrefix(source, "file:") || !strings.HasPrefix(source, "dev:") {
-		return fmt.Errorf("invalid source")
+	if strings.HasPrefix(source, "disk:") || strings.HasPrefix(source, "iso:") || strings.HasPrefix(source, "file:") || strings.HasPrefix(source, "dev:") {
+		return nil
 	}
-	return nil
+	return fmt.Errorf("invalid source")
 }
 
 func BackupDisk(source string) {
