@@ -12,10 +12,6 @@ import (
 	"servermakemkv/stream"
 )
 
-func ParseInfoCommand(c chan int) {
-
-}
-
 // MkvInfo calls the MakeMKV executable with the given arguments.
 func GetInfo(config *config.Config, source string, stringified chan []byte) {
 	cmd := exec.Command("makemkvcon", "-r", "--progress=-stdout", "info", source)
@@ -62,6 +58,22 @@ func BackupDisk(source string) {
 	destination := "./"
 	exec.Command("makemkvcon", "-r", "backup", source, destination)
 }
+
+/*
+	only two outputs
+
+--- SUCCESS ---
+Found registration key  : <actual key>
+Registration key saved.
+---------------
+--- FAIL ---
+Key not found or invalid
+------------
+*/
+
+const registerMkvKeySuccessPrefix string = "Found registration key"
+const registerMkvKeyKeyAlreadyExistsPrefix string = "Current registration key"
+const registerMkvKeyBadKeyPrefix string = "Key not found or invalid"
 
 func RegisterMkvKey(key string) error {
 	executable := "makemkvcon"
