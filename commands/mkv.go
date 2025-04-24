@@ -10,6 +10,7 @@ import (
 	"servermakemkv/outputs"
 	"servermakemkv/outputs/makemkv"
 	"servermakemkv/stream"
+	"strings"
 )
 
 // MkvInfo calls the MakeMKV executable with the given arguments.
@@ -49,9 +50,38 @@ loop:
 	}
 }
 
-func SaveMkv(source string, destination string) {
-	title := "0"
-	exec.Command("makemkvcon", "-r", "--progress=-stdout", "mkv", source, title, destination)
+func SaveMkv(source string, title string, destination string, stringified chan []byte) error {
+	if err := validateSource(source); err != nil {
+		return err
+	}
+
+	cmd := exec.Command("makemkvcon", "-r", "--progress=-stdout", "mkv", source, title, destination)
+	outputPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Fatalf("error executing makemkvcon: %s", err.Error())
+	}
+	if err := cmd.Start(); err != nil {
+		log.Fatal(err)
+	}
+
+	events := make(chan outputs.MakeMkvOutput)
+	go eventhandlers.MakeMkvMkvEventHandler(outputPipe, events)
+	for event := range events {
+		newJson, _ := json.Marshal(event)
+		stringified <- newJson
+	}
+	return nil
+}
+
+func validateSource(source string) error {
+	if source == "" {
+		return fmt.Errorf("source cannot be empty")
+	}
+
+	if !strings.HasPrefix(source, "disk:") || !strings.HasPrefix(source, "iso:") || !strings.HasPrefix(source, "file:") || !strings.HasPrefix(source, "dev:") {
+		return fmt.Errorf("invalid source")
+	}
+	return nil
 }
 
 func BackupDisk(source string) {
