@@ -113,7 +113,6 @@ func BackupDisk(decrypt bool, source string, destination string, stringified cha
 			fmt.Println("Killing process")
 			cmd.Process.Kill()
 		}
-		close(stringified)
 	}()
 	events := make(chan outputs.MakeMkvOutput)
 	go stream.ParseStream(outputPipe, events)
