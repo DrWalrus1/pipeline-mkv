@@ -90,16 +90,17 @@ func backupHandler(w http.ResponseWriter, r *http.Request) {
 		defer close(updates)
 		for {
 			_, p, err := conn.ReadMessage()
+			if string(p) == "cancel" {
+				cancelChannel <- true
+				close(cancelChannel)
+				return
+			}
 			if err != nil {
 				log.Println("read error:", err)
 				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
 					return
 				}
 				return
-			}
-			if string(p) == "cancel" {
-				cancelChannel <- true
-				close(cancelChannel)
 			}
 		}
 	}()

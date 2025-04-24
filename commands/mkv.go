@@ -110,6 +110,7 @@ func BackupDisk(decrypt bool, source string, destination string, stringified cha
 	go func() {
 		<-cancelChannel
 		if cmd != nil && cmd.Process != nil {
+			fmt.Println("Killing process")
 			cmd.Process.Kill()
 		}
 		close(stringified)
