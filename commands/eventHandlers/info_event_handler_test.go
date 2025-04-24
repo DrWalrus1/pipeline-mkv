@@ -187,8 +187,9 @@ SINFO:0,6,42,5088,"( Lossless conversion )"`
 
 	standardEvents := make(chan outputs.MakeMkvOutput)
 	discInfoEvents := make(chan makemkv.MakeMkvDiscInfo)
+	disconnection := make(chan bool)
 
-	go eventhandlers.MakeMkvInfoEventHandler(strings.NewReader(input), standardEvents, discInfoEvents)
+	go eventhandlers.MakeMkvInfoEventHandler(strings.NewReader(input), standardEvents, discInfoEvents, disconnection)
 
 	standardEventCount := 0
 	discInfoEventCount := 0
@@ -200,10 +201,71 @@ loop:
 			break
 		case <-discInfoEvents:
 			discInfoEventCount++
+			break
+		case <-disconnection:
 			break loop
-
 		}
 	}
 	assert.Equal(t, 33, standardEventCount)
 	assert.Equal(t, 1, discInfoEventCount)
+}
+
+func TestGetInfoWithNoDiscStillExits(t *testing.T) {
+
+	input :=
+		`MSG:1004,0,1,"MakeMKV v1.18.1 linux(x64-release) started","%1 started","MakeMKV v1.18.1 linux(x64-release)"
+MSG:3338,0,2,"Downloading latest SDF to /root/.MakeMKV ...","Downloading latest %1 to %2 ...","SDF","/root/.MakeMKV"
+DRV:0,2,999,12,"BD-RE ASUS BW-16D1HT 3.10 KL7L9D92707","BDROM","/dev/sr0"
+DRV:1,256,999,0,"","",""
+DRV:2,256,999,0,"","",""
+DRV:3,256,999,0,"","",""
+DRV:4,256,999,0,"","",""
+DRV:5,256,999,0,"","",""
+DRV:6,256,999,0,"","",""
+DRV:7,256,999,0,"","",""
+DRV:8,256,999,0,"","",""
+DRV:9,256,999,0,"","",""
+DRV:10,256,999,0,"","",""
+DRV:11,256,999,0,"","",""
+DRV:12,256,999,0,"","",""
+DRV:13,256,999,0,"","",""
+DRV:14,256,999,0,"","",""
+DRV:15,256,999,0,"","",""
+MSG:1011,0,1,"Using LibreDrive mode (v06.3 id=0FA242DD4D0B)","%1","Using LibreDrive mode (v06.3 id=0FA242DD4D0B)"
+MSG:3007,0,0,"Using direct disc access mode","Using direct disc access mode"
+MSG:5053,1544,1,"This functionality is shareware. You may evaluate it for 30 days after what you would need to purchase an activation key if you like the functionality. Do you want to start evaluation period now?","This functionality is shareware. You may evaluate it for %1 days after what you would need to purchase an activation key if you like the functionality. Do you want to start evaluation period now?","30"
+MSG:5050,0,2,"Evaluation version, 30 day(s) out of 30 remaining","Evaluation version, %1 day(s) out of %2 remaining","30","30"
+MSG:5085,0,0,"Loaded content hash table, will verify integrity of M2TS files.","Loaded content hash table, will verify integrity of M2TS files."
+MSG:3025,0,3,"Title #00001.mpls has length of 12 seconds which is less than minimum title length of 120 seconds and was therefore skipped","Title #%1 has length of %2 seconds which is less than minimum title length of %3 seconds and was therefore skipped","00001.mpls","12","120"
+MSG:3307,16777216,2,"File 00000.mpls was added as title #0","File %1 was added as title #%2","00000.mpls","0"
+MSG:3025,16777216,3,"Title #00017.m2ts has length of 1 seconds which is less than minimum title length of 120 seconds and was therefore skipped","Title #%1 has length of %2 seconds which is less than minimum title length of %3 seconds and was therefore skipped","00017.m2ts","1","120"
+MSG:3025,16777216,3,"Title #00011.m2ts has length of 1 seconds which is less than minimum title length of 120 seconds and was therefore skipped","Title #%1 has length of %2 seconds which is less than minimum title length of %3 seconds and was therefore skipped","00011.m2ts","1","120"
+MSG:3025,16777216,3,"Title #00005.m2ts has length of 7 seconds which is less than minimum title length of 120 seconds and was therefore skipped","Title #%1 has length of %2 seconds which is less than minimum title length of %3 seconds and was therefore skipped","00005.m2ts","7","120"
+MSG:3025,16777216,3,"Title #00004.m2ts has length of 5 seconds which is less than minimum title length of 120 seconds and was therefore skipped","Title #%1 has length of %2 seconds which is less than minimum title length of %3 seconds and was therefore skipped","00004.m2ts","5","120"
+MSG:3025,16777216,3,"Title #00006.m2ts has length of 9 seconds which is less than minimum title length of 120 seconds and was therefore skipped","Title #%1 has length of %2 seconds which is less than minimum title length of %3 seconds and was therefore skipped","00006.m2ts","9","120"
+MSG:3025,0,3,"Title #00010.m2ts has length of 39 seconds which is less than minimum title length of 120 seconds and was therefore skipped","Title #%1 has length of %2 seconds which is less than minimum title length of %3 seconds and was therefore skipped","00010.m2ts","39","120"
+MSG:5011,0,0,"Operation successfully completed","Operation successfully completed"`
+	standardEvents := make(chan outputs.MakeMkvOutput)
+	discInfoEvents := make(chan makemkv.MakeMkvDiscInfo)
+	disconnection := make(chan bool)
+
+	go eventhandlers.MakeMkvInfoEventHandler(strings.NewReader(input), standardEvents, discInfoEvents, disconnection)
+
+	standardEventCount := 0
+	discInfoEventCount := 0
+loop:
+	for {
+		select {
+		case <-standardEvents:
+			standardEventCount++
+			break
+		case <-discInfoEvents:
+			discInfoEventCount++
+			break
+		case <-disconnection:
+			break loop
+		}
+	}
+	assert.Equal(t, 32, standardEventCount)
+	assert.Equal(t, 0, discInfoEventCount)
 }
