@@ -25,3 +25,11 @@ jobs:
     - name: Test
       working-directory: .
       run: go test -v ./...
+
+    - name: Login to Docker Hub
+      run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and Publish Docker image
+      run: |
+        docker build --platform linux/amd64,linux/arm64 -t thedrwalrus/makemkv:latest .
+        docker push thedrwalrus/makemkv:latest
