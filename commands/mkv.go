@@ -68,11 +68,18 @@ func SaveMkv(source string, title string, destination string, stringified chan [
 
 	events := make(chan outputs.MakeMkvOutput)
 	go stream.ParseStream(outputPipe, events)
-	for event := range events {
-		newJson, _ := json.Marshal(event)
-		stringified <- newJson
+	for {
+		if event, ok := <-events; ok {
+			newJson, _ := json.Marshal(event)
+			stringified <- newJson
+		} else {
+			close(stringified)
+			break
+		}
 	}
-	close(stringified)
+	if err := cmd.Wait(); err != nil {
+		log.Fatalf("error waiting for command to finish: %s", err.Error())
+	}
 }
 
 func validateSource(source string) error {
