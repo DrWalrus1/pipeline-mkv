@@ -57,7 +57,7 @@ func SaveMkv(source string, title string, destination string, stringified chan [
 		return
 	}
 
-	cmd := exec.Command("makemkvcon", "-r", "--progress=-stdout", "mkv", source, title, destination)
+	cmd := exec.Command("makemkvcon", "-r", "--progress=-stdout", "--debug=-stdout", "mkv", source, title, destination)
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatalf("error executing makemkvcon: %s", err.Error())
