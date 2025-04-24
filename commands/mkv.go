@@ -53,16 +53,12 @@ loop:
 	}
 }
 
-func SaveMkv() {
-	source := "disc:0"
+func SaveMkv(source string, destination string) {
 	title := "0"
-	destination := "./"
 	exec.Command("makemkvcon", "-r", "--progress=-stdout", "mkv", source, title, destination)
-
 }
 
-func BackupDisk() {
-	source := "disc:0"
+func BackupDisk(source string) {
 	destination := "./"
 	exec.Command("makemkvcon", "-r", "backup", source, destination)
 }
