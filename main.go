@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"servermakemkv/commands"
 
 	"github.com/gorilla/websocket"
@@ -40,11 +39,10 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func mkvHandler(w http.ResponseWriter, r *http.Request) {
-	sourceEncoded := r.URL.Query().Get("source")
+	source := r.PathValue("source")
 	title := r.URL.Query().Get("title")
 	destination := r.URL.Query().Get("destination")
 
-	source, _ := url.PathUnescape(sourceEncoded)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -66,7 +64,7 @@ func mkvHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/info/{source}", infoHandler)
-	http.HandleFunc("/mkv", mkvHandler)
+	http.HandleFunc("/mkv/{source}", mkvHandler)
 
 	fmt.Println("WebSocket server started on :8080")
 	err := http.ListenAndServe(":8080", nil)
