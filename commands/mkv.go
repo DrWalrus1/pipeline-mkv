@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"servermakemkv/commands/eventhandlers"
 	"servermakemkv/config"
@@ -102,31 +103,51 @@ func BackupDisk(decrypt bool, source string, destination string, stringified cha
 	}
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Fatalf("error executing makemkvcon: %s", err.Error())
+		log.Printf("error creating stdout pipe: %s", err.Error())
+		close(stringified)
+		return
 	}
 	if err := cmd.Start(); err != nil {
-		log.Fatal(err)
+		log.Printf("error starting command: %s", err.Error())
+		close(stringified)
+		return
 	}
 	go func() {
 		<-cancelChannel
 		if cmd != nil && cmd.Process != nil {
-			fmt.Println("Killing process")
-			cmd.Process.Kill()
+			fmt.Println("Interrupting process")
+			if err := cmd.Process.Signal(os.Interrupt); err != nil {
+				fmt.Printf("Error sending interrupt signal: %s\n", err)
+			}
 		}
 	}()
 	events := make(chan outputs.MakeMkvOutput)
 	go stream.ParseStream(outputPipe, events)
 	for {
-		if event, ok := <-events; ok {
-			newJson, _ := json.Marshal(event)
-			stringified <- newJson
-		} else {
-			close(stringified)
+		event, ok := <-events
+		if !ok {
 			break
 		}
+		newJson, err := json.Marshal(event)
+		if err != nil {
+			log.Printf("error marshaling event: %s", err.Error())
+			continue // or break, depending on desired behavior
+		}
+		stringified <- newJson
 	}
-	if err := cmd.Wait(); err != nil {
-		log.Fatalf("error waiting for command to finish: %s", err.Error())
+	close(stringified) // Ensure stringified is closed after the loop
+
+	err = cmd.Wait()
+	if err != nil {
+		// Check if the process was killed
+		if exitError, ok := err.(*exec.ExitError); ok {
+			// Check the system error to see if it's an interrupt signal
+			if sysError, ok := exitError.Sys().(interface{ Signal() bool }); ok && sysError.Signal() {
+				fmt.Println("Process interrupted by signal.")
+				return // Process was interrupted, so we don't treat it as a fatal error.
+			}
+		}
+		log.Printf("error waiting for command to finish: %s", err.Error())
 	}
 }
 
