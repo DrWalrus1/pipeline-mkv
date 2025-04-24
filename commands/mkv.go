@@ -17,8 +17,8 @@ func ParseInfoCommand(c chan int) {
 }
 
 // MkvInfo calls the MakeMKV executable with the given arguments.
-func GetInfo(config *config.Config, stringified chan []byte) {
-	cmd := exec.Command("makemkvcon", "-r", "--progress=-stdout", "info", "disc:9999")
+func GetInfo(config *config.Config, source string, stringified chan []byte) {
+	cmd := exec.Command("makemkvcon", "-r", "--progress=-stdout", "info", source)
 
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {

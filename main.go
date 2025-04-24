@@ -18,6 +18,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func infoHandler(w http.ResponseWriter, r *http.Request) {
+	source := r.PathValue("source")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -27,7 +28,7 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 
 	updates := make(chan []byte)
 	// TODO: add error handling
-	go commands.GetInfo(nil, updates)
+	go commands.GetInfo(nil, source, updates)
 	for update := range updates {
 		err = conn.WriteMessage(websocket.TextMessage, update)
 		if err != nil {
@@ -38,7 +39,7 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/disk", infoHandler)
+	http.HandleFunc("/info/{source}", infoHandler)
 
 	fmt.Println("WebSocket server started on :8080")
 	err := http.ListenAndServe(":8080", nil)
