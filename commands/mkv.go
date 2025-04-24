@@ -93,17 +93,21 @@ func validateSource(source string) error {
 	return fmt.Errorf("invalid source")
 }
 
-func BackupDisk(decrypt bool, source string, destination string, stringified chan []byte) {
-	flags := []string{"-r"}
-	if decrypt {
-		flags = append(flags, "--decrypt")
-	}
+func BackupDisk(decrypt bool, source string, destination string, stringified chan []byte, cancelChannel chan bool) {
 	var cmd *exec.Cmd
 	if decrypt {
 		cmd = exec.Command("makemkvcon", "-r", "backup", "--decrypt", source, destination)
 	} else {
 		cmd = exec.Command("makemkvcon", "-r", "backup", source, destination)
 	}
+	go func() {
+		<-cancelChannel
+		if cmd.Process != nil {
+			cmd.Process.Kill()
+		}
+		close(stringified)
+	}()
+	cmd.Cancel()
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatalf("error executing makemkvcon: %s", err.Error())

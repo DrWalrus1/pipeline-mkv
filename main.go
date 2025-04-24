@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"servermakemkv/commands"
@@ -80,8 +81,28 @@ func backupHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	updates := make(chan []byte)
+	// TODO: add test for cancelChannel
+	cancelChannel := make(chan bool)
 	// TODO: add error handling
-	go commands.BackupDisk(decrypt, source, destination, updates)
+	go commands.BackupDisk(decrypt, source, destination, updates, cancelChannel)
+
+	go func() {
+		defer close(updates)
+		for {
+			_, p, err := conn.ReadMessage()
+			if err != nil {
+				log.Println("read error:", err)
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					return
+				}
+				return
+			}
+			if string(p) == "cancel" {
+				cancelChannel <- true
+				close(cancelChannel)
+			}
+		}
+	}()
 	for update := range updates {
 		err = conn.WriteMessage(websocket.TextMessage, update)
 		if err != nil {
