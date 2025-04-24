@@ -8,5 +8,4 @@ import (
 
 func MakeMkvMkvEventHandler(reader io.Reader, events chan outputs.MakeMkvOutput) {
 	go stream.ParseStream(reader, events)
-	defer close(events)
 }
