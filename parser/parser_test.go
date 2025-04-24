@@ -135,9 +135,10 @@ func TestDriveScanMessageParser(t *testing.T) {
 			Flags:      "Flags",
 			DriveName:  "Drive1",
 			DiscName:   "Disc1",
+			DeviceName: "/dev/sr0",
 		}
 
-		input := "DRV:1,1,1,Flags,Drive1,Disc1"
+		input := "DRV:1,1,1,Flags,Drive1,Disc1,/dev/sr0"
 
 		actual, err := parser.Parse(input)
 
@@ -146,7 +147,7 @@ func TestDriveScanMessageParser(t *testing.T) {
 	})
 
 	t.Run("Fails when missing prefix", func(t *testing.T) {
-		input := "1,true,true,Flags,Drive1,Disc1"
+		input := "1,true,true,Flags,Drive1,Disc1,/dev/sr0"
 
 		actual, err := parser.Parse(input)
 
@@ -155,7 +156,7 @@ func TestDriveScanMessageParser(t *testing.T) {
 	})
 
 	t.Run("Fails when there are not enough values", func(t *testing.T) {
-		input := "DRV:1,true,true,Flags,Drive1"
+		input := "DRV:1,true,true,Flags,Drive1,/dev/sr0"
 
 		actual, err := parser.Parse(input)
 
@@ -164,7 +165,7 @@ func TestDriveScanMessageParser(t *testing.T) {
 	})
 
 	t.Run("Parses when drives are not visible or enabled", func(t *testing.T) {
-		input := "DRV:1,255,999,Flags,Drive1,Disc1"
+		input := "DRV:1,255,999,Flags,Drive1,Disc1,/dev/sr0"
 
 		expected := outputs.DriveScanMessage{
 			DriveIndex: "1",
@@ -173,6 +174,7 @@ func TestDriveScanMessageParser(t *testing.T) {
 			Flags:      "Flags",
 			DriveName:  "Drive1",
 			DiscName:   "Disc1",
+			DeviceName: "/dev/sr0",
 		}
 		actual, err := parser.Parse(input)
 

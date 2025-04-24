@@ -118,7 +118,7 @@ func parseDriveScanMessage(input string) (*outputs.DriveScanMessage, error) {
 	trimmed, _ := strings.CutPrefix(input, driveScanMessagePrefix)
 
 	split := strings.Split(trimmed, delimiter)
-	if len(split) < 6 {
+	if len(split) < 7 {
 		return nil, NotEnoughValues
 	}
 
@@ -128,6 +128,7 @@ func parseDriveScanMessage(input string) (*outputs.DriveScanMessage, error) {
 	driveScanMessage.Flags = split[3]
 	driveScanMessage.DriveName = split[4]
 	driveScanMessage.DiscName = split[5]
+	driveScanMessage.DeviceName = split[6]
 	return &driveScanMessage, nil
 }
 

@@ -59,6 +59,7 @@ type DriveScanMessage struct {
 	Flags      string
 	DriveName  string
 	DiscName   string
+	DeviceName string
 }
 
 func (mg DriveScanMessage) GetTypeName() string {
