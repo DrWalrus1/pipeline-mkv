@@ -96,8 +96,7 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: add error handling
 	responseStatus := commands.RegisterMkvKey(key)
-	r.Response.StatusCode = responseStatus
-
+	w.WriteHeader(responseStatus)
 }
 
 func main() {

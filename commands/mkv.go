@@ -124,13 +124,13 @@ func BackupDisk(decrypt bool, source string, destination string, stringified cha
 }
 
 const registerMkvKeyBadKeyPrefix string = "Key not found or invalid"
-const registerMkvKeySavedPrefix string = "Registraction key saved."
+const registerMkvKeySavedPrefix string = "Registration key saved"
 
 func RegisterMkvKey(key string) int {
 	executable := "makemkvcon"
 	arguments := "-r"
 	command := "reg"
-	cmd := exec.Command(fmt.Sprintf("%s %s %s %s", executable, arguments, command, key))
+	cmd := exec.Command(executable, arguments, command, key)
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatalf("error creating pipe to command. %s", err.Error())
@@ -143,9 +143,13 @@ func RegisterMkvKey(key string) int {
 	for s := range c {
 		switch {
 		case strings.HasPrefix(s, registerMkvKeyBadKeyPrefix):
+			fmt.Println(s)
 			return 400
 		case strings.HasPrefix(s, registerMkvKeySavedPrefix):
+			fmt.Println(s)
 			return 200
+		default:
+			fmt.Println(s)
 		}
 	}
 	return 500
