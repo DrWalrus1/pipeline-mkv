@@ -1,16 +1,24 @@
 package commands
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os/exec"
+	eventhandlers "servermakemkv/commands/eventHandlers"
+	"servermakemkv/config"
 	"servermakemkv/outputs"
+	"servermakemkv/outputs/makemkv"
 	"servermakemkv/stream"
 )
 
+func ParseInfoCommand(c chan int) {
+
+}
+
 // MkvInfo calls the MakeMKV executable with the given arguments.
-func GetInfo() {
-	cmd := exec.Command("makemkvcon -r info disc:9999")
+func GetInfo(config *config.Config, stringified chan []byte) {
+	cmd := exec.Command("makemkvcon", "-r", "--progress=-stdout", "info", "disc:9999")
 
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {
@@ -19,22 +27,44 @@ func GetInfo() {
 	if err := cmd.Start(); err != nil {
 		log.Fatal(err)
 	}
-	// TODO:
-	c := make(chan outputs.MakeMkvOutput)
-	go stream.ParseStream(outputPipe, c)
+	standardEvents := make(chan outputs.MakeMkvOutput)
+	discEvents := make(chan makemkv.MakeMkvDiscInfo)
+	disconnection := make(chan bool)
+
+	go eventhandlers.MakeMkvInfoEventHandler(outputPipe, standardEvents, discEvents, disconnection)
+
+loop:
+	for {
+		select {
+		case standardEvent := <-standardEvents:
+			newJson, _ := json.Marshal(standardEvent)
+			stringified <- newJson
+		case discEvent := <-discEvents:
+			newJson, _ := json.Marshal(discEvent)
+			stringified <- newJson
+		case <-disconnection:
+			close(stringified)
+			break loop
+		}
+	}
+
 	if err := cmd.Wait(); err != nil {
-		log.Fatal(err)
+		log.Fatalf("error waiting for command to finish: %s", err.Error())
 	}
 }
 
 func SaveMkv() {
-	exec.Command("makemkvcon -r mkv <source> <title_id> <destination> disc:0")
+	source := "disc:0"
+	title := "0"
+	destination := "./"
+	exec.Command("makemkvcon", "-r", "--progress=-stdout", "mkv", source, title, destination)
 
 }
 
 func BackupDisk() {
-	exec.Command("makemkvcon -r backup <source> <destination>")
-
+	source := "disc:0"
+	destination := "./"
+	exec.Command("makemkvcon", "-r", "backup", source, destination)
 }
 
 func RegisterMkvKey(key string) error {
@@ -44,10 +74,10 @@ func RegisterMkvKey(key string) error {
 	cmd := exec.Command(fmt.Sprintf("%s %s %s %s", executable, arguments, command, key))
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {
-		return fmt.Errorf("Error creating pipe to command. %w", err)
+		return fmt.Errorf("error creating pipe to command. %w", err)
 	}
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("Error executing command. %w", err)
+		return fmt.Errorf("error executing command. %w", err)
 	}
 	c := make(chan string)
 	go stream.ReadStream(outputPipe, c)

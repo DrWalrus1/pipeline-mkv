@@ -30,4 +30,5 @@ WORKDIR /code
 COPY . .
 RUN go build .
 
-CMD ["/code/servermakemkv"]
+EXPOSE 8080
+CMD [ "/code/servermakemkv"]

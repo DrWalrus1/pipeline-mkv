@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
+	"servermakemkv/commands"
 
 	"github.com/gorilla/websocket"
 )
@@ -17,7 +17,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func websocketHandler(w http.ResponseWriter, r *http.Request) {
+func infoHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -25,23 +25,20 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	ticker := time.NewTicker(time.Millisecond)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case _ = <-ticker.C:
-			err = conn.WriteMessage(websocket.TextMessage, []byte("Hello There"))
-			if err != nil {
-				log.Println("write error:", err)
-				return // Exit if we can't write (client likely disconnected)
-			}
+	updates := make(chan []byte)
+	// TODO: add error handling
+	go commands.GetInfo(nil, updates)
+	for update := range updates {
+		err = conn.WriteMessage(websocket.TextMessage, update)
+		if err != nil {
+			log.Println("write error:", err)
+			return // Exit if we can't write (client likely disconnected)
 		}
 	}
 }
 
 func main() {
-	http.HandleFunc("/events", websocketHandler)
+	http.HandleFunc("/disk", infoHandler)
 
 	fmt.Println("WebSocket server started on :8080")
 	err := http.ListenAndServe(":8080", nil)
