@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"servermakemkv/commands"
 
 	"github.com/gorilla/websocket"
@@ -39,10 +40,11 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func mkvHandler(w http.ResponseWriter, r *http.Request) {
-	source := r.URL.Query().Get("source")
+	sourceEncoded := r.URL.Query().Get("source")
 	title := r.URL.Query().Get("title")
 	destination := r.URL.Query().Get("destination")
 
+	source, _ := url.PathUnescape(sourceEncoded)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
