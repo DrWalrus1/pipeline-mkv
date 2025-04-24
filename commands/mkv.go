@@ -94,11 +94,16 @@ func validateSource(source string) error {
 }
 
 func BackupDisk(decrypt bool, source string, destination string, stringified chan []byte) {
-	flags := []string{"-r "}
+	flags := []string{"-r"}
 	if decrypt {
 		flags = append(flags, "--decrypt")
 	}
-	cmd := exec.Command("makemkvcon", strings.Join(flags, " "), "backup", source, destination)
+	var cmd *exec.Cmd
+	if decrypt {
+		cmd = exec.Command("makemkvcon", "-r", "backup", "--decrypt", source, destination)
+	} else {
+		cmd = exec.Command("makemkvcon", "-r", "backup", source, destination)
+	}
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatalf("error executing makemkvcon: %s", err.Error())
