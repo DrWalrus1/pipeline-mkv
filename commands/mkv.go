@@ -3,10 +3,8 @@ package commands
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
 	"servermakemkv/commands/eventhandlers"
 	"servermakemkv/config"
@@ -138,6 +136,9 @@ func BackupDisk(decrypt bool, source string, destination string, stringified cha
 	err = cmd.Wait()
 	if err != nil {
 		// Check if the process was interrupted
+		if ctx.Err() == context.Canceled {
+			return
+		}
 		log.Printf("error waiting for command to finish: %s", err.Error())
 	}
 }
