@@ -44,8 +44,8 @@ jobs:
           - name: Build and push
             uses: docker/build-push-action@v6
             with:
-              platforms: linux/amd64,linux/arm64
-              push: true
-              tags: ${{ secrets.DOCKERHUB_USERNAME }}/makemkv:latest
-              cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/makemkv:cache
-              cache-to: type=registry,name=${{ secrets.DOCKERHUB_USERNAME }}/makemkv:cache,mode=max
+                platforms: linux/amd64,linux/arm64
+                push: true
+                tags: ${{ secrets.DOCKERHUB_USERNAME }}/makemkv:latest
+                cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/makemkv:cache
+                cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/makemkv:cache,mode=max
