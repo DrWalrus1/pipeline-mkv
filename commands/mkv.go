@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
-	eventhandlers "servermakemkv/commands/eventHandlers"
+	"servermakemkv/commands/eventhandlers"
 	"servermakemkv/config"
 	"servermakemkv/outputs"
 	"servermakemkv/outputs/makemkv"

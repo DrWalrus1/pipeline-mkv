@@ -2,7 +2,6 @@ package makemkv_test
 
 import (
 	"encoding/json"
-	"os"
 	"servermakemkv/outputs"
 	"servermakemkv/outputs/makemkv"
 	"servermakemkv/stream"
@@ -160,10 +159,5 @@ SINFO:0,6,42,5088,"( Lossless conversion )"	`
 	}
 
 	discInfo := makemkv.MakeMkvOutputsIntoMakeMkvDiscInfo(o)
-	f, err := os.Create("../../output1.json")
-	if err != nil {
-		panic("couldn't create file")
-	}
-	output, _ := json.MarshalIndent(discInfo, "", "  ")
-	f.Write(output)
+	json.MarshalIndent(discInfo, "", "  ")
 }

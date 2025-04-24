@@ -56,7 +56,7 @@ func TestParseDiscInformationOutput(t *testing.T) {
 			TitleCount: 1,
 		}
 
-		input := "TCOUT:1"
+		input := "TCOUNT:1"
 
 		actual, err := parser.Parse(input)
 
