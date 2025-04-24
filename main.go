@@ -18,7 +18,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func infoHandler(w http.ResponseWriter, r *http.Request) {
-	source := r.PathValue("source")
+	source := r.URL.Query().Get("source")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -63,8 +63,8 @@ func mkvHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/info/{source}", infoHandler)
-	http.HandleFunc("/mkv/{source}", mkvHandler)
+	http.HandleFunc("/info", infoHandler)
+	http.HandleFunc("/mkv", mkvHandler)
 
 	fmt.Println("WebSocket server started on :8080")
 	err := http.ListenAndServe(":8080", nil)
