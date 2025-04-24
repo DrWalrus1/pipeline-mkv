@@ -87,7 +87,7 @@ func validateSource(source string) error {
 		return fmt.Errorf("source cannot be empty")
 	}
 
-	if strings.HasPrefix(source, "disk:") || strings.HasPrefix(source, "iso:") || strings.HasPrefix(source, "file:") || strings.HasPrefix(source, "dev:") {
+	if strings.HasPrefix(source, "disc:") || strings.HasPrefix(source, "iso:") || strings.HasPrefix(source, "file:") || strings.HasPrefix(source, "dev:") {
 		return nil
 	}
 	return fmt.Errorf("invalid source")

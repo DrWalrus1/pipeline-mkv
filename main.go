@@ -39,7 +39,7 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func mkvHandler(w http.ResponseWriter, r *http.Request) {
-	source := r.PathValue("source")
+	source := r.URL.Query().Get("source")
 	title := r.URL.Query().Get("title")
 	destination := r.URL.Query().Get("destination")
 
