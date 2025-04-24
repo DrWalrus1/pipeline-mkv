@@ -1,7 +1,9 @@
 package commands
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -96,10 +98,11 @@ func validateSource(source string) error {
 
 func BackupDisk(decrypt bool, source string, destination string, stringified chan []byte, cancelChannel chan bool) {
 	var cmd *exec.Cmd
+	ctx, cancel := context.WithCancel(context.Background())
 	if decrypt {
-		cmd = exec.Command("makemkvcon", "-r", "backup", "--decrypt", source, destination)
+		cmd = exec.CommandContext(ctx, "makemkvcon", "-r", "backup", "--decrypt", source, destination)
 	} else {
-		cmd = exec.Command("makemkvcon", "-r", "backup", source, destination)
+		cmd = exec.CommandContext(ctx, "makemkvcon", "-r", "backup", source, destination)
 	}
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {
@@ -114,12 +117,7 @@ func BackupDisk(decrypt bool, source string, destination string, stringified cha
 	}
 	go func() {
 		<-cancelChannel
-		if cmd != nil && cmd.Process != nil {
-			fmt.Println("Interrupting process")
-			if err := cmd.Process.Signal(os.Interrupt); err != nil {
-				fmt.Printf("Error sending interrupt signal: %s\n", err)
-			}
-		}
+		cancel()
 	}()
 	events := make(chan outputs.MakeMkvOutput)
 	go stream.ParseStream(outputPipe, events)
@@ -139,14 +137,7 @@ func BackupDisk(decrypt bool, source string, destination string, stringified cha
 
 	err = cmd.Wait()
 	if err != nil {
-		// Check if the process was killed
-		if exitError, ok := err.(*exec.ExitError); ok {
-			// Check the system error to see if it's an interrupt signal
-			if sysError, ok := exitError.Sys().(interface{ Signal() bool }); ok && sysError.Signal() {
-				fmt.Println("Process interrupted by signal.")
-				return // Process was interrupted, so we don't treat it as a fatal error.
-			}
-		}
+		// Check if the process was interrupted
 		log.Printf("error waiting for command to finish: %s", err.Error())
 	}
 }
