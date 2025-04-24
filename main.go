@@ -87,7 +87,6 @@ func backupHandler(w http.ResponseWriter, r *http.Request) {
 	go commands.BackupDisk(decrypt, source, destination, updates, cancelChannel)
 
 	go func() {
-		defer close(updates)
 		for {
 			_, p, err := conn.ReadMessage()
 			if string(p) == "cancel" {
