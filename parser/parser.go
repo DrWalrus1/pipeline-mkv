@@ -12,7 +12,7 @@ const (
 	messageOutputPrefix        = "MSG:"
 	driveScanMessagePrefix     = "DRV:"
 	currentProgressTitlePrefix = "PRGC:"
-	discInfoOutputPrefix       = "TCOUT:"
+	discInfoOutputPrefix       = "TCOUNT:"
 	discInfoPrefix             = "CINFO:"
 	progressBarOutputPrefix    = "PRGV:"
 	streamInfoPrefix           = "SINFO:"

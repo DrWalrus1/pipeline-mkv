@@ -63,9 +63,12 @@ func (c *Config) ConvertConfigToArgs() []string {
 	}
 
 	// We always enable robot mode
-	args = append(args, "-r")
 
 	args = append(args, c.Arguments.ConvertArgumentsToArgs()...)
 
 	return args
+}
+
+func GetRequiredMakeMkvOptions() []string {
+	return []string{"-r", "--progress=-stdout"}
 }
