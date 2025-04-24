@@ -100,14 +100,6 @@ func BackupDisk(decrypt bool, source string, destination string, stringified cha
 	} else {
 		cmd = exec.Command("makemkvcon", "-r", "backup", source, destination)
 	}
-	go func() {
-		<-cancelChannel
-		if cmd.Process != nil {
-			cmd.Process.Kill()
-		}
-		close(stringified)
-	}()
-	cmd.Cancel()
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatalf("error executing makemkvcon: %s", err.Error())
@@ -115,7 +107,13 @@ func BackupDisk(decrypt bool, source string, destination string, stringified cha
 	if err := cmd.Start(); err != nil {
 		log.Fatal(err)
 	}
-
+	go func() {
+		<-cancelChannel
+		if cmd.Process != nil {
+			cmd.Cancel()
+		}
+		close(stringified)
+	}()
 	events := make(chan outputs.MakeMkvOutput)
 	go stream.ParseStream(outputPipe, events)
 	for {
