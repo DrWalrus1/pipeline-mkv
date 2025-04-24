@@ -106,11 +106,13 @@ func BackupDisk(decrypt bool, source string, destination string, stringified cha
 	if err != nil {
 		log.Printf("error creating stdout pipe: %s", err.Error())
 		close(stringified)
+		cancel()
 		return
 	}
 	if err := cmd.Start(); err != nil {
 		log.Printf("error starting command: %s", err.Error())
 		close(stringified)
+		cancel()
 		return
 	}
 	go func() {
@@ -136,10 +138,9 @@ func BackupDisk(decrypt bool, source string, destination string, stringified cha
 	err = cmd.Wait()
 	if err != nil {
 		// Check if the process was interrupted
-		if ctx.Err() == context.Canceled {
-			return
+		if ctx.Err() != context.Canceled {
+			log.Printf("error waiting for command to finish: %s", err.Error())
 		}
-		log.Printf("error waiting for command to finish: %s", err.Error())
 	}
 }
 
