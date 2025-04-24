@@ -109,8 +109,8 @@ func BackupDisk(decrypt bool, source string, destination string, stringified cha
 	}
 	go func() {
 		<-cancelChannel
-		if cmd.Process != nil {
-			cmd.Cancel()
+		if cmd != nil && cmd.Process != nil {
+			cmd.Process.Kill()
 		}
 		close(stringified)
 	}()
