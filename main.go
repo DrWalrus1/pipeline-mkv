@@ -30,7 +30,24 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 
 	updates := make(chan []byte)
 	// TODO: add error handling
-	go commands.GetInfo(nil, source, updates)
+	reader, cancel, _ := commands.TriggerDiskInfo(source)
+	go commands.WatchInfoLogs(reader, updates)
+	go func() {
+		for {
+			_, p, err := conn.ReadMessage()
+			if string(p) == "cancel" {
+				cancel()
+				return
+			}
+			if err != nil {
+				log.Println("read error:", err)
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					return
+				}
+				return
+			}
+		}
+	}()
 	for update := range updates {
 		err = conn.WriteMessage(websocket.TextMessage, update)
 		if err != nil {
@@ -81,17 +98,15 @@ func backupHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	updates := make(chan []byte)
-	// TODO: add test for cancelChannel
-	cancelChannel := make(chan bool)
 	// TODO: add error handling
-	go commands.BackupDisk(decrypt, source, destination, updates, cancelChannel)
+	reader, cancel, _ := commands.TriggerDiskBackup(decrypt, source, destination)
+	go commands.WatchBackupLogs(reader, updates)
 
 	go func() {
 		for {
 			_, p, err := conn.ReadMessage()
 			if string(p) == "cancel" {
-				cancelChannel <- true
-				close(cancelChannel)
+				cancel()
 				return
 			}
 			if err != nil {
