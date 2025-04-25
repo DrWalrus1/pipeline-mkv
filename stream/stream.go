@@ -8,7 +8,7 @@ import (
 	"servermakemkv/parser"
 )
 
-func ParseStream(reader io.Reader, c chan outputs.MakeMkvOutput) {
+func ParseStream(reader io.Reader, c chan<- outputs.MakeMkvOutput) {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		output, err := parser.Parse(scanner.Text())
@@ -21,7 +21,7 @@ func ParseStream(reader io.Reader, c chan outputs.MakeMkvOutput) {
 	close(c)
 }
 
-func ReadStream(reader io.Reader, c chan string) {
+func ReadStream(reader io.Reader, c chan<- string) {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		c <- scanner.Text()

@@ -7,7 +7,7 @@ import (
 	"servermakemkv/stream"
 )
 
-func MakeMkvInfoEventHandler(reader io.Reader, standardEventsChan chan outputs.MakeMkvOutput, discInfoEventChan chan makemkv.MakeMkvDiscInfo, disconnectChan chan bool) {
+func MakeMkvInfoEventHandler(reader io.Reader, standardEventsChan chan<- outputs.MakeMkvOutput, discInfoEventChan chan<- makemkv.MakeMkvDiscInfo, disconnectChan chan<- bool) {
 	c := make(chan outputs.MakeMkvOutput)
 	go stream.ParseStream(reader, c)
 	var discInfoEvents []outputs.MakeMkvOutput

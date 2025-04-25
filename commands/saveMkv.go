@@ -37,7 +37,7 @@ func TriggerSaveMkv(source string, title string, destination string) (io.Reader,
 	return outputPipe, cancel, nil
 }
 
-func WatchSaveMkvLogs(outputPipe io.Reader, stringified chan []byte) {
+func WatchSaveMkvLogs(outputPipe io.Reader, stringified chan<- []byte) {
 	events := make(chan outputs.MakeMkvOutput)
 	go stream.ParseStream(outputPipe, events)
 	for {

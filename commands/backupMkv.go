@@ -39,7 +39,7 @@ func TriggerDiskBackup(decrypt bool, source string, destination string) (io.Read
 	return outputPipe, cancel, nil
 }
 
-func WatchBackupLogs(outputPipe io.Reader, stringified chan []byte) {
+func WatchBackupLogs(outputPipe io.Reader, stringified chan<- []byte) {
 	events := make(chan outputs.MakeMkvOutput)
 	go stream.ParseStream(outputPipe, events)
 	for {

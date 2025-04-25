@@ -34,7 +34,7 @@ func TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {
 }
 
 // MkvInfo calls the MakeMKV executable with the given arguments.
-func WatchInfoLogs(outputPipe io.Reader, stringified chan []byte) {
+func WatchInfoLogs(outputPipe io.Reader, stringified chan<- []byte) {
 	standardEvents := make(chan outputs.MakeMkvOutput)
 	discEvents := make(chan makemkv.MakeMkvDiscInfo)
 	disconnection := make(chan bool)
