@@ -24,9 +24,10 @@ func TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {
 	}
 	go func() {
 		if err := cmd.Wait(); err != nil {
-			if err != context.Canceled {
-				log.Printf("error waiting for command: %s", err.Error())
+			if ctx.Err() == context.Canceled {
+				return
 			}
+			log.Printf("error waiting for command: %s", err.Error())
 		}
 	}()
 	return outputPipe, cancel, nil
