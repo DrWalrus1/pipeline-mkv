@@ -4,4 +4,7 @@ services:
     devices:
       - /dev/sr0:/dev/sr0
       - /dev/sg0:/dev/sg0
+    volumes:
+      - test:/root/.MakeMKV
+      - /output:/output
     restart: unless-stopped

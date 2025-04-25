@@ -153,10 +153,13 @@ func registrationHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/info", infoHandler)
-	http.HandleFunc("/mkv", mkvHandler)
-	http.HandleFunc("/backup", backupHandler)
-	http.HandleFunc("POST /register", registrationHandler)
+	http.HandleFunc("/api/info", infoHandler)
+	http.HandleFunc("/api/mkv", mkvHandler)
+	http.HandleFunc("/api/backup", backupHandler)
+	http.HandleFunc("POST /api/register", registrationHandler)
+
+	fs := http.FileServer(http.Dir("./static"))
+	http.Handle("/", fs)
 
 	fmt.Println("WebSocket server started on :8080")
 	err := http.ListenAndServe(":8080", nil)
