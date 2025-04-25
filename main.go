@@ -71,7 +71,24 @@ func mkvHandler(w http.ResponseWriter, r *http.Request) {
 
 	updates := make(chan []byte)
 	// TODO: add error handling
-	go commands.SaveMkv(source, title, destination, updates)
+	reader, cancel, _ := commands.TriggerSaveMkv(source, title, destination)
+	go commands.WatchSaveMkvLogs(reader, updates)
+	go func() {
+		for {
+			_, p, err := conn.ReadMessage()
+			if string(p) == "cancel" {
+				cancel()
+				return
+			}
+			if err != nil {
+				log.Println("read error:", err)
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					return
+				}
+				return
+			}
+		}
+	}()
 	for update := range updates {
 		err = conn.WriteMessage(websocket.TextMessage, update)
 		if err != nil {

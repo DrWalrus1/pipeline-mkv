@@ -2,12 +2,10 @@ package commands
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os/exec"
-	"servermakemkv/outputs"
 	"servermakemkv/stream"
 	"strings"
 )
@@ -56,37 +54,6 @@ func (command *Command) Cancel() {
 	command.cancelFunc()
 }
 
-func SaveMkv(source string, title string, destination string, stringified chan []byte) {
-	if err := validateSource(source); err != nil {
-		stringified <- []byte("Failed to validate")
-		close(stringified)
-		return
-	}
-
-	cmd := exec.Command("makemkvcon", "-r", "--progress=-stdout", "--debug=-stdout", "mkv", source, title, destination)
-	outputPipe, err := cmd.StdoutPipe()
-	if err != nil {
-		log.Fatalf("error executing makemkvcon: %s", err.Error())
-	}
-	if err := cmd.Start(); err != nil {
-		log.Fatal(err)
-	}
-
-	events := make(chan outputs.MakeMkvOutput)
-	go stream.ParseStream(outputPipe, events)
-	for {
-		if event, ok := <-events; ok {
-			newJson, _ := json.Marshal(event)
-			stringified <- newJson
-		} else {
-			close(stringified)
-			break
-		}
-	}
-	if err := cmd.Wait(); err != nil {
-		log.Fatalf("error waiting for command to finish: %s", err.Error())
-	}
-}
 
 func validateSource(source string) error {
 	if source == "" {
