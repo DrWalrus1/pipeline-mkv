@@ -2,8 +2,6 @@ package eventhandlers_test
 
 import (
 	"servermakemkv/commands/eventhandlers"
-	"servermakemkv/outputs"
-	"servermakemkv/outputs/makemkv"
 	"strings"
 	"testing"
 
@@ -185,11 +183,7 @@ SINFO:0,6,33,0,"90"
 SINFO:0,6,38,0,""
 SINFO:0,6,42,5088,"( Lossless conversion )"`
 
-	standardEvents := make(chan outputs.MakeMkvOutput)
-	discInfoEvents := make(chan makemkv.MakeMkvDiscInfo)
-	disconnection := make(chan bool)
-
-	go eventhandlers.MakeMkvInfoEventHandler(strings.NewReader(input), standardEvents, discInfoEvents, disconnection)
+	standardEvents, discInfoEvents, disconnection := eventhandlers.MakeMkvInfoEventHandler(strings.NewReader(input))
 
 	standardEventCount := 0
 	discInfoEventCount := 0
@@ -245,11 +239,7 @@ MSG:3025,16777216,3,"Title #00004.m2ts has length of 5 seconds which is less tha
 MSG:3025,16777216,3,"Title #00006.m2ts has length of 9 seconds which is less than minimum title length of 120 seconds and was therefore skipped","Title #%1 has length of %2 seconds which is less than minimum title length of %3 seconds and was therefore skipped","00006.m2ts","9","120"
 MSG:3025,0,3,"Title #00010.m2ts has length of 39 seconds which is less than minimum title length of 120 seconds and was therefore skipped","Title #%1 has length of %2 seconds which is less than minimum title length of %3 seconds and was therefore skipped","00010.m2ts","39","120"
 MSG:5011,0,0,"Operation successfully completed","Operation successfully completed"`
-	standardEvents := make(chan outputs.MakeMkvOutput)
-	discInfoEvents := make(chan makemkv.MakeMkvDiscInfo)
-	disconnection := make(chan bool)
-
-	go eventhandlers.MakeMkvInfoEventHandler(strings.NewReader(input), standardEvents, discInfoEvents, disconnection)
+	standardEvents, discInfoEvents, disconnection := eventhandlers.MakeMkvInfoEventHandler(strings.NewReader(input))
 
 	standardEventCount := 0
 	discInfoEventCount := 0

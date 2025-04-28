@@ -8,8 +8,6 @@ import (
 	"log"
 	"os/exec"
 	"servermakemkv/commands/eventhandlers"
-	"servermakemkv/outputs"
-	"servermakemkv/outputs/makemkv"
 )
 
 func TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {
@@ -34,25 +32,26 @@ func TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {
 }
 
 // MkvInfo calls the MakeMKV executable with the given arguments.
-func WatchInfoLogs(outputPipe io.Reader, stringified chan<- []byte) {
-	standardEvents := make(chan outputs.MakeMkvOutput)
-	discEvents := make(chan makemkv.MakeMkvDiscInfo)
-	disconnection := make(chan bool)
+func WatchInfoLogs(outputPipe io.Reader) <-chan []byte {
+	stringified := make(chan []byte)
+	go func() {
 
-	go eventhandlers.MakeMkvInfoEventHandler(outputPipe, standardEvents, discEvents, disconnection)
+		standardEvents, discEvents, disconnection := eventhandlers.MakeMkvInfoEventHandler(outputPipe)
 
-loop:
-	for {
-		select {
-		case standardEvent := <-standardEvents:
-			newJson, _ := json.Marshal(standardEvent)
-			stringified <- newJson
-		case discEvent := <-discEvents:
-			newJson, _ := json.Marshal(discEvent)
-			stringified <- newJson
-		case <-disconnection:
-			close(stringified)
-			break loop
+	loop:
+		for {
+			select {
+			case standardEvent := <-standardEvents:
+				newJson, _ := json.Marshal(standardEvent)
+				stringified <- newJson
+			case discEvent := <-discEvents:
+				newJson, _ := json.Marshal(discEvent)
+				stringified <- newJson
+			case <-disconnection:
+				close(stringified)
+				break loop
+			}
 		}
-	}
+	}()
+	return stringified
 }

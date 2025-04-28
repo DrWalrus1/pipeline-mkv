@@ -28,10 +28,9 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	updates := make(chan []byte)
 	// TODO: add error handling
 	reader, cancel, _ := commands.TriggerDiskInfo(source)
-	go commands.WatchInfoLogs(reader, updates)
+	updates := commands.WatchInfoLogs(reader)
 	go func() {
 		for {
 			_, p, err := conn.ReadMessage()
