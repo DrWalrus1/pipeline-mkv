@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"os/exec"
-	"servermakemkv/outputs"
 	"servermakemkv/stream"
 )
 
@@ -40,8 +39,7 @@ func TriggerDiskBackup(decrypt bool, source string, destination string) (io.Read
 }
 
 func WatchBackupLogs(outputPipe io.Reader, stringified chan<- []byte) {
-	events := make(chan outputs.MakeMkvOutput)
-	go stream.ParseStream(outputPipe, events)
+	events := stream.ParseStream(outputPipe)
 	for {
 		event, ok := <-events
 		if !ok {

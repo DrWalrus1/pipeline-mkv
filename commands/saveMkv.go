@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"os/exec"
-	"servermakemkv/outputs"
 	"servermakemkv/stream"
 )
 
@@ -38,8 +37,7 @@ func TriggerSaveMkv(source string, title string, destination string) (io.Reader,
 }
 
 func WatchSaveMkvLogs(outputPipe io.Reader, stringified chan<- []byte) {
-	events := make(chan outputs.MakeMkvOutput)
-	go stream.ParseStream(outputPipe, events)
+	events := stream.ParseStream(outputPipe)
 	for {
 		event, ok := <-events
 		if !ok {
@@ -54,3 +52,4 @@ func WatchSaveMkvLogs(outputPipe io.Reader, stringified chan<- []byte) {
 	}
 	close(stringified) // Ensure stringified is closed after the loop
 }
+

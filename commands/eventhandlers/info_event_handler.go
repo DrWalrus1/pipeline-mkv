@@ -8,8 +8,7 @@ import (
 )
 
 func MakeMkvInfoEventHandler(reader io.Reader, standardEventsChan chan<- outputs.MakeMkvOutput, discInfoEventChan chan<- makemkv.MakeMkvDiscInfo, disconnectChan chan<- bool) {
-	c := make(chan outputs.MakeMkvOutput)
-	go stream.ParseStream(reader, c)
+	c := stream.ParseStream(reader)
 	var discInfoEvents []outputs.MakeMkvOutput
 	for {
 		if i, ok := <-c; ok {

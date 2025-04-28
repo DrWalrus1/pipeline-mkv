@@ -6,6 +6,6 @@ import (
 	"servermakemkv/stream"
 )
 
-func MakeMkvMkvEventHandler(reader io.Reader, events chan<- outputs.MakeMkvOutput) {
-	go stream.ParseStream(reader, events)
+func MakeMkvMkvEventHandler(reader io.Reader) <-chan outputs.MakeMkvOutput {
+	return stream.ParseStream(reader)
 }

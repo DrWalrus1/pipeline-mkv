@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"servermakemkv/outputs"
 	"servermakemkv/stream"
 	"testing"
 )
@@ -33,8 +32,7 @@ func simulateMakeMkvProgressOutput(t *testing.T) io.Reader {
 
 func TestProcessStream(t *testing.T) {
 	mockOutput := simulateMakeMkvProgressOutput(t)
-	c := make(chan outputs.MakeMkvOutput)
-	go stream.ParseStream(mockOutput, c)
+	c := stream.ParseStream(mockOutput)
 	for i := range c {
 		str, _ := json.Marshal(i)
 		t.Log(string(str))

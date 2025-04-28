@@ -2,7 +2,6 @@ package eventhandlers_test
 
 import (
 	"servermakemkv/commands/eventhandlers"
-	"servermakemkv/outputs"
 	"strings"
 	"testing"
 
@@ -1868,9 +1867,7 @@ PRGV:65536,65536,65536
 MSG:5005,128,1,"1 titles saved","%1 titles saved","1"
 MSG:5036,260,1,"Copy complete. 1 titles saved.","Copy complete. %1 titles saved.","1"`
 
-	events := make(chan outputs.MakeMkvOutput)
-
-	go eventhandlers.MakeMkvMkvEventHandler(strings.NewReader(input), events)
+	events := eventhandlers.MakeMkvMkvEventHandler(strings.NewReader(input))
 
 	eventCount := 0
 	for range events {

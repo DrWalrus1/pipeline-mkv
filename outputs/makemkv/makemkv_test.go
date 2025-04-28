@@ -152,8 +152,7 @@ SINFO:0,6,38,0,""
 SINFO:0,6,42,5088,"( Lossless conversion )"	`
 	var o []outputs.MakeMkvOutput
 	reader := strings.NewReader(input)
-	c := make(chan outputs.MakeMkvOutput)
-	go stream.ParseStream(reader, c)
+	c := stream.ParseStream(reader)
 	for i := range c {
 		o = append(o, i)
 	}
