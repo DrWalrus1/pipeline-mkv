@@ -7,10 +7,10 @@ import (
 	"servermakemkv/stream"
 )
 
-func MakeMkvInfoEventHandler(reader io.Reader) (<-chan outputs.MakeMkvOutput, <-chan makemkv.MakeMkvDiscInfo, <-chan bool) {
-	standardEventsChan := make(chan outputs.MakeMkvOutput)
-	discInfoEventChan := make(chan makemkv.MakeMkvDiscInfo)
-	disconnectChan := make(chan bool)
+func MakeMkvInfoEventHandler(reader io.Reader) (standardEventsChannel chan outputs.MakeMkvOutput, discInfoEventChannel chan makemkv.MakeMkvDiscInfo, disconnectChannel chan bool) {
+	standardEventsChannel = make(chan outputs.MakeMkvOutput)
+	discInfoEventChannel = make(chan makemkv.MakeMkvDiscInfo)
+	disconnectChannel = make(chan bool)
 
 	go func() {
 		c := stream.ParseStream(reader)
@@ -24,19 +24,19 @@ func MakeMkvInfoEventHandler(reader io.Reader) (<-chan outputs.MakeMkvOutput, <-
 				} else if standardEvent, ok := i.(*outputs.StreamInformation); ok {
 					discInfoEvents = append(discInfoEvents, standardEvent)
 				} else {
-					standardEventsChan <- i
+					standardEventsChannel <- i
 				}
 			} else {
 				if len(discInfoEvents) > 0 {
-					discInfoEventChan <- makemkv.MakeMkvOutputsIntoMakeMkvDiscInfo(discInfoEvents)
+					discInfoEventChannel <- makemkv.MakeMkvOutputsIntoMakeMkvDiscInfo(discInfoEvents)
 				}
 				break
 			}
 		}
-		disconnectChan <- true
-		close(standardEventsChan)
-		close(discInfoEventChan)
-		close(disconnectChan)
+		disconnectChannel <- true
+		close(standardEventsChannel)
+		close(discInfoEventChannel)
+		close(disconnectChannel)
 	}()
-	return standardEventsChan, discInfoEventChan, disconnectChan
+	return standardEventsChannel, discInfoEventChannel, disconnectChannel
 }
