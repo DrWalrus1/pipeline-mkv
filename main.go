@@ -68,10 +68,9 @@ func mkvHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	updates := make(chan []byte)
 	// TODO: add error handling
 	reader, cancel, _ := commands.TriggerSaveMkv(source, title, destination)
-	go commands.WatchSaveMkvLogs(reader, updates)
+	updates := commands.WatchSaveMkvLogs(reader)
 	go func() {
 		for {
 			_, p, err := conn.ReadMessage()
@@ -113,10 +112,9 @@ func backupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	updates := make(chan []byte)
 	// TODO: add error handling
 	reader, cancel, _ := commands.TriggerDiskBackup(decrypt, source, destination)
-	go commands.WatchBackupLogs(reader, updates)
+	updates := commands.WatchBackupLogs(reader)
 
 	go func() {
 		for {

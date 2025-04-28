@@ -36,20 +36,24 @@ func TriggerSaveMkv(source string, title string, destination string) (io.Reader,
 	return outputPipe, cancel, nil
 }
 
-func WatchSaveMkvLogs(outputPipe io.Reader, stringified chan<- []byte) {
-	events := stream.ParseStream(outputPipe)
-	for {
-		event, ok := <-events
-		if !ok {
-			break
+func WatchSaveMkvLogs(outputPipe io.Reader) <-chan []byte {
+	stringified := make(chan []byte)
+	go func() {
+		events := stream.ParseStream(outputPipe)
+		for {
+			event, ok := <-events
+			if !ok {
+				break
+			}
+			newJson, err := json.Marshal(event)
+			if err != nil {
+				log.Printf("error marshaling event: %s", err.Error())
+				continue // or break, depending on desired behavior
+			}
+			stringified <- newJson
 		}
-		newJson, err := json.Marshal(event)
-		if err != nil {
-			log.Printf("error marshaling event: %s", err.Error())
-			continue // or break, depending on desired behavior
-		}
-		stringified <- newJson
-	}
-	close(stringified) // Ensure stringified is closed after the loop
+		close(stringified) // Ensure stringified is closed after the loop
+	}()
+	return stringified
 }
 
