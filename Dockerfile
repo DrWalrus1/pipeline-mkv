@@ -1,12 +1,14 @@
-FROM ubuntu:latest
+FROM debian:bookworm
 ENV ACCEPT_EULA=Y
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    build-essential pkg-config libc6-dev libssl-dev libexpat1-dev libavcodec-dev libgl1-mesa-dev qtbase5-dev zlib1g-dev wget less software-properties-common && \
-    add-apt-repository ppa:longsleep/golang-backports && \
+    build-essential pkg-config libc6-dev libssl-dev libexpat1-dev \
+    libavcodec-dev libgl1-mesa-dev qtbase5-dev zlib1g-dev wget less \
+    software-properties-common curl gnupg && \
+    echo "deb http://deb.debian.org/debian bookworm-backports main" > /etc/apt/sources.list.d/backports.list && \
     apt-get update && \
-    apt-get install -y golang-go
+    apt-get -t bookworm-backports install -y golang-go
 
 WORKDIR /makemkv
 RUN wget https://www.makemkv.com/download/makemkv-bin-1.18.1.tar.gz && \
@@ -30,4 +32,4 @@ COPY . .
 RUN go build .
 
 EXPOSE 8080
-CMD [ "/code/servermakemkv"]
+CMD ["/code/servermakemkv"]
