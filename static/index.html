@@ -1,11 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>MakeMKV UI Mockup</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            /* Arrange items vertically */
+            padding: 20px;
+            align-items: flex-start;
+            /* Align items to the left */
+        }
+
+        select {
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 222px;
+            /* Match the width of the poster and buttons */
+        }
+
+        .content-container {
+            display: flex;
+            align-items: flex-start;
+            /* Align poster and buttons horizontally at the start */
+        }
+
+        .poster-placeholder {
+            width: 200px;
+            /* Adjust width as needed */
+            height: 300px;
+            /* Adjust height as needed */
+            border: 1px dashed #ccc;
+            margin-right: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #999;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 150px;
+            /* Adjust button width as needed */
+        }
+
+        button:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Hello, World!</h1>
+    <select id="disc-selector">
+        <option disabled selected>Select Disc</option>
+        <option value="disc1">Disc 1</option>
+        <option value="disc2">Disc 2</option>
+        <option value="disc3">Disc 3</option>
+        <option value="disc4">Disc 4</option>
+        <option value="disc5">Disc 5</option>
+        <option value="disc6">Disc 6</option>
+        <option value="disc7">Disc 7</option>
+        <option value="disc8">Disc 8</option>
+        <option value="disc9">Disc 9</option>
+        <option value="disc10">Disc 10</option>
+        <option value="disc11">Disc 11</option>
+        <option value="disc12">Disc 12</option>
+        <option value="disc13">Disc 13</option>
+        <option value="disc14">Disc 14</option>
+        <option value="disc15">Disc 15</option>
+        <option value="disc16">Disc 16</option>
+    </select>
+
+    <div class="content-container">
+        <div class="poster-placeholder">Poster</div>
+        <div class="button-container">
+            <button>Load Disc</button>
+            <button>Make MKV</button>
+            <button>Backup Disc</button>
+            <button>Register MakeMKV Key</button>
+            <button>Eject</button>
+        </div>
+    </div>
 </body>
+
 </html>
