@@ -5,64 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MakeMKV UI Mockup</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            /* Arrange items vertically */
-            padding: 20px;
-            align-items: flex-start;
-            /* Align items to the left */
-        }
-
-        select {
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 222px;
-            /* Match the width of the poster and buttons */
-        }
-
-        .content-container {
-            display: flex;
-            align-items: flex-start;
-            /* Align poster and buttons horizontally at the start */
-        }
-
-        .poster-placeholder {
-            width: 200px;
-            /* Adjust width as needed */
-            height: 300px;
-            /* Adjust height as needed */
-            border: 1px dashed #ccc;
-            margin-right: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #999;
-        }
-
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        button {
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 150px;
-            /* Adjust button width as needed */
-        }
-
-        button:hover {
-            background-color: #e0e0e0;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -89,13 +32,16 @@
     <div class="content-container">
         <div class="poster-placeholder">Poster</div>
         <div class="button-container">
-            <button>Load Disc</button>
+            <button onclick="connectWS('info', handleInfoEvent)">Load Disc</button>
             <button>Make MKV</button>
             <button>Backup Disc</button>
             <button>Register MakeMKV Key</button>
             <button>Eject</button>
         </div>
     </div>
+    <div id="messages"></div>
 </body>
+
+<script defer src="index.js"></script>
 
 </html>

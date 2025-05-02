@@ -1,3 +1,4 @@
+# syntax=docker.io/docker/dockerfile:1.7-labs
 FROM debian:bookworm
 ENV ACCEPT_EULA=Y
 
@@ -28,8 +29,9 @@ RUN yes yes | make && \
     make install
 
 WORKDIR /code
-COPY . .
+COPY --exclude=static/ . .
 RUN go build .
+COPY /static ./static
 
 EXPOSE 8080
 CMD ["/code/servermakemkv"]

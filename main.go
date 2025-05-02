@@ -29,7 +29,17 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	// TODO: add error handling
-	reader, cancel, _ := commands.TriggerDiskInfo(source)
+	reader, cancel, err := commands.TriggerDiskInfo(source)
+	if err != nil {
+		log.Printf("Could not trigger get disk info: %v", err)
+		cancel()
+		err = conn.WriteMessage(websocket.TextMessage, fmt.Appendf(nil, "Could not trigger get disk info: %v", err))
+		if err != nil {
+			log.Println("write error:", err)
+			return // Exit if we can't write (client likely disconnected)
+		}
+		return
+	}
 	updates := commands.WatchInfoLogs(reader)
 	go func() {
 		for {
