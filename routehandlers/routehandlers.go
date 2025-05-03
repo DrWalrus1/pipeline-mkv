@@ -78,8 +78,17 @@ func MkvHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	// TODO: add error handling
-	reader, cancel, _ := makemkv.TriggerSaveMkv(source, title, destination)
+	reader, cancel, err := makemkv.TriggerSaveMkv(source, title, destination)
+	if err != nil {
+		errorMessage := fmt.Sprintf("Could not trigger makemkv save: %v", err)
+		log.Printf(errorMessage)
+		err = conn.WriteMessage(websocket.TextMessage, []byte(errorMessage))
+		if err != nil {
+			log.Println("write error:", err)
+			return // Exit if we can't write (client likely disconnected)
+		}
+		return
+	}
 	updates := makemkv.WatchSaveMkvLogs(reader)
 	go func() {
 		for {
@@ -122,8 +131,18 @@ func BackupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	// TODO: add error handling
-	reader, cancel, _ := makemkv.TriggerDiskBackup(decrypt, source, destination)
+	reader, cancel, err := makemkv.TriggerDiskBackup(decrypt, source, destination)
+	if err != nil {
+		errorMessage := fmt.Sprintf("Could not trigger disk backup: %v", err)
+		log.Printf(errorMessage)
+		err = conn.WriteMessage(websocket.TextMessage, []byte(errorMessage))
+		if err != nil {
+			log.Println("write error:", err)
+			return // Exit if we can't write (client likely disconnected)
+		}
+		return
+	}
+
 	updates := makemkv.WatchBackupLogs(reader)
 
 	go func() {
@@ -154,7 +173,6 @@ func BackupHandler(w http.ResponseWriter, r *http.Request) {
 func RegistrationHandler(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("key")
 
-	// TODO: add error handling
 	responseStatus := makemkv.RegisterMkvKey(key)
 	w.WriteHeader(responseStatus)
 }
