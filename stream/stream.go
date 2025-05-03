@@ -31,7 +31,6 @@ func ReadStream(reader io.Reader) <-chan string {
 		defer close(c)
 		scanner := bufio.NewScanner(reader)
 		for scanner.Scan() {
-			fmt.Println("hello")
 			c <- scanner.Text()
 		}
 	}()
