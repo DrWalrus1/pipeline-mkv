@@ -81,7 +81,7 @@ func MkvHandler(w http.ResponseWriter, r *http.Request) {
 	reader, cancel, err := makemkv.TriggerSaveMkv(source, title, destination)
 	if err != nil {
 		errorMessage := fmt.Sprintf("Could not trigger makemkv save: %v", err)
-		log.Printf(errorMessage)
+		log.Println(errorMessage)
 		err = conn.WriteMessage(websocket.TextMessage, []byte(errorMessage))
 		if err != nil {
 			log.Println("write error:", err)
@@ -134,7 +134,7 @@ func BackupHandler(w http.ResponseWriter, r *http.Request) {
 	reader, cancel, err := makemkv.TriggerDiskBackup(decrypt, source, destination)
 	if err != nil {
 		errorMessage := fmt.Sprintf("Could not trigger disk backup: %v", err)
-		log.Printf(errorMessage)
+		log.Println(errorMessage)
 		err = conn.WriteMessage(websocket.TextMessage, []byte(errorMessage))
 		if err != nil {
 			log.Println("write error:", err)
