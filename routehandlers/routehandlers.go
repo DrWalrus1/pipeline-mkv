@@ -1,0 +1,160 @@
+package routehandlers
+
+import (
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"servermakemkv/commands/makemkv"
+	"strconv"
+
+	"github.com/gorilla/websocket"
+)
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true // Allow all origins (for development).  **SECURITY WARNING**:  In production, restrict this!
+	},
+}
+
+func InfoHandler(w http.ResponseWriter, r *http.Request) {
+	source := r.URL.Query().Get("source")
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	// TODO: add error handling
+	reader, cancel, err := makemkv.TriggerDiskInfo(source)
+	if err != nil {
+		log.Printf("Could not trigger get disk info: %v", err)
+		err = conn.WriteMessage(websocket.TextMessage, fmt.Appendf(nil, "Could not trigger get disk info: %v", err))
+		if err != nil {
+			log.Println("write error:", err)
+			return // Exit if we can't write (client likely disconnected)
+		}
+		return
+	}
+	updates := makemkv.WatchInfoLogs(reader)
+	go func() {
+		for {
+			messageType, p, err := conn.ReadMessage()
+			if string(p) == "cancel" {
+				cancel()
+				return
+			}
+			fmt.Printf("Message Type: %v", messageType)
+			if err != nil {
+				log.Println("read error:", err)
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					return
+				}
+				return
+			}
+		}
+	}()
+	for update := range updates {
+		err = conn.WriteMessage(websocket.TextMessage, update)
+		if err != nil {
+			log.Println("write error:", err)
+			return // Exit if we can't write (client likely disconnected)
+		}
+	}
+}
+
+func MkvHandler(w http.ResponseWriter, r *http.Request) {
+	source := r.URL.Query().Get("source")
+	title := r.URL.Query().Get("title")
+	destination := r.URL.Query().Get("destination")
+
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	// TODO: add error handling
+	reader, cancel, _ := makemkv.TriggerSaveMkv(source, title, destination)
+	updates := makemkv.WatchSaveMkvLogs(reader)
+	go func() {
+		for {
+			_, p, err := conn.ReadMessage()
+			if string(p) == "cancel" {
+				cancel()
+				return
+			}
+			if err != nil {
+				log.Println("read error:", err)
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					return
+				}
+				return
+			}
+		}
+	}()
+	for update := range updates {
+		err = conn.WriteMessage(websocket.TextMessage, update)
+		if err != nil {
+			log.Println("write error:", err)
+			return // Exit if we can't write (client likely disconnected)
+		}
+	}
+}
+
+func BackupHandler(w http.ResponseWriter, r *http.Request) {
+	decrypt, err := strconv.ParseBool(r.URL.Query().Get("decrypt"))
+	if err != nil {
+		r.Response.StatusCode = 400
+		return
+	}
+	source := r.URL.Query().Get("source")
+	destination := r.URL.Query().Get("destination")
+
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	// TODO: add error handling
+	reader, cancel, _ := makemkv.TriggerDiskBackup(decrypt, source, destination)
+	updates := makemkv.WatchBackupLogs(reader)
+
+	go func() {
+		for {
+			_, p, err := conn.ReadMessage()
+			if string(p) == "cancel" {
+				cancel()
+				return
+			}
+			if err != nil {
+				log.Println("read error:", err)
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					return
+				}
+				return
+			}
+		}
+	}()
+	for update := range updates {
+		err = conn.WriteMessage(websocket.TextMessage, update)
+		if err != nil {
+			log.Println("write error:", err)
+			return // Exit if we can't write (client likely disconnected)
+		}
+	}
+}
+
+func RegistrationHandler(w http.ResponseWriter, r *http.Request) {
+	key := r.URL.Query().Get("key")
+
+	// TODO: add error handling
+	responseStatus := makemkv.RegisterMkvKey(key)
+	w.WriteHeader(responseStatus)
+}

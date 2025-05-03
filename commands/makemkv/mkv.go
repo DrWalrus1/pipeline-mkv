@@ -1,4 +1,4 @@
-package commands
+package makemkv
 
 import (
 	"context"
@@ -53,7 +53,6 @@ func (command *Command) Wait() error {
 func (command *Command) Cancel() {
 	command.cancelFunc()
 }
-
 
 func validateSource(source string) error {
 	if source == "" {

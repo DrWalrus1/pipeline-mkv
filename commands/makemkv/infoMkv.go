@@ -1,4 +1,4 @@
-package commands
+package makemkv
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"os/exec"
-	"servermakemkv/commands/eventhandlers"
+	"servermakemkv/commands/makemkv/eventhandlers"
 )
 
 func TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {
@@ -15,16 +15,19 @@ func TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {
 	cmd := exec.CommandContext(ctx, "makemkvcon", "-r", "--progress=-stdout", "info", source)
 	outputPipe, err := cmd.StdoutPipe()
 	if err != nil {
-		return nil, cancel, fmt.Errorf("error creating stdout pipe: %w", err)
+		cancel()
+		return nil, nil, fmt.Errorf("error creating stdout pipe: %w", err)
 	}
 	if err := cmd.Start(); err != nil {
-		return nil, cancel, fmt.Errorf("error starting command: %w", err)
+		cancel()
+		return nil, nil, fmt.Errorf("error starting command: %w", err)
 	}
 	go func() {
 		if err := cmd.Wait(); err != nil {
 			if ctx.Err() == context.Canceled {
 				return
 			}
+			cancel()
 			log.Printf("error waiting for command: %s", err.Error())
 		}
 	}()

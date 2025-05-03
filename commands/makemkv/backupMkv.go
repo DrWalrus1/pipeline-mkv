@@ -1,4 +1,4 @@
-package commands
+package makemkv
 
 import (
 	"context"

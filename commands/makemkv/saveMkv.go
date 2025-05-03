@@ -1,4 +1,4 @@
-package commands
+package makemkv
 
 import (
 	"context"
@@ -56,4 +56,3 @@ func WatchSaveMkvLogs(outputPipe io.Reader) <-chan []byte {
 	}()
 	return stringified
 }
-
