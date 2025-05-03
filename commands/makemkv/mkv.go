@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os/exec"
+	"servermakemkv/commands/makemkv/eventhandlers"
 	"servermakemkv/stream"
 	"strings"
 )
@@ -80,19 +81,5 @@ func RegisterMkvKey(key string) int {
 	if err := cmd.Start(); err != nil {
 		log.Fatalf("error executing command. %s", err.Error())
 	}
-	c := make(chan string)
-	go stream.ReadStream(outputPipe, c)
-	for s := range c {
-		switch {
-		case strings.HasPrefix(s, registerMkvKeyBadKeyPrefix):
-			fmt.Println(s)
-			return 400
-		case strings.HasPrefix(s, registerMkvKeySavedPrefix):
-			fmt.Println(s)
-			return 200
-		default:
-			fmt.Println(s)
-		}
-	}
-	return 500
+	return eventhandlers.HandleRegisterMakeMkvEvents(outputPipe)
 }
