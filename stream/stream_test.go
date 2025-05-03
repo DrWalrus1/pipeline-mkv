@@ -6,6 +6,8 @@ import (
 	"io"
 	"servermakemkv/stream"
 	"testing"
+
+	"github.com/go-playground/assert/v2"
 )
 
 func simulateMakeMkvProgressOutput(t *testing.T) io.Reader {
@@ -37,4 +39,15 @@ func TestProcessStream(t *testing.T) {
 		str, _ := json.Marshal(i)
 		t.Log(string(str))
 	}
+}
+
+func TestReadStream(t *testing.T) {
+	mockOutput := simulateMakeMkvProgressOutput(t)
+	c := stream.ReadStream(mockOutput)
+	actualLineCount := 0
+	for range c {
+		actualLineCount++
+	}
+	assert.Equal(t, 11, actualLineCount)
+
 }
