@@ -1,9 +1,10 @@
 https://makemkv.com/developers/usage.txt <- Link for makemkvcon documentation
 
-https://mkvtoolnix.download/doc/mkvmerge.html
-https://mkvtoolnix.download/doc/mkvextract.html
-https://mkvtoolnix.download/doc/mkvinfo.html
-https://mkvtoolnix.download/doc/mkvpropedit.html
+MkvToolNix documentation
+* https://mkvtoolnix.download/doc/mkvmerge.html
+* https://mkvtoolnix.download/doc/mkvextract.html
+* https://mkvtoolnix.download/doc/mkvinfo.html
+* https://mkvtoolnix.download/doc/mkvpropedit.html
 
 ## Useful commands
 
