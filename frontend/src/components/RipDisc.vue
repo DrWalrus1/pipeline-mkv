@@ -1,4 +1,9 @@
 <script lang="ts" setup>
+import { ref, defineProps } from 'vue';
+const props = defineProps<{
+  titles: Array<{ id: number; name: string }>;
+}>();
+
 </script>
 
 <template>
@@ -8,15 +13,9 @@
     <option value="disc:3">Disc 3</option>
   </select>
   <br>
-  <input type="checkbox" name="title" value="0">Title 0</input>
-  <br>
-  <input type="checkbox" name="title" value="1">Title 1</input>
-  <br>
-  <input type="checkbox" name="title" value="2">Title 2</input>
-  <br>
-  <input type="checkbox" name="title" value="3">Title 3</input>
-  <br>
-  <input type="checkbox" name="title" value="4">Title 4</input>
-  <br>
+  <div v-for="title in props.titles" :key="title.id">
+    <input type="checkbox" :name="'title-' + title.id" :value="title.id">{{ title.name }}</input>
+    <br>
+  </div>
   <Button>Rip Disc</Button>
 </template>
