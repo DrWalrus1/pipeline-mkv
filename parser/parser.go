@@ -3,6 +3,7 @@ package parser
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"servermakemkv/outputs"
 	"strconv"
 	"strings"
@@ -60,12 +61,20 @@ var parsers = []struct {
 	}},
 }
 
-func Parse(input string) (outputs.MakeMkvOutput, error) {
+func sanitiseString(input string) string {
 	input = strings.TrimSpace(input)
-	if input == "" {
+	input = strings.ReplaceAll(input, "\"", "")
+	boldOrBreakLineRegex := regexp.MustCompile("\u003c(b|/b|br)\u003e")
+	input = boldOrBreakLineRegex.ReplaceAllString(input, "")
+	return input
+}
+
+func Parse(input string) (outputs.MakeMkvOutput, error) {
+	sanitised := sanitiseString(input)
+	if sanitised == "" {
 		return nil, EmptyInput
 	}
-	sanitised := strings.ReplaceAll(input, "\"", "")
+
 	for _, parser := range parsers {
 		if strings.HasPrefix(sanitised, parser.prefix) {
 			return parser.fn(sanitised)

@@ -158,5 +158,6 @@ SINFO:0,6,42,5088,"( Lossless conversion )"	`
 	}
 
 	discInfo := makemkv.MakeMkvOutputsIntoMakeMkvDiscInfo(o)
-	json.MarshalIndent(discInfo, "", "  ")
+	output, _ := json.MarshalIndent(discInfo, "", "  ")
+	t.Log(string(output))
 }

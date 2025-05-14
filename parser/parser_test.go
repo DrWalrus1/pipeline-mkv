@@ -15,6 +15,12 @@ func TestEmptyStringFailsParsing(t *testing.T) {
 	assert.Equal(t, nil, actual)
 }
 
+func TestStringSanitisation(t *testing.T) {
+	actual, err := parser.Parse(" SINFO:0,6,31,6121,<b>Track information</b><br>")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, actual.(*outputs.StreamInformation).Value, "Track information")
+}
+
 func TestCurrentProgressTitleOutputParser(t *testing.T) {
 	t.Run("Successful Parse", func(t *testing.T) {
 		expected := outputs.CurrentProgressTitleOutput{
