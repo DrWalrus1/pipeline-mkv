@@ -3,7 +3,7 @@ package eventhandlers
 import (
 	"fmt"
 	"io"
-	"servermakemkv/stream"
+	"servermakemkv/makemkv/streamReader"
 	"strings"
 )
 
@@ -11,7 +11,7 @@ const registerMkvKeyBadKeyPrefix string = "Key not found or invalid"
 const registerMkvKeySavedPrefix string = "Registration key saved"
 
 func HandleRegisterMakeMkvEvents(reader io.Reader) int {
-	c := stream.ReadStream(reader)
+	c := streamReader.ReadStream(reader)
 	for s := range c {
 		s = strings.TrimSpace(s)
 		switch {

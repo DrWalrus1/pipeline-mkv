@@ -1,4 +1,4 @@
-package makemkv
+package commands
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"os/exec"
-	"servermakemkv/stream"
+	"servermakemkv/makemkv/streamReader"
 )
 
 func TriggerDiskBackup(decrypt bool, source string, destination string) (io.Reader, context.CancelFunc, error) {
@@ -41,7 +41,7 @@ func TriggerDiskBackup(decrypt bool, source string, destination string) (io.Read
 func WatchBackupLogs(outputPipe io.Reader) <-chan []byte {
 	stringified := make(chan []byte)
 	go func() {
-		events := stream.ParseStream(outputPipe)
+		events := streamReader.ParseStream(outputPipe)
 		for {
 			event, ok := <-events
 			if !ok {

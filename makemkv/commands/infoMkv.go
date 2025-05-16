@@ -1,4 +1,4 @@
-package makemkv
+package commands
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"os/exec"
-	"servermakemkv/commands/makemkv/eventhandlers"
+	"servermakemkv/makemkv/commands/eventhandlers"
 )
 
 func TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {

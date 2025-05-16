@@ -1,7 +1,7 @@
 package eventhandlers_test
 
 import (
-	"servermakemkv/commands/makemkv/eventhandlers"
+	"servermakemkv/makemkv/commands/eventhandlers"
 	"strings"
 	"testing"
 

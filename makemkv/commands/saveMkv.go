@@ -1,4 +1,4 @@
-package makemkv
+package commands
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"os/exec"
-	"servermakemkv/stream"
+	"servermakemkv/makemkv/streamReader"
 )
 
 func TriggerSaveMkv(source string, title string, destination string) (io.Reader, context.CancelFunc, error) {
@@ -39,7 +39,7 @@ func TriggerSaveMkv(source string, title string, destination string) (io.Reader,
 func WatchSaveMkvLogs(outputPipe io.Reader) <-chan []byte {
 	stringified := make(chan []byte)
 	go func() {
-		events := stream.ParseStream(outputPipe)
+		events := streamReader.ParseStream(outputPipe)
 		for {
 			event, ok := <-events
 			if !ok {

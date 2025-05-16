@@ -1,18 +1,15 @@
 package makemkv
 
-import (
-	"servermakemkv/outputs"
-	"servermakemkv/outputs/makemkv/ids"
-)
+import "servermakemkv/makemkv/commands/outputs"
 
 type MakeMkvDiscInfo struct {
 	Properties map[string]MakeMkvValue `json:"properties"`
 	Titles     map[int]MakeMkvTitle    `json:"titles"`
 }
 
-func (mkvDiscInfo *MakeMkvDiscInfo) addDiscInfo(discInfo outputs.DiscInformation) {
-	desc, _ := ids.GetItemAttributeDescription(discInfo.ID)
-	messagecode, err := ids.GetAppConstantDescription(discInfo.MessageCodeId)
+func (mkvDiscInfo *MakeMkvDiscInfo) addDiscInfoVerbose(discInfo outputs.DiscInformation) {
+	desc, _ := outputs.GetItemAttributeDescription(discInfo.ID)
+	messagecode, err := outputs.GetAppConstantDescription(discInfo.MessageCodeId)
 	if err != nil {
 		messagecode = ""
 	}
@@ -23,15 +20,15 @@ func (mkvDiscInfo *MakeMkvDiscInfo) addDiscInfo(discInfo outputs.DiscInformation
 	mkvDiscInfo.Properties[desc] = mkvValue
 }
 
-func (discInfo *MakeMkvDiscInfo) addTitleInformation(titleInfo outputs.TitleInformation) {
+func (discInfo *MakeMkvDiscInfo) addTitleInformationVerbose(titleInfo outputs.TitleInformation) {
 	if _, ok := discInfo.Titles[titleInfo.TitleIndex]; !ok {
 		discInfo.Titles[titleInfo.TitleIndex] = MakeMkvTitle{
 			Properties: make(map[string]MakeMkvValue),
 			Streams:    make(map[int]map[string]MakeMkvValue),
 		}
 	}
-	desc, _ := ids.GetItemAttributeDescription(titleInfo.AttributeId)
-	messagecode, err := ids.GetAppConstantDescription(titleInfo.MessageCodeId)
+	desc, _ := outputs.GetItemAttributeDescription(titleInfo.AttributeId)
+	messagecode, err := outputs.GetAppConstantDescription(titleInfo.MessageCodeId)
 	if err != nil {
 		messagecode = ""
 	}
@@ -42,7 +39,7 @@ func (discInfo *MakeMkvDiscInfo) addTitleInformation(titleInfo outputs.TitleInfo
 	discInfo.Titles[titleInfo.TitleIndex].Properties[desc] = mkvValue
 }
 
-func (discInfo *MakeMkvDiscInfo) addStreamInformation(streamInfo outputs.StreamInformation) {
+func (discInfo *MakeMkvDiscInfo) addStreamInformationVerbose(streamInfo outputs.StreamInformation) {
 	if streamInfo.Value == "" {
 		return
 	}
@@ -56,8 +53,8 @@ func (discInfo *MakeMkvDiscInfo) addStreamInformation(streamInfo outputs.StreamI
 	if _, ok := discInfo.Titles[streamInfo.TitleIndex].Streams[streamInfo.StreamIndex]; !ok {
 		discInfo.Titles[streamInfo.TitleIndex].Streams[streamInfo.StreamIndex] = make(map[string]MakeMkvValue)
 	}
-	desc, _ := ids.GetItemAttributeDescription(streamInfo.AttributeId)
-	messagecode, err := ids.GetAppConstantDescription(streamInfo.MessageCodeId)
+	desc, _ := outputs.GetItemAttributeDescription(streamInfo.AttributeId)
+	messagecode, err := outputs.GetAppConstantDescription(streamInfo.MessageCodeId)
 	if err != nil {
 		messagecode = ""
 	}
@@ -78,18 +75,18 @@ type MakeMkvValue struct {
 	Value            string `json:"value,omitempty"`
 }
 
-func MakeMkvOutputsIntoMakeMkvDiscInfo(makemkvOutputs []outputs.MakeMkvOutput) MakeMkvDiscInfo {
+func MakeMkvOutputsIntoMakeMkvDiscInfoVerbose(makemkvOutputs []outputs.MakeMkvOutput) MakeMkvDiscInfo {
 	mkvDiscInfo := MakeMkvDiscInfo{
 		Properties: make(map[string]MakeMkvValue),
 		Titles:     make(map[int]MakeMkvTitle),
 	}
 	for _, x := range makemkvOutputs {
 		if i, ok := x.(*outputs.DiscInformation); ok {
-			mkvDiscInfo.addDiscInfo(*i)
+			mkvDiscInfo.addDiscInfoVerbose(*i)
 		} else if i, ok := x.(*outputs.TitleInformation); ok {
-			mkvDiscInfo.addTitleInformation(*i)
+			mkvDiscInfo.addTitleInformationVerbose(*i)
 		} else if i, ok := x.(*outputs.StreamInformation); ok {
-			mkvDiscInfo.addStreamInformation(*i)
+			mkvDiscInfo.addStreamInformationVerbose(*i)
 		}
 	}
 	return mkvDiscInfo

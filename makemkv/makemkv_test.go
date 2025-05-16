@@ -2,9 +2,9 @@ package makemkv_test
 
 import (
 	"encoding/json"
-	"servermakemkv/outputs"
-	"servermakemkv/outputs/makemkv"
-	"servermakemkv/stream"
+	"servermakemkv/makemkv"
+	"servermakemkv/makemkv/commands/outputs"
+	"servermakemkv/makemkv/streamReader"
 	"strings"
 	"testing"
 )
@@ -152,12 +152,12 @@ SINFO:0,6,38,0,""
 SINFO:0,6,42,5088,"( Lossless conversion )"	`
 	var o []outputs.MakeMkvOutput
 	reader := strings.NewReader(input)
-	c := stream.ParseStream(reader)
+	c := streamReader.ParseStream(reader)
 	for i := range c {
 		o = append(o, i)
 	}
 
-	discInfo := makemkv.MakeMkvOutputsIntoMakeMkvDiscInfo(o)
+	discInfo := makemkv.MakeMkvOutputsIntoMakeMkvDiscInfoVerbose(o)
 	output, _ := json.MarshalIndent(discInfo, "", "  ")
 	t.Log(string(output))
 }

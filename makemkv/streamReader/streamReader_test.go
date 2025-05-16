@@ -1,10 +1,10 @@
-package stream_test
+package streamReader_test
 
 import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"servermakemkv/stream"
+	"servermakemkv/makemkv/streamReader"
 	"testing"
 
 	"github.com/go-playground/assert/v2"
@@ -34,7 +34,7 @@ func simulateMakeMkvProgressOutput(t *testing.T) io.Reader {
 
 func TestProcessStream(t *testing.T) {
 	mockOutput := simulateMakeMkvProgressOutput(t)
-	c := stream.ParseStream(mockOutput)
+	c := streamReader.ParseStream(mockOutput)
 	for i := range c {
 		str, _ := json.Marshal(i)
 		t.Log(string(str))
@@ -43,7 +43,7 @@ func TestProcessStream(t *testing.T) {
 
 func TestReadStream(t *testing.T) {
 	mockOutput := simulateMakeMkvProgressOutput(t)
-	c := stream.ReadStream(mockOutput)
+	c := streamReader.ReadStream(mockOutput)
 	actualLineCount := 0
 	for range c {
 		actualLineCount++

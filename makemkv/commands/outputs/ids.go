@@ -1,4 +1,4 @@
-package ids
+package outputs
 
 import "errors"
 

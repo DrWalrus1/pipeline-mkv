@@ -5,7 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"servermakemkv/commands/makemkv"
+	makemkvCommands "servermakemkv/makemkv/commands"
 	"strconv"
 
 	"github.com/gorilla/websocket"
@@ -29,7 +29,7 @@ func InfoHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	// TODO: add error handling
-	reader, cancel, err := makemkv.TriggerDiskInfo(source)
+	reader, cancel, err := makemkvCommands.TriggerDiskInfo(source)
 	if err != nil {
 		log.Printf("Could not trigger get disk info: %v", err)
 		err = conn.WriteMessage(websocket.TextMessage, fmt.Appendf(nil, "Could not trigger get disk info: %v", err))
@@ -39,7 +39,7 @@ func InfoHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	updates := makemkv.WatchInfoLogs(reader)
+	updates := makemkvCommands.WatchInfoLogs(reader)
 	go func() {
 		for {
 			messageType, p, err := conn.ReadMessage()
@@ -78,7 +78,7 @@ func MkvHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	reader, cancel, err := makemkv.TriggerSaveMkv(source, title, destination)
+	reader, cancel, err := makemkvCommands.TriggerSaveMkv(source, title, destination)
 	if err != nil {
 		errorMessage := fmt.Sprintf("Could not trigger makemkv save: %v", err)
 		log.Println(errorMessage)
@@ -89,7 +89,7 @@ func MkvHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	updates := makemkv.WatchSaveMkvLogs(reader)
+	updates := makemkvCommands.WatchSaveMkvLogs(reader)
 	go func() {
 		for {
 			_, p, err := conn.ReadMessage()
@@ -131,7 +131,7 @@ func BackupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	reader, cancel, err := makemkv.TriggerDiskBackup(decrypt, source, destination)
+	reader, cancel, err := makemkvCommands.TriggerDiskBackup(decrypt, source, destination)
 	if err != nil {
 		errorMessage := fmt.Sprintf("Could not trigger disk backup: %v", err)
 		log.Println(errorMessage)
@@ -143,7 +143,7 @@ func BackupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updates := makemkv.WatchBackupLogs(reader)
+	updates := makemkvCommands.WatchBackupLogs(reader)
 
 	go func() {
 		for {
@@ -173,6 +173,6 @@ func BackupHandler(w http.ResponseWriter, r *http.Request) {
 func RegistrationHandler(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("key")
 
-	responseStatus := makemkv.RegisterMkvKey(key)
+	responseStatus := makemkvCommands.RegisterMkvKey(key)
 	w.WriteHeader(responseStatus)
 }

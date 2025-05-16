@@ -2,9 +2,9 @@ package eventhandlers
 
 import (
 	"io"
-	"servermakemkv/outputs"
-	"servermakemkv/outputs/makemkv"
-	"servermakemkv/stream"
+	"servermakemkv/makemkv"
+	"servermakemkv/makemkv/commands/outputs"
+	"servermakemkv/makemkv/streamReader"
 )
 
 func MakeMkvInfoEventHandler(reader io.Reader) (standardEventsChannel chan outputs.MakeMkvOutput, discInfoEventChannel chan makemkv.MakeMkvDiscInfo, disconnectChannel chan bool) {
@@ -13,7 +13,7 @@ func MakeMkvInfoEventHandler(reader io.Reader) (standardEventsChannel chan outpu
 	disconnectChannel = make(chan bool)
 
 	go func() {
-		c := stream.ParseStream(reader)
+		c := streamReader.ParseStream(reader)
 		var discInfoEvents []outputs.MakeMkvOutput
 		for {
 			if i, ok := <-c; ok {
@@ -28,7 +28,7 @@ func MakeMkvInfoEventHandler(reader io.Reader) (standardEventsChannel chan outpu
 				}
 			} else {
 				if len(discInfoEvents) > 0 {
-					discInfoEventChannel <- makemkv.MakeMkvOutputsIntoMakeMkvDiscInfo(discInfoEvents)
+					discInfoEventChannel <- makemkv.MakeMkvOutputsIntoMakeMkvDiscInfoVerbose(discInfoEvents)
 				}
 				break
 			}

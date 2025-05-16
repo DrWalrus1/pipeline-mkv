@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"servermakemkv/outputs"
+	"servermakemkv/makemkv/commands/outputs"
 	"strconv"
 	"strings"
 )

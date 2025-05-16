@@ -1,7 +1,6 @@
-package ids_test
+package outputs
 
 import (
-	"servermakemkv/outputs/makemkv/ids"
 	"testing"
 
 	"github.com/go-playground/assert/v2"
@@ -32,7 +31,7 @@ func TestConvertItemAttributeIntoToString(t *testing.T) {
 	}
 	for expected, tt := range tests {
 		t.Run(expected, func(t *testing.T) {
-			id, err := ids.GetItemAttributeDescription(tt)
+			id, err := GetItemAttributeDescription(tt)
 			if err != nil {
 				assert.Equal(t, expected, err.Error())
 			} else {

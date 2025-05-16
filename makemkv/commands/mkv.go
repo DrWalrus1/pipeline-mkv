@@ -1,10 +1,10 @@
-package makemkv
+package commands
 
 import (
 	"fmt"
 	"log"
 	"os/exec"
-	"servermakemkv/commands/makemkv/eventhandlers"
+	"servermakemkv/makemkv/commands/eventhandlers"
 	"strings"
 )
 
