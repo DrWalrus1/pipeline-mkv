@@ -244,7 +244,11 @@ func parseStreamInfo(input string) (*outputs.StreamInformation, error) {
 		return nil, fmt.Errorf("Could not parse '%s' into int. %w", split[2], err)
 	}
 	streamInfo.MessageCodeId = messageCode
-	streamInfo.Value = split[4]
+	if split[4] == "( Lossless conversion )" {
+		streamInfo.Value = "Lossless"
+	} else {
+		streamInfo.Value = split[4]
+	}
 
 	return &streamInfo, nil
 }
