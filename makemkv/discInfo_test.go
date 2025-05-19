@@ -194,14 +194,4 @@ SINFO:0,6,42,5088,"( Lossless conversion )"	`
 
 	output, _ := json.MarshalIndent(discInfo, "", "  ")
 	t.Log(string(output))
-	// name := "Demon Slayer"
-	// size := "29.5GB"
-	// sizeInBytes := "295123098"
-	// duration := "5 hours"
-	// language := "English"
-	// chapters := "24"
-	// outputfilename := "test.txt"
-	//
-	// expectedTitleInfo := makemkv.Title{}
-
 }

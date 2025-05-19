@@ -3,6 +3,7 @@ package makemkv
 import (
 	"fmt"
 	"servermakemkv/makemkv/commands/outputs"
+	"strconv"
 )
 
 type DiscInfo struct {
@@ -32,7 +33,7 @@ func (di *DiscInfo) UpdateDiscInfo(info outputs.DiscInformation) {
 func (di *DiscInfo) UpsertDiscTitleMetadata(info outputs.TitleInformation) {
 	title, exists := di.Titles[info.TitleIndex]
 	if !exists {
-		title = NewTitle()
+		title = NewTitle(strconv.Itoa(info.TitleIndex))
 	}
 	title.UpdateTitle(info)
 	di.Titles[info.TitleIndex] = title
@@ -41,7 +42,7 @@ func (di *DiscInfo) UpsertDiscTitleMetadata(info outputs.TitleInformation) {
 func (di *DiscInfo) UpsertTitleStreamMetadata(info outputs.StreamInformation) {
 	title, exists := di.Titles[info.TitleIndex]
 	if !exists {
-		title = NewTitle()
+		title = NewTitle(strconv.Itoa(info.TitleIndex))
 	}
 	title.UpsertStreamData(info)
 	di.Titles[info.TitleIndex] = title
@@ -61,8 +62,9 @@ type Title struct {
 	SubtitleTracks map[int]SubtitleTrack `json:"subtitles"`
 }
 
-func NewTitle() Title {
+func NewTitle(id string) Title {
 	return Title{
+		Id:             id,
 		VideoTracks:    make(map[int]VideoTrack),
 		AudioTracks:    make(map[int]AudioTrack),
 		SubtitleTracks: make(map[int]SubtitleTrack),
