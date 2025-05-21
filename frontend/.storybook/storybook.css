@@ -1,0 +1,4 @@
+.storybook-center-preview {
+  display: grid;
+  place-items: center;
+}

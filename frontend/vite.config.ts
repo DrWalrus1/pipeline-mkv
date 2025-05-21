@@ -19,5 +19,15 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, '../static/'),
     emptyOutDir: true,
-  }
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://localhost:8080',
+        secure: false,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
 })
