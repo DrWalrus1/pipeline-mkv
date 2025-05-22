@@ -7,9 +7,9 @@ import (
 	"servermakemkv/makemkv/streamReader"
 )
 
-func MakeMkvInfoEventHandler(reader io.Reader) (standardEventsChannel chan outputs.MakeMkvOutput, discInfoEventChannel chan makemkv.MakeMkvDiscInfo, disconnectChannel chan bool) {
+func MakeMkvInfoEventHandler(reader io.Reader) (standardEventsChannel chan outputs.MakeMkvOutput, discInfoEventChannel chan makemkv.DiscInfo, disconnectChannel chan bool) {
 	standardEventsChannel = make(chan outputs.MakeMkvOutput)
-	discInfoEventChannel = make(chan makemkv.MakeMkvDiscInfo)
+	discInfoEventChannel = make(chan makemkv.DiscInfo)
 	disconnectChannel = make(chan bool)
 
 	go func() {
@@ -28,7 +28,7 @@ func MakeMkvInfoEventHandler(reader io.Reader) (standardEventsChannel chan outpu
 				}
 			} else {
 				if len(discInfoEvents) > 0 {
-					discInfoEventChannel <- makemkv.MakeMkvOutputsIntoMakeMkvDiscInfoVerbose(discInfoEvents)
+					discInfoEventChannel <- makemkv.MakeMkvOutputsIntoMakeMkvDiscInfo(discInfoEvents)
 				}
 				break
 			}

@@ -13,6 +13,10 @@ type DiscInfo struct {
 	Titles   map[int]Title `json:"titles"`
 }
 
+func (di DiscInfo) GetTypeName() string {
+	return "DiscInfoComplete"
+}
+
 func NewDisc() DiscInfo {
 	return DiscInfo{
 		Titles: make(map[int]Title),

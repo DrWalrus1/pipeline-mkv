@@ -27,6 +27,7 @@ export default defineConfig({
         secure: false,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+        ws: true
       },
     },
   },

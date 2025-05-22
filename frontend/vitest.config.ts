@@ -10,6 +10,17 @@ export default mergeConfig(
       environment: 'jsdom',
       exclude: [...configDefaults.exclude, 'e2e/**'],
       root: fileURLToPath(new URL('./', import.meta.url)),
-    }
+    },
+    server: {
+      proxy: {
+        '/api': {
+          target: 'https://localhost:8080',
+          secure: false,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+          ws: true
+        },
+      },
+    },
   }),
 )

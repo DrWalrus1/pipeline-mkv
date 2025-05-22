@@ -12,7 +12,6 @@ function LoadDiscInfo() {
   watch(socket.data, (newData) => {
     console.log(newData)
   })
-
 }
 </script>
 
