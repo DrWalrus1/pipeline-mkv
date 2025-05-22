@@ -3,7 +3,7 @@ FROM debian:bookworm
 ENV ACCEPT_EULA=Y
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+    apt-get install -y --no-install-recommends eject \
     build-essential pkg-config libc6-dev libssl-dev libexpat1-dev \
     libavcodec-dev libgl1-mesa-dev qtbase5-dev zlib1g-dev wget less \
     software-properties-common curl gnupg && \
