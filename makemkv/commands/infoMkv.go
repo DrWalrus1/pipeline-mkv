@@ -8,6 +8,7 @@ import (
 	"log"
 	"os/exec"
 	"servermakemkv/makemkv/commands/eventhandlers"
+	"servermakemkv/makemkv/commands/outputs"
 )
 
 func TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {
@@ -48,7 +49,10 @@ func WatchInfoLogs(outputPipe io.Reader) <-chan []byte {
 				newJson, _ := json.Marshal(standardEvent)
 				stringified <- newJson
 			case discEvent := <-discEvents:
-				newJson, _ := json.Marshal(discEvent)
+				newJson, _ := json.Marshal(outputs.JsonWrapper{
+					Type: discEvent.GetTypeName(),
+					Data: discEvent,
+				})
 				stringified <- newJson
 			case <-disconnection:
 				close(stringified)
