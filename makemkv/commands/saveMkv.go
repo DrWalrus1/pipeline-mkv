@@ -53,6 +53,7 @@ func WatchSaveMkvLogs(outputPipe io.Reader) <-chan []byte {
 			stringified <- newJson
 		}
 		close(stringified) // Ensure stringified is closed after the loop
+		log.Println("Stream closed. Saving completed or stopped.")
 	}()
 	return stringified
 }
