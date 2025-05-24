@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	makemkvCommands "servermakemkv/makemkv/commands"
+	osCommands "servermakemkv/os/commands"
 	"strconv"
 
 	"github.com/gorilla/websocket"
@@ -175,4 +176,28 @@ func RegistrationHandler(w http.ResponseWriter, r *http.Request) {
 
 	responseStatus := makemkvCommands.RegisterMkvKey(key)
 	w.WriteHeader(responseStatus)
+}
+
+func EjectHandler(w http.ResponseWriter, r *http.Request) {
+	device := r.URL.Query().Get("device")
+
+	responseStatus := osCommands.EjectDevice(device)
+	if responseStatus != nil {
+		r.Response.StatusCode = 500
+		_, _ = w.Write([]byte("Could not eject device: " + responseStatus.Error()))
+		return
+	}
+	r.Response.StatusCode = 200
+}
+
+func InsertDiscHandler(w http.ResponseWriter, r *http.Request) {
+	device := r.URL.Query().Get("device")
+
+	responseStatus := osCommands.InsertDevice(device)
+	if responseStatus != nil {
+		r.Response.StatusCode = 500
+		_, _ = w.Write([]byte("Could not insert device: " + responseStatus.Error()))
+		return
+	}
+	r.Response.StatusCode = 200
 }

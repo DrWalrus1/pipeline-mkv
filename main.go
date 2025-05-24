@@ -35,6 +35,8 @@ func main() {
 	http.HandleFunc("/api/mkv", routehandlers.MkvHandler)
 	http.HandleFunc("/api/backup", routehandlers.BackupHandler)
 	http.HandleFunc("POST /api/register", routehandlers.RegistrationHandler)
+	http.HandleFunc("POST /api/eject", routehandlers.EjectHandler)
+	http.HandleFunc("POST /api/insert", routehandlers.InsertDiscHandler)
 
 	fs := http.FileServer(http.Dir("./static/"))
 	handler := ServeWithoutHTMLExtension{fs: fs, staticFolder: "./static/"}
