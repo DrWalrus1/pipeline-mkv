@@ -180,24 +180,26 @@ func RegistrationHandler(w http.ResponseWriter, r *http.Request) {
 
 func EjectHandler(w http.ResponseWriter, r *http.Request) {
 	device := r.URL.Query().Get("device")
+	log.Printf("Ejecting device: %s", device)
 
 	responseStatus := osCommands.EjectDevice(device)
 	if responseStatus != nil {
-		r.Response.StatusCode = 500
+		w.WriteHeader(500)
 		_, _ = w.Write([]byte("Could not eject device: " + responseStatus.Error()))
 		return
 	}
-	r.Response.StatusCode = 200
+	w.WriteHeader(200)
 }
 
 func InsertDiscHandler(w http.ResponseWriter, r *http.Request) {
 	device := r.URL.Query().Get("device")
+	log.Printf("Inserting device: %s", device)
 
 	responseStatus := osCommands.InsertDevice(device)
 	if responseStatus != nil {
-		r.Response.StatusCode = 500
+		w.WriteHeader(500)
 		_, _ = w.Write([]byte("Could not insert device: " + responseStatus.Error()))
 		return
 	}
-	r.Response.StatusCode = 200
+	w.WriteHeader(200)
 }
