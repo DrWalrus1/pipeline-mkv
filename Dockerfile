@@ -1,6 +1,8 @@
 # syntax=docker.io/docker/dockerfile:1.7-labs
 FROM debian:bookworm
 ENV ACCEPT_EULA=Y
+ARG UID=1002
+ARG GID=1003
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends eject \
@@ -34,4 +36,5 @@ RUN go build .
 COPY /static ./static
 
 EXPOSE 8080
+USER ${UID}:${GID}
 CMD ["/code/servermakemkv"]
