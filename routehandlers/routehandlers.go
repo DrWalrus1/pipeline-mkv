@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"pipelinemkv/makemkv"
 	makemkvCommands "pipelinemkv/makemkv/commands"
 	osCommands "pipelinemkv/os/commands"
 	"strconv"
@@ -20,7 +21,11 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func InfoHandler(w http.ResponseWriter, r *http.Request) {
+type RouteHandler struct {
+	StreamTracker *makemkv.StreamTracker
+}
+
+func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request) {
 	source := r.URL.Query().Get("source")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -52,6 +57,7 @@ func InfoHandler(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Println("read error:", err)
 				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					cancel()
 					return
 				}
 				return
@@ -62,12 +68,13 @@ func InfoHandler(w http.ResponseWriter, r *http.Request) {
 		err = conn.WriteMessage(websocket.TextMessage, update)
 		if err != nil {
 			log.Println("write error:", err)
+			cancel()
 			return // Exit if we can't write (client likely disconnected)
 		}
 	}
 }
 
-func MkvHandler(w http.ResponseWriter, r *http.Request) {
+func (handler *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) {
 	source := r.URL.Query().Get("source")
 	title := r.URL.Query().Get("title")
 	destination := r.URL.Query().Get("destination")
@@ -80,6 +87,7 @@ func MkvHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	reader, cancel, err := makemkvCommands.TriggerSaveMkv(source, title, destination)
+	handler.StreamTracker.AddStream(source, &reader)
 	if err != nil {
 		errorMessage := fmt.Sprintf("Could not trigger makemkv save: %v", err)
 		log.Println(errorMessage)
@@ -95,6 +103,7 @@ func MkvHandler(w http.ResponseWriter, r *http.Request) {
 		for {
 			_, p, err := conn.ReadMessage()
 			if string(p) == "cancel" {
+				handler.StreamTracker.RemoveStream(source)
 				cancel()
 				return
 			}
@@ -116,7 +125,49 @@ func MkvHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func BackupHandler(w http.ResponseWriter, r *http.Request) {
+func (handler *RouteHandler) WatchMkv(w http.ResponseWriter, r *http.Request) {
+	source := r.URL.Query().Get("source")
+
+	reader, ok := handler.StreamTracker.GetStream(source)
+	if !ok {
+		w.WriteHeader(400)
+		w.Write([]byte("No live stream found"))
+		return
+	}
+
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	updates := makemkvCommands.WatchSaveMkvLogs(*reader)
+	go func() {
+		for {
+			_, p, err := conn.ReadMessage()
+			if string(p) == "cancel" {
+				handler.StreamTracker.RemoveStream(source)
+				return
+			}
+			if err != nil {
+				log.Println("read error:", err)
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					return
+				}
+				return
+			}
+		}
+	}()
+	for update := range updates {
+		err = conn.WriteMessage(websocket.TextMessage, update)
+		if err != nil {
+			log.Println("write error:", err)
+			return // Exit if we can't write (client likely disconnected)
+		}
+	}
+}
+
+func (handler *RouteHandler) BackupHandler(w http.ResponseWriter, r *http.Request) {
 	decrypt, err := strconv.ParseBool(r.URL.Query().Get("decrypt"))
 	if err != nil {
 		r.Response.StatusCode = 400

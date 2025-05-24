@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"pipelinemkv/makemkv"
 	"pipelinemkv/routehandlers"
 	"strings"
 )
@@ -31,9 +32,14 @@ func (s ServeWithoutHTMLExtension) ServerHTTP(w http.ResponseWriter, r *http.Req
 }
 
 func main() {
-	http.HandleFunc("/api/info", routehandlers.InfoHandler)
-	http.HandleFunc("/api/mkv", routehandlers.MkvHandler)
-	http.HandleFunc("/api/backup", routehandlers.BackupHandler)
+	streamTracker := makemkv.NewStreamTracker()
+	advancedHandler := routehandlers.RouteHandler{
+		StreamTracker: &streamTracker,
+	}
+	http.HandleFunc("/api/info", advancedHandler.InfoHandler)
+	http.HandleFunc("/api/mkv", advancedHandler.MkvHandler)
+	http.HandleFunc("/api/watch/mkv", advancedHandler.WatchMkv)
+	http.HandleFunc("/api/backup", advancedHandler.BackupHandler)
 	http.HandleFunc("POST /api/register", routehandlers.RegistrationHandler)
 	http.HandleFunc("POST /api/eject", routehandlers.EjectHandler)
 	http.HandleFunc("POST /api/insert", routehandlers.InsertDiscHandler)
