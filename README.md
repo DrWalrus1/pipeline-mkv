@@ -23,7 +23,6 @@ docker run --rm -it \
 --name sandbox \
 thedrwalrus/makemkv /bin/bash
 ```
-* debug in the container `docker pull thedrwalrus/makemkv && docker run --rm -it --device=/dev/sr0:/dev/sr0 --device=/dev/sg0:/dev/sg0 -p 9090:8080 --name sandbox thedrwalrus/makemkv /bin/bash`
 
 Changes to master will create/push a new Docker image 
 

@@ -5,8 +5,8 @@ import (
 	"io"
 	"log"
 	"net/http"
-	makemkvCommands "servermakemkv/makemkv/commands"
-	osCommands "servermakemkv/os/commands"
+	makemkvCommands "pipelinemkv/makemkv/commands"
+	osCommands "pipelinemkv/os/commands"
 	"strconv"
 
 	"github.com/gorilla/websocket"

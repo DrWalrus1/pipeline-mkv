@@ -1,7 +1,7 @@
 package config_test
 
 import (
-	"servermakemkv/config"
+	"pipelinemkv/config"
 	"strings"
 	"testing"
 

@@ -2,9 +2,9 @@ package makemkv_test
 
 import (
 	"encoding/json"
-	"servermakemkv/makemkv"
-	"servermakemkv/makemkv/commands/outputs"
-	"servermakemkv/makemkv/streamReader"
+	"pipelinemkv/makemkv"
+	"pipelinemkv/makemkv/commands/outputs"
+	"pipelinemkv/makemkv/streamReader"
 	"strings"
 	"testing"
 

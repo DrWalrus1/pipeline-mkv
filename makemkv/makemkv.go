@@ -1,6 +1,6 @@
 package makemkv
 
-import "servermakemkv/makemkv/commands/outputs"
+import "pipelinemkv/makemkv/commands/outputs"
 
 type MakeMkvDiscInfo struct {
 	Properties map[string]MakeMkvValue `json:"properties"`

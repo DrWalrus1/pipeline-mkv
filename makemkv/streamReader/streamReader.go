@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"servermakemkv/makemkv/commands/outputs"
-	"servermakemkv/makemkv/parser"
+	"pipelinemkv/makemkv/commands/outputs"
+	"pipelinemkv/makemkv/parser"
 )
 
 func ParseStream(reader io.Reader) <-chan outputs.MakeMkvOutput {

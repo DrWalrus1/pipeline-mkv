@@ -34,4 +34,4 @@ RUN go build .
 COPY /static ./static
 
 EXPOSE 8080
-CMD ["/code/servermakemkv"]
+CMD ["/code/pipelinemkv"]

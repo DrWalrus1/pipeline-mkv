@@ -7,8 +7,8 @@ import (
 	"io"
 	"log"
 	"os/exec"
-	"servermakemkv/makemkv/commands/eventhandlers"
-	"servermakemkv/makemkv/commands/outputs"
+	"pipelinemkv/makemkv/commands/eventhandlers"
+	"pipelinemkv/makemkv/commands/outputs"
 )
 
 func TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {

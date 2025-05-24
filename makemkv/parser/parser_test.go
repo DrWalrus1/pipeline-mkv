@@ -1,8 +1,8 @@
 package parser_test
 
 import (
-	"servermakemkv/makemkv/commands/outputs"
-	"servermakemkv/makemkv/parser"
+	"pipelinemkv/makemkv/commands/outputs"
+	"pipelinemkv/makemkv/parser"
 	"testing"
 
 	"github.com/go-playground/assert/v2"

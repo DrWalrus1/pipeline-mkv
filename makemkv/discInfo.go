@@ -2,7 +2,7 @@ package makemkv
 
 import (
 	"fmt"
-	"servermakemkv/makemkv/commands/outputs"
+	"pipelinemkv/makemkv/commands/outputs"
 	"strconv"
 )
 

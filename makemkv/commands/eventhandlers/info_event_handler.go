@@ -2,9 +2,9 @@ package eventhandlers
 
 import (
 	"io"
-	"servermakemkv/makemkv"
-	"servermakemkv/makemkv/commands/outputs"
-	"servermakemkv/makemkv/streamReader"
+	"pipelinemkv/makemkv"
+	"pipelinemkv/makemkv/commands/outputs"
+	"pipelinemkv/makemkv/streamReader"
 )
 
 func MakeMkvInfoEventHandler(reader io.Reader) (standardEventsChannel chan outputs.MakeMkvOutput, discInfoEventChannel chan makemkv.DiscInfo, disconnectChannel chan bool) {
