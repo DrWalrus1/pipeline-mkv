@@ -34,7 +34,30 @@ func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request)
 	}
 	defer conn.Close()
 
+	done := make(chan struct{})
+
+	go func() {
+		defer close(done) // Signal completion when this goroutine exits
+		for {
+			// ReadMessage blocks until a message is received or an error occurs.
+			// We don't care about the message content here, just the connection status.
+			_, _, err := conn.ReadMessage()
+			if err != nil {
+				// Check if the error indicates a normal client disconnect.
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					log.Println("Client disconnected (detected by read pump).")
+				} else {
+					log.Printf("WebSocket read error: %v", err)
+				}
+				return // Exit the goroutine on any read error or disconnect
+			}
+			// If you had a need to process incoming messages from the client (e.g., pings, control messages),
+			// you would do so here. For this handler, we are only sending data to the client.
+		}
+	}()
+
 	reader, cancel, err := makemkvCommands.TriggerDiskInfo(source)
+	defer cancel()
 	if err != nil {
 		log.Printf("Could not trigger get disk info: %v", err)
 		err = conn.WriteMessage(websocket.TextMessage, fmt.Appendf(nil, "Could not trigger get disk info: %v", err))
@@ -54,18 +77,12 @@ func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request)
 			err = conn.WriteMessage(websocket.TextMessage, update)
 			if err != nil {
 				log.Println("write error:", err)
-				cancel()
 				return // Exit if we can't write (client likely disconnected)
 			}
-		default:
-			_, _, err := conn.ReadMessage()
-			if err != nil {
-				// Only consider it a disconnect if it's a close error or an EOF
-				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
-					log.Println("Client disconnected (detected by read pump).")
-					return // Signal disconnect
-				}
-			}
+		case <-done:
+			// The 'done' channel received a signal, indicating the client has disconnected.
+			log.Println("Exiting InfoHandler because client disconnected.")
+			return // Exit the handler
 		}
 	}
 }
