@@ -25,23 +25,15 @@ type RouteHandler struct {
 	StreamTracker *makemkv.StreamTracker
 }
 
-func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request) {
-	source := r.URL.Query().Get("source")
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	defer conn.Close()
-
-	done := make(chan struct{})
+func readClientMessages(conn *websocket.Conn) <-chan string {
+	done := make(chan string)
 
 	go func() {
 		defer close(done) // Signal completion when this goroutine exits
 		for {
 			// ReadMessage blocks until a message is received or an error occurs.
 			// We don't care about the message content here, just the connection status.
-			_, _, err := conn.ReadMessage()
+			_, message, err := conn.ReadMessage()
 			if err != nil {
 				// Check if the error indicates a normal client disconnect.
 				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
@@ -51,10 +43,24 @@ func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request)
 				}
 				return // Exit the goroutine on any read error or disconnect
 			}
+			done <- string(message)
 			// If you had a need to process incoming messages from the client (e.g., pings, control messages),
 			// you would do so here. For this handler, we are only sending data to the client.
 		}
 	}()
+	return done
+}
+
+func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request) {
+	source := r.URL.Query().Get("source")
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	done := readClientMessages(conn)
 
 	reader, cancel, err := makemkvCommands.TriggerDiskInfo(source)
 	defer cancel()
@@ -99,6 +105,8 @@ func (handler *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	defer conn.Close()
 
+	messageChan := readClientMessages(conn)
+
 	reader, cancel, err := makemkvCommands.TriggerSaveMkv(source, title, destination)
 	handler.StreamTracker.AddStream(source, &reader)
 	if err != nil {
@@ -112,25 +120,28 @@ func (handler *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	updates := makemkvCommands.WatchSaveMkvLogs(reader)
-	go func() {
-		for {
-			_, p, err := conn.ReadMessage()
-			if err != nil {
-				log.Println("read error:", err)
+
+	for {
+		select {
+		case update, ok := <-updates:
+			if !ok {
 				return
 			}
-			if string(p) == "cancel" {
+			err = conn.WriteMessage(websocket.TextMessage, update)
+			if err != nil {
+				log.Println("write error:", err)
+				return // Exit if we can't write (client likely disconnected)
+			}
+		case message, ok := <-messageChan:
+			if !ok {
+				return
+			}
+
+			if message == "cancel" {
 				handler.StreamTracker.RemoveStream(source)
 				cancel()
 				return
 			}
-		}
-	}()
-	for update := range updates {
-		err = conn.WriteMessage(websocket.TextMessage, update)
-		if err != nil {
-			log.Println("write error:", err)
-			return // Exit if we can't write (client likely disconnected)
 		}
 	}
 }
@@ -150,29 +161,30 @@ func (handler *RouteHandler) WatchMkv(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+	messageChan := readClientMessages(conn)
 
 	updates := makemkvCommands.WatchSaveMkvLogs(*reader)
-	go func() {
-		for {
-			_, p, err := conn.ReadMessage()
-			if string(p) == "cancel" {
+	for {
+		select {
+		case update, ok := <-updates:
+			if !ok {
 				return
 			}
+			err = conn.WriteMessage(websocket.TextMessage, update)
 			if err != nil {
-				log.Println("read error:", err)
-				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
-					conn.Close()
-					return
-				}
+				log.Println("write error:", err)
+				return // Exit if we can't write (client likely disconnected)
+			}
+		case message, ok := <-messageChan:
+			if !ok {
 				return
 			}
-		}
-	}()
-	for update := range updates {
-		err = conn.WriteMessage(websocket.TextMessage, update)
-		if err != nil {
-			log.Println("write error:", err)
-			return // Exit if we can't write (client likely disconnected)
+
+			if message == "cancel" {
+				handler.StreamTracker.RemoveStream(source)
+				// TODO: allow watch mkv cancel
+				return
+			}
 		}
 	}
 }
@@ -193,6 +205,8 @@ func (handler *RouteHandler) BackupHandler(w http.ResponseWriter, r *http.Reques
 	}
 	defer conn.Close()
 
+	messageChan := readClientMessages(conn)
+
 	reader, cancel, err := makemkvCommands.TriggerDiskBackup(decrypt, source, destination)
 	if err != nil {
 		errorMessage := fmt.Sprintf("Could not trigger disk backup: %v", err)
@@ -207,27 +221,27 @@ func (handler *RouteHandler) BackupHandler(w http.ResponseWriter, r *http.Reques
 
 	updates := makemkvCommands.WatchBackupLogs(reader)
 
-	go func() {
-		for {
-			_, p, err := conn.ReadMessage()
-			if string(p) == "cancel" {
+	for {
+		select {
+		case update, ok := <-updates:
+			if !ok {
+				return
+			}
+			err = conn.WriteMessage(websocket.TextMessage, update)
+			if err != nil {
+				log.Println("write error:", err)
+				return // Exit if we can't write (client likely disconnected)
+			}
+		case message, ok := <-messageChan:
+			if !ok {
+				return
+			}
+
+			if message == "cancel" {
+				handler.StreamTracker.RemoveStream(source)
 				cancel()
 				return
 			}
-			if err != nil {
-				log.Println("read error:", err)
-				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
-					return
-				}
-				return
-			}
-		}
-	}()
-	for update := range updates {
-		err = conn.WriteMessage(websocket.TextMessage, update)
-		if err != nil {
-			log.Println("write error:", err)
-			return // Exit if we can't write (client likely disconnected)
 		}
 	}
 }
