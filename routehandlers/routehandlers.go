@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"pipelinemkv/makemkv"
 	makemkvCommands "pipelinemkv/makemkv/commands"
@@ -59,18 +60,14 @@ func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request)
 				return // Exit if we can't write (client likely disconnected)
 			}
 		default:
-			conn.SetReadDeadline(time.Now().Add(5 * time.Second))
-			messageType, _, err := conn.ReadMessage()
-			fmt.Printf("Message Type: %v", messageType)
+			_, _, err := conn.ReadMessage()
 			if err != nil {
-				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
-					log.Println("Client disconnected gracefully.")
-				} else if !websocket.IsUnexpectedCloseError(err, websocket.CloseAbnormalClosure) {
-					log.Printf("Read error (likely client disconnect): %v", err)
+				// Only consider it a disconnect if it's a close error or an EOF
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					log.Println("Client disconnected (detected by read pump).")
+					return // Signal disconnect
 				}
-				return // Exit the loop if client disconnected
 			}
-			conn.SetReadDeadline(time.Time{})
 		}
 	}
 }
