@@ -132,8 +132,16 @@ func parseDriveScanMessage(input string) (*outputs.DriveScanMessage, error) {
 	}
 
 	driveScanMessage.DriveIndex = split[0]
-	driveScanMessage.Visible = split[1]
-	driveScanMessage.Enabled = split[2]
+	visibleCode, err := strconv.Atoi(split[1])
+	if err != nil {
+		return nil, err
+	}
+	driveScanMessage.Visible = outputs.GetDriveStateDescription(uint(visibleCode))
+	enabledCode, err := strconv.Atoi(split[2])
+	if err != nil {
+		return nil, err
+	}
+	driveScanMessage.Enabled = outputs.GetDriveStateDescription(uint(enabledCode))
 	driveScanMessage.Flags = split[3]
 	driveScanMessage.DriveName = split[4]
 	driveScanMessage.DiscName = split[5]
