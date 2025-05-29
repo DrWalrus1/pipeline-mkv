@@ -98,23 +98,12 @@ func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	updates := makemkvCommands.WatchInfoLogs(reader)
-	for {
-		select {
-		case update, ok := <-updates:
-			if !ok {
-				return
-			}
-			err = conn.WriteMessage(websocket.TextMessage, update)
-			if err != nil {
-				log.Println("write error:", err)
-				return // Exit if we can't write (client likely disconnected)
-			}
-		case <-done:
-			// The 'done' channel received a signal, indicating the client has disconnected.
-			log.Println("Exiting InfoHandler because client disconnected.")
-			return // Exit the handler
-		}
+
+	clientMessageHandler := func(message string) bool {
+		// do nothing because we automatically close when channel closes
+		return false
 	}
+	handler.sendClientUpdates(conn, updates, done, clientMessageHandler)
 }
 
 func (handler *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) {
