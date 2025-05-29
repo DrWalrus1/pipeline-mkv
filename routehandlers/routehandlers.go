@@ -110,6 +110,7 @@ func (handler *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) 
 			if err != nil {
 				log.Println("read error:", err)
 				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					conn.Close()
 					return
 				}
 				return
@@ -146,12 +147,12 @@ func (handler *RouteHandler) WatchMkv(w http.ResponseWriter, r *http.Request) {
 		for {
 			_, p, err := conn.ReadMessage()
 			if string(p) == "cancel" {
-				handler.StreamTracker.RemoveStream(source)
 				return
 			}
 			if err != nil {
 				log.Println("read error:", err)
 				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					conn.Close()
 					return
 				}
 				return

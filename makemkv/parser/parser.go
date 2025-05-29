@@ -3,8 +3,8 @@ package parser
 import (
 	"errors"
 	"fmt"
-	"regexp"
 	"pipelinemkv/makemkv/commands/outputs"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -132,8 +132,8 @@ func parseDriveScanMessage(input string) (*outputs.DriveScanMessage, error) {
 	}
 
 	driveScanMessage.DriveIndex = split[0]
-	driveScanMessage.Visible = split[1] == "1"
-	driveScanMessage.Enabled = split[2] == "1"
+	driveScanMessage.Visible = split[1]
+	driveScanMessage.Enabled = split[2]
 	driveScanMessage.Flags = split[3]
 	driveScanMessage.DriveName = split[4]
 	driveScanMessage.DiscName = split[5]

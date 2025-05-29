@@ -54,8 +54,8 @@ func (mg ProgressBarOutput) GetTypeName() string {
 
 type DriveScanMessage struct {
 	DriveIndex string
-	Visible    bool
-	Enabled    bool
+	Visible    string
+	Enabled    string
 	Flags      string
 	DriveName  string
 	DiscName   string
