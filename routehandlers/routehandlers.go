@@ -51,6 +51,30 @@ func readClientMessages(conn *websocket.Conn) <-chan string {
 	return done
 }
 
+func (handler *RouteHandler) sendClientUpdates(conn *websocket.Conn, updates <-chan []byte, clientMessages <-chan string, clientMessageHandler func(string) bool) {
+	for {
+		select {
+		case update, ok := <-updates:
+			if !ok {
+				return
+			}
+			err := conn.WriteMessage(websocket.TextMessage, update)
+			if err != nil {
+				log.Println("write error:", err)
+				return // Exit if we can't write (client likely disconnected)
+			}
+		case message, ok := <-clientMessages:
+			if !ok {
+				return
+			}
+			if clientMessageHandler(message) {
+				return
+			}
+		}
+	}
+
+}
+
 func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request) {
 	source := r.URL.Query().Get("source")
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -108,7 +132,7 @@ func (handler *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) 
 	messageChan := readClientMessages(conn)
 
 	reader, cancel, err := makemkvCommands.TriggerSaveMkv(source, title, destination)
-	handler.StreamTracker.AddStream(source, &reader)
+	handler.StreamTracker.AddStream(source, &reader, cancel)
 	if err != nil {
 		errorMessage := fmt.Sprintf("Could not trigger makemkv save: %v", err)
 		log.Println(errorMessage)
@@ -121,29 +145,16 @@ func (handler *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	updates := makemkvCommands.WatchSaveMkvLogs(reader)
 
-	for {
-		select {
-		case update, ok := <-updates:
-			if !ok {
-				return
-			}
-			err = conn.WriteMessage(websocket.TextMessage, update)
-			if err != nil {
-				log.Println("write error:", err)
-				return // Exit if we can't write (client likely disconnected)
-			}
-		case message, ok := <-messageChan:
-			if !ok {
-				return
-			}
-
-			if message == "cancel" {
-				handler.StreamTracker.RemoveStream(source)
-				cancel()
-				return
-			}
+	clientMessageHandler := func(message string) bool {
+		if message == "cancel" {
+			handler.StreamTracker.RemoveStream(source)
+			cancel()
+			return true
 		}
+		return false
 	}
+
+	handler.sendClientUpdates(conn, updates, messageChan, clientMessageHandler)
 }
 
 func (handler *RouteHandler) WatchMkv(w http.ResponseWriter, r *http.Request) {
@@ -155,6 +166,7 @@ func (handler *RouteHandler) WatchMkv(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("No live stream found"))
 		return
 	}
+	cancel := handler.StreamTracker.GetStreamCancelFunc(source)
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -164,29 +176,17 @@ func (handler *RouteHandler) WatchMkv(w http.ResponseWriter, r *http.Request) {
 	messageChan := readClientMessages(conn)
 
 	updates := makemkvCommands.WatchSaveMkvLogs(*reader)
-	for {
-		select {
-		case update, ok := <-updates:
-			if !ok {
-				return
-			}
-			err = conn.WriteMessage(websocket.TextMessage, update)
-			if err != nil {
-				log.Println("write error:", err)
-				return // Exit if we can't write (client likely disconnected)
-			}
-		case message, ok := <-messageChan:
-			if !ok {
-				return
-			}
 
-			if message == "cancel" {
-				handler.StreamTracker.RemoveStream(source)
-				// TODO: allow watch mkv cancel
-				return
-			}
+	clientMessageHandler := func(message string) bool {
+		if message == "cancel" {
+			handler.StreamTracker.RemoveStream(source)
+			cancel()
+			return true
 		}
+		return false
 	}
+
+	handler.sendClientUpdates(conn, updates, messageChan, clientMessageHandler)
 }
 
 func (handler *RouteHandler) BackupHandler(w http.ResponseWriter, r *http.Request) {
@@ -221,29 +221,16 @@ func (handler *RouteHandler) BackupHandler(w http.ResponseWriter, r *http.Reques
 
 	updates := makemkvCommands.WatchBackupLogs(reader)
 
-	for {
-		select {
-		case update, ok := <-updates:
-			if !ok {
-				return
-			}
-			err = conn.WriteMessage(websocket.TextMessage, update)
-			if err != nil {
-				log.Println("write error:", err)
-				return // Exit if we can't write (client likely disconnected)
-			}
-		case message, ok := <-messageChan:
-			if !ok {
-				return
-			}
-
-			if message == "cancel" {
-				handler.StreamTracker.RemoveStream(source)
-				cancel()
-				return
-			}
+	clientMessageHandler := func(message string) bool {
+		if message == "cancel" {
+			handler.StreamTracker.RemoveStream(source)
+			cancel()
+			return true
 		}
+		return false
 	}
+
+	handler.sendClientUpdates(conn, updates, messageChan, clientMessageHandler)
 }
 
 func RegistrationHandler(w http.ResponseWriter, r *http.Request) {
