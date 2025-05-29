@@ -136,8 +136,8 @@ func TestDriveScanMessageParser(t *testing.T) {
 	t.Run("Parse Successfully", func(t *testing.T) {
 		expected := outputs.DriveScanMessage{
 			DriveIndex: "1",
-			Visible:    "1",
-			Enabled:    "1",
+			Visible:    "Drive is empty and open",
+			Enabled:    "Drive is empty and open",
 			Flags:      "Flags",
 			DriveName:  "Drive1",
 			DiscName:   "Disc1",
@@ -175,8 +175,8 @@ func TestDriveScanMessageParser(t *testing.T) {
 
 		expected := outputs.DriveScanMessage{
 			DriveIndex: "1",
-			Visible:    "255",
-			Enabled:    "999",
+			Visible:    "Unknown",
+			Enabled:    "Unknown",
 			Flags:      "Flags",
 			DriveName:  "Drive1",
 			DiscName:   "Disc1",
