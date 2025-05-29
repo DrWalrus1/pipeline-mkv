@@ -9,6 +9,7 @@ import (
 	makemkvCommands "pipelinemkv/makemkv/commands"
 	osCommands "pipelinemkv/os/commands"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -34,7 +35,6 @@ func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request)
 	}
 	defer conn.Close()
 
-	// TODO: add error handling
 	reader, cancel, err := makemkvCommands.TriggerDiskInfo(source)
 	if err != nil {
 		log.Printf("Could not trigger get disk info: %v", err)
@@ -46,30 +46,31 @@ func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	updates := makemkvCommands.WatchInfoLogs(reader)
-	go func() {
-		for {
-			messageType, p, err := conn.ReadMessage()
-			if string(p) == "cancel" {
-				cancel()
+	for {
+		select {
+		case update, ok := <-updates:
+			if !ok {
 				return
 			}
+			err = conn.WriteMessage(websocket.TextMessage, update)
+			if err != nil {
+				log.Println("write error:", err)
+				cancel()
+				return // Exit if we can't write (client likely disconnected)
+			}
+		default:
+			conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+			messageType, _, err := conn.ReadMessage()
 			fmt.Printf("Message Type: %v", messageType)
 			if err != nil {
-				log.Println("read error:", err)
-				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
-					cancel()
-					return
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
+					log.Println("Client disconnected gracefully.")
+				} else if !websocket.IsUnexpectedCloseError(err, websocket.CloseAbnormalClosure) {
+					log.Printf("Read error (likely client disconnect): %v", err)
 				}
-				return
+				return // Exit the loop if client disconnected
 			}
-		}
-	}()
-	for update := range updates {
-		err = conn.WriteMessage(websocket.TextMessage, update)
-		if err != nil {
-			log.Println("write error:", err)
-			cancel()
-			return // Exit if we can't write (client likely disconnected)
+			conn.SetReadDeadline(time.Time{})
 		}
 	}
 }
@@ -102,17 +103,13 @@ func (handler *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) 
 	go func() {
 		for {
 			_, p, err := conn.ReadMessage()
+			if err != nil {
+				log.Println("read error:", err)
+				return
+			}
 			if string(p) == "cancel" {
 				handler.StreamTracker.RemoveStream(source)
 				cancel()
-				return
-			}
-			if err != nil {
-				log.Println("read error:", err)
-				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
-					conn.Close()
-					return
-				}
 				return
 			}
 		}
