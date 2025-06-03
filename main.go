@@ -7,8 +7,11 @@ import (
 	"os"
 	"path/filepath"
 	"pipelinemkv/makemkv"
+	"pipelinemkv/makemkv/commands"
+	"pipelinemkv/makemkv/streamReader"
 	"pipelinemkv/routehandlers"
 	"strings"
+	"time"
 )
 
 type ServeWithoutHTMLExtension struct {
@@ -32,6 +35,7 @@ func (s ServeWithoutHTMLExtension) ServerHTTP(w http.ResponseWriter, r *http.Req
 }
 
 func main() {
+	runInitialDiscLoadOnStartup()
 	streamTracker := makemkv.NewStreamTracker()
 	advancedHandler := routehandlers.RouteHandler{
 		StreamTracker: &streamTracker,
@@ -48,9 +52,27 @@ func main() {
 	handler := ServeWithoutHTMLExtension{fs: fs, staticFolder: "./static/"}
 	http.HandleFunc("/", handler.ServerHTTP)
 
-	fmt.Println("WebSocket server started on :8080")
-	err := http.ListenAndServe(":8080", nil)
+	port := ":9090"
+	fmt.Printf("WebSocket server started on %s\n", port)
+	err := http.ListenAndServe(port, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
+}
+
+func runInitialDiscLoadOnStartup() {
+	//TODO: Set this value in config
+	initalLoadReader, _, _ := commands.TriggerInitialInfoLoad(time.Minute * 2)
+	stringChan := streamReader.ReadStream(initalLoadReader)
+	go func() {
+		for {
+			select {
+			case newRead, ok := <-stringChan:
+				if !ok {
+					return
+				}
+				log.Println(newRead)
+			}
+		}
+	}()
 }
