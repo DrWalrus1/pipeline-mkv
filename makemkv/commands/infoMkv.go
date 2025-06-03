@@ -82,7 +82,7 @@ func TriggerInitialInfoLoad(timeoutLength time.Duration) (io.Reader, context.Can
 	go func() {
 		if err := cmd.Wait(); err != nil {
 			if context.Cause(ctx) == timeoutErr {
-				log.Printf(context.Cause(ctx).Error())
+				log.Printf("%s", context.Cause(ctx).Error())
 
 				return
 			}
