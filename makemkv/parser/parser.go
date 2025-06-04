@@ -26,41 +26,6 @@ var PrefixNotFound = errors.New("Prefix did not match expected")
 var NotEnoughValues = errors.New("Not enough values found in input")
 var EmptyInput = errors.New("input is empty")
 
-type parserFunc func(string) (outputs.MakeMkvOutput, error)
-
-var parsers = []struct {
-	prefix string
-	fn     func(string) (outputs.MakeMkvOutput, error)
-}{
-	{messageOutputPrefix, func(s string) (outputs.MakeMkvOutput, error) {
-		return parseMessageOutput(s)
-	}},
-	{driveScanMessagePrefix, func(s string) (outputs.MakeMkvOutput, error) {
-		return parseDriveScanMessage(s)
-	}},
-	{currentProgressTitlePrefix, func(s string) (outputs.MakeMkvOutput, error) {
-		return parseCurrentProgressTitleOutput(s)
-	}},
-	{discInfoOutputPrefix, func(s string) (outputs.MakeMkvOutput, error) {
-		return parseDiscInformationOutputMessage(s)
-	}},
-	{discInfoPrefix, func(s string) (outputs.MakeMkvOutput, error) {
-		return parseDiscInfo(s)
-	}},
-	{progressBarOutputPrefix, func(s string) (outputs.MakeMkvOutput, error) {
-		return parseProgressBarOutput(s)
-	}},
-	{streamInfoPrefix, func(s string) (outputs.MakeMkvOutput, error) {
-		return parseStreamInfo(s)
-	}},
-	{titleInfoPrefix, func(s string) (outputs.MakeMkvOutput, error) {
-		return parseTitleInfo(s)
-	}},
-	{totalProgressTitlePrefix, func(s string) (outputs.MakeMkvOutput, error) {
-		return parseTotalProgressTitleOutput(s)
-	}},
-}
-
 func sanitiseString(input string) string {
 	input = strings.TrimSpace(input)
 	input = strings.ReplaceAll(input, "\"", "")
@@ -75,10 +40,25 @@ func Parse(input string) (outputs.MakeMkvOutput, error) {
 		return nil, EmptyInput
 	}
 
-	for _, parser := range parsers {
-		if strings.HasPrefix(sanitised, parser.prefix) {
-			return parser.fn(sanitised)
-		}
+	switch {
+	case strings.HasPrefix(sanitised, messageOutputPrefix):
+		return parseMessageOutput(sanitised)
+	case strings.HasPrefix(sanitised, driveScanMessagePrefix):
+		return parseDriveScanMessage(sanitised)
+	case strings.HasPrefix(sanitised, currentProgressTitlePrefix):
+		return parseCurrentProgressTitleOutput(sanitised)
+	case strings.HasPrefix(sanitised, discInfoOutputPrefix):
+		return parseDiscInformationOutputMessage(sanitised)
+	case strings.HasPrefix(sanitised, discInfoPrefix):
+		return parseDiscInfo(sanitised)
+	case strings.HasPrefix(sanitised, progressBarOutputPrefix):
+		return parseProgressBarOutput(sanitised)
+	case strings.HasPrefix(sanitised, streamInfoPrefix):
+		return parseStreamInfo(sanitised)
+	case strings.HasPrefix(sanitised, titleInfoPrefix):
+		return parseTitleInfo(sanitised)
+	case strings.HasPrefix(sanitised, totalProgressTitlePrefix):
+		return parseTotalProgressTitleOutput(sanitised)
 	}
 	return nil, PrefixNotFound
 }
