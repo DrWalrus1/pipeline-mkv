@@ -1,17 +1,19 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"pipelinemkv/makemkv"
-	"pipelinemkv/makemkv/commands"
-	"pipelinemkv/makemkv/streamReader"
 	"pipelinemkv/routehandlers"
 	"strings"
 	"time"
+
+	"github.com/DrWalrus1/gomakemkv"
+	"github.com/DrWalrus1/gomakemkv/commands"
 )
 
 type ServeWithoutHTMLExtension struct {
@@ -36,7 +38,7 @@ func (s ServeWithoutHTMLExtension) ServerHTTP(w http.ResponseWriter, r *http.Req
 
 func main() {
 	runInitialDiscLoadOnStartup()
-	streamTracker := makemkv.NewStreamTracker()
+	streamTracker := gomakemkv.NewStreamTracker()
 	advancedHandler := routehandlers.RouteHandler{
 		StreamTracker: &streamTracker,
 	}
@@ -63,7 +65,7 @@ func main() {
 func runInitialDiscLoadOnStartup() {
 	//TODO: Set this value in config
 	initalLoadReader, _, _ := commands.TriggerInitialInfoLoad(time.Minute * 2)
-	stringChan := streamReader.ReadStream(initalLoadReader)
+	stringChan := readStream(initalLoadReader)
 	go func() {
 		for {
 			select {
@@ -75,4 +77,16 @@ func runInitialDiscLoadOnStartup() {
 			}
 		}
 	}()
+}
+
+func readStream(reader io.Reader) <-chan string {
+	c := make(chan string)
+	go func() {
+		defer close(c)
+		scanner := bufio.NewScanner(reader)
+		for scanner.Scan() {
+			c <- scanner.Text()
+		}
+	}()
+	return c
 }
