@@ -8,5 +8,3 @@ require (
 )
 
 require github.com/DrWalrus1/gomakemkv v0.3.0
-
-replace github.com/DrWalrus1/gomakemkv => ../gomakemkv
