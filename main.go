@@ -8,12 +8,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"pipelinemkv/cmd/makemkv"
 	"pipelinemkv/routehandlers"
 	"strings"
 	"time"
-
-	"github.com/DrWalrus1/gomakemkv"
-	"github.com/DrWalrus1/gomakemkv/commands"
 )
 
 type ServeWithoutHTMLExtension struct {
@@ -38,7 +36,7 @@ func (s ServeWithoutHTMLExtension) ServerHTTP(w http.ResponseWriter, r *http.Req
 
 func main() {
 	runInitialDiscLoadOnStartup()
-	streamTracker := gomakemkv.NewStreamTracker()
+	streamTracker := makemkv.NewStreamTracker()
 	advancedHandler := routehandlers.RouteHandler{
 		StreamTracker: &streamTracker,
 	}
@@ -64,7 +62,7 @@ func main() {
 
 func runInitialDiscLoadOnStartup() {
 	//TODO: Set this value in config
-	initalLoadReader, _, _ := commands.TriggerInitialInfoLoad(time.Minute * 2)
+	initalLoadReader, _, _ := makemkv.TriggerInitialInfoLoad(time.Minute * 2)
 	stringChan := readStream(initalLoadReader)
 	go func() {
 		for {

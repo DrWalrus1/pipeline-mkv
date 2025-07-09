@@ -7,4 +7,6 @@ require (
 	github.com/gorilla/websocket v1.5.3
 )
 
-require github.com/DrWalrus1/gomakemkv v0.1.0
+require github.com/DrWalrus1/gomakemkv v0.3.0
+
+replace github.com/DrWalrus1/gomakemkv => ../gomakemkv

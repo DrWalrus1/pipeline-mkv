@@ -6,11 +6,12 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"pipelinemkv/cmd/makemkv"
 	osCommands "pipelinemkv/os/commands"
 	"strconv"
 
 	"github.com/DrWalrus1/gomakemkv"
-	"github.com/DrWalrus1/gomakemkv/commands"
+	"github.com/DrWalrus1/gomakemkv/events"
 	"github.com/gorilla/websocket"
 )
 
@@ -23,7 +24,7 @@ var upgrader = websocket.Upgrader{
 }
 
 type RouteHandler struct {
-	StreamTracker *gomakemkv.StreamTracker
+	StreamTracker *makemkv.StreamTracker
 }
 
 func readClientMessages(conn *websocket.Conn) <-chan string {
@@ -87,7 +88,7 @@ func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request)
 
 	done := readClientMessages(conn)
 
-	reader, cancel, err := commands.TriggerDiskInfo(source)
+	reader, cancel, err := makemkv.TriggerDiskInfo(source)
 	defer cancel()
 	if err != nil {
 		log.Printf("Could not trigger get disk info: %v", err)
@@ -98,7 +99,7 @@ func (handler *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request)
 		}
 		return
 	}
-	updates, discInfoChan := commands.WatchInfoLogs(reader)
+	updates, discInfoChan := gomakemkv.ParseMakeMkvInfoCommandLogs(reader)
 	updatesInBytes := make(chan []byte)
 	go func() {
 		isUpdatesComplete := false
@@ -147,7 +148,7 @@ func (handler *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) 
 
 	messageChan := readClientMessages(conn)
 
-	reader, cancel, err := commands.TriggerSaveMkv(source, title, destination)
+	reader, cancel, err := makemkv.TriggerSaveMkv(source, title, destination)
 	handler.StreamTracker.AddStream(source, &reader, cancel)
 	if err != nil {
 		errorMessage := fmt.Sprintf("Could not trigger makemkv save: %v", err)
@@ -159,7 +160,8 @@ func (handler *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) 
 		}
 		return
 	}
-	updates := commands.WatchSaveMkvLogs(reader)
+	updates := gomakemkv.ParseMakeMkvLogs(reader)
+	updatesInBytes := stringifyMakeMkvOutput(updates)
 
 	clientMessageHandler := func(message string) bool {
 		if message == "cancel" {
@@ -170,7 +172,7 @@ func (handler *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) 
 		return false
 	}
 
-	handler.sendClientUpdates(conn, updates, messageChan, clientMessageHandler)
+	handler.sendClientUpdates(conn, updatesInBytes, messageChan, clientMessageHandler)
 }
 
 func (handler *RouteHandler) WatchMkv(w http.ResponseWriter, r *http.Request) {
@@ -191,7 +193,8 @@ func (handler *RouteHandler) WatchMkv(w http.ResponseWriter, r *http.Request) {
 	}
 	messageChan := readClientMessages(conn)
 
-	updates := commands.WatchSaveMkvLogs(*reader)
+	updates := gomakemkv.ParseMakeMkvLogs(*reader)
+	updatesInBytes := stringifyMakeMkvOutput(updates)
 
 	clientMessageHandler := func(message string) bool {
 		if message == "cancel" {
@@ -202,7 +205,7 @@ func (handler *RouteHandler) WatchMkv(w http.ResponseWriter, r *http.Request) {
 		return false
 	}
 
-	handler.sendClientUpdates(conn, updates, messageChan, clientMessageHandler)
+	handler.sendClientUpdates(conn, updatesInBytes, messageChan, clientMessageHandler)
 }
 
 func (handler *RouteHandler) BackupHandler(w http.ResponseWriter, r *http.Request) {
@@ -223,7 +226,7 @@ func (handler *RouteHandler) BackupHandler(w http.ResponseWriter, r *http.Reques
 
 	messageChan := readClientMessages(conn)
 
-	reader, cancel, err := commands.TriggerDiskBackup(decrypt, source, destination)
+	reader, cancel, err := makemkv.TriggerDiskBackup(decrypt, source, destination)
 	if err != nil {
 		errorMessage := fmt.Sprintf("Could not trigger disk backup: %v", err)
 		log.Println(errorMessage)
@@ -235,7 +238,8 @@ func (handler *RouteHandler) BackupHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	updates := commands.WatchBackupLogs(reader)
+	updates := gomakemkv.ParseMakeMkvLogs(reader)
+	updatesInBytes := stringifyMakeMkvOutput(updates)
 
 	clientMessageHandler := func(message string) bool {
 		if message == "cancel" {
@@ -246,14 +250,23 @@ func (handler *RouteHandler) BackupHandler(w http.ResponseWriter, r *http.Reques
 		return false
 	}
 
-	handler.sendClientUpdates(conn, updates, messageChan, clientMessageHandler)
+	handler.sendClientUpdates(conn, updatesInBytes, messageChan, clientMessageHandler)
 }
 
 func RegistrationHandler(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("key")
 
-	responseStatus := commands.RegisterMkvKey(key)
-	w.WriteHeader(responseStatus)
+	err := makemkv.RegisterMakeMkv(key)
+	if err != nil {
+		if err == gomakemkv.ErrBadKey {
+			w.WriteHeader(http.StatusBadRequest)
+		} else if err == gomakemkv.ErrUnexpectedRegistrationError {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		w.Write([]byte(err.Error()))
+		return
+	}
+	w.WriteHeader(http.StatusAccepted)
 }
 
 func EjectHandler(w http.ResponseWriter, r *http.Request) {
@@ -280,4 +293,25 @@ func InsertDiscHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(200)
+}
+
+func stringifyMakeMkvOutput(updates <-chan events.MakeMkvOutput) chan []byte {
+	updatesInBytes := make(chan []byte)
+	go func() {
+		for {
+			select {
+			case update, ok := <-updates:
+				if !ok {
+					return
+				}
+				marshalled, err := json.Marshal(update)
+				if err != nil {
+					log.Println("Failed to convert update to json")
+					continue
+				}
+				updatesInBytes <- marshalled
+			}
+		}
+	}()
+	return updatesInBytes
 }
