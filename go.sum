@@ -1,5 +1,5 @@
-github.com/DrWalrus1/gomakemkv v0.1.0 h1:FeaEsMsJ8Hwavp97NitYbKBe3xEBdxBrKlV5O7SwAnc=
-github.com/DrWalrus1/gomakemkv v0.1.0/go.mod h1:dquZoK9jfuMxTnCjwZtRS9/lNJ+jKtJm4TtMmVZhkMM=
+github.com/DrWalrus1/gomakemkv v0.3.0 h1:Bk3GfZYFQbxgBb/xI2jruzGCkH5bCqCSgCxqPNZ+9zA=
+github.com/DrWalrus1/gomakemkv v0.3.0/go.mod h1:dquZoK9jfuMxTnCjwZtRS9/lNJ+jKtJm4TtMmVZhkMM=
 github.com/go-playground/assert/v2 v2.2.0 h1:JvknZsQTYeFEAhQwI4qEt9cyV5ONwRHC+lYKSsYSR8s=
 github.com/go-playground/assert/v2 v2.2.0/go.mod h1:VDjEfimB/XKnb+ZQfWdccd7VUvScMdVu0Titje2rxJ4=
 github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aNNg=
