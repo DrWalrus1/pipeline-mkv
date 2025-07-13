@@ -2,44 +2,41 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"pipelinemkv/cmd/makemkv"
+	st "pipelinemkv/cmd/streamTracker"
 	"pipelinemkv/routehandlers"
-	"strings"
 	"time"
 )
 
-type ServeWithoutHTMLExtension struct {
-	fs           http.Handler
-	staticFolder string
-}
-
-func (s ServeWithoutHTMLExtension) ServerHTTP(w http.ResponseWriter, r *http.Request) {
-	if !strings.HasSuffix(r.URL.Path, "/") && !strings.Contains(filepath.Base(r.URL.Path), ".") {
-		// If the path doesn't end in a slash and doesn't have an extension,
-		// assume it's an HTML file and try appending ".html".
-		newPath := r.URL.Path + ".html"
-		_, err := os.Stat(filepath.Join(s.staticFolder, newPath)) // Check if the file exists
-		if err == nil {
-			r.URL.Path = newPath // Rewrite the URL internally
-		} else {
-			fmt.Printf("Couldn't find path %v", err)
-		}
-	}
-	s.fs.ServeHTTP(w, r)
-}
-
 func main() {
-	runInitialDiscLoadOnStartup()
-	streamTracker := makemkv.NewStreamTracker()
+	var port string
+	flag.StringVar(&port, "port", ":9090", "Port to host the server on")
+	flag.Parse()
+	// runInitialDiscLoadOnStartup()
+	streamTracker := st.NewStreamTracker()
 	advancedHandler := routehandlers.RouteHandler{
 		StreamTracker: &streamTracker,
 	}
+	mux := http.NewServeMux()
+	SetupPaths(mux, advancedHandler)
+
+	fs := http.FileServer(http.Dir("./static/"))
+	handler := ServeWithoutHTMLExtension{fs: fs, staticFolder: "./static/"}
+	mux.HandleFunc("/", handler.ServerHTTP)
+
+	fmt.Printf("WebSocket server started on %s\n", port)
+	err := http.ListenAndServe(port, nil)
+	if err != nil {
+		log.Fatal("ListenAndServe:", err)
+	}
+}
+
+func SetupPaths(mux *http.ServeMux, advancedHandler routehandlers.RouteHandler) {
 	http.HandleFunc("/api/info", advancedHandler.InfoHandler)
 	http.HandleFunc("/api/mkv", advancedHandler.MkvHandler)
 	http.HandleFunc("/api/watch/mkv", advancedHandler.WatchMkv)
@@ -47,17 +44,6 @@ func main() {
 	http.HandleFunc("POST /api/register", routehandlers.RegistrationHandler)
 	http.HandleFunc("POST /api/eject", routehandlers.EjectHandler)
 	http.HandleFunc("POST /api/insert", routehandlers.InsertDiscHandler)
-
-	fs := http.FileServer(http.Dir("./static/"))
-	handler := ServeWithoutHTMLExtension{fs: fs, staticFolder: "./static/"}
-	http.HandleFunc("/", handler.ServerHTTP)
-
-	port := ":9090"
-	fmt.Printf("WebSocket server started on %s\n", port)
-	err := http.ListenAndServe(port, nil)
-	if err != nil {
-		log.Fatal("ListenAndServe:", err)
-	}
 }
 
 func runInitialDiscLoadOnStartup() {

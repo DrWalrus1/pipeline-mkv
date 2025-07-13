@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"pipelinemkv/cmd/makemkv"
+	streamtracker "pipelinemkv/cmd/streamTracker"
 	osCommands "pipelinemkv/os/commands"
 	"strconv"
 
@@ -24,7 +25,7 @@ var upgrader = websocket.Upgrader{
 }
 
 type RouteHandler struct {
-	StreamTracker *makemkv.StreamTracker
+	StreamTracker *streamtracker.StreamTracker
 }
 
 func readClientMessages(conn *websocket.Conn) <-chan string {
