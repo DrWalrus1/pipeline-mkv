@@ -13,14 +13,23 @@ import (
 	"time"
 )
 
+var commandHandler makemkv.IMakeMkvCommandHandler
+
 func main() {
+	//
+	if commandHandler == nil {
+		commandHandler = &makemkv.MakeMkvCommandHandler{}
+	}
+	commandHandler.LoadConfig("Dummy")
+
 	var port string
 	flag.StringVar(&port, "port", ":9090", "Port to host the server on")
 	flag.Parse()
 	// runInitialDiscLoadOnStartup()
 	streamTracker := st.NewStreamTracker()
 	advancedHandler := routehandlers.RouteHandler{
-		StreamTracker: &streamTracker,
+		StreamTracker:  &streamTracker,
+		MakeMkvHandler: commandHandler,
 	}
 	mux := http.NewServeMux()
 	SetupPaths(mux, advancedHandler)
@@ -41,14 +50,14 @@ func SetupPaths(mux *http.ServeMux, advancedHandler routehandlers.RouteHandler) 
 	http.HandleFunc("/api/mkv", advancedHandler.MkvHandler)
 	http.HandleFunc("/api/watch/mkv", advancedHandler.WatchMkv)
 	http.HandleFunc("/api/backup", advancedHandler.BackupHandler)
-	http.HandleFunc("POST /api/register", routehandlers.RegistrationHandler)
+	http.HandleFunc("POST /api/register", advancedHandler.RegistrationHandler)
 	http.HandleFunc("POST /api/eject", routehandlers.EjectHandler)
 	http.HandleFunc("POST /api/insert", routehandlers.InsertDiscHandler)
 }
 
-func runInitialDiscLoadOnStartup() {
+func runInitialDiscLoadOnStartup(h makemkv.IMakeMkvCommandHandler) {
 	//TODO: Set this value in config
-	initalLoadReader, _, _ := makemkv.TriggerInitialInfoLoad(time.Minute * 2)
+	initalLoadReader, _, _ := h.TriggerInitialInfoLoad(time.Minute * 2)
 	stringChan := readStream(initalLoadReader)
 	go func() {
 		for {

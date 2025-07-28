@@ -13,7 +13,24 @@ import (
 	"github.com/DrWalrus1/gomakemkv"
 )
 
-func TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {
+type IMakeMkvCommandHandler interface {
+	LoadConfig(configPath string) error
+	TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error)
+	TriggerInitialInfoLoad(timeout time.Duration) (io.Reader, context.CancelFunc, error)
+	TriggerDiskBackup(decrypt bool, source string, destination string) (io.Reader, context.CancelFunc, error)
+	TriggerSaveMkv(source string, title string, destination string) (io.Reader, context.CancelFunc, error)
+	RegisterMakeMkv(key string) error
+}
+
+type MakeMkvCommandHandler struct {
+	ExecutablePath string
+}
+
+func (m *MakeMkvCommandHandler) LoadConfig(configPath string) error {
+	panic("unimplemented: MakeMkvCommandHandler.LoadConfig")
+}
+
+func (m MakeMkvCommandHandler) TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cmd := exec.CommandContext(ctx, "makemkvcon", "-r", "--progress=-stdout", "info", source)
 	outputPipe, err := cmd.StdoutPipe()
@@ -37,7 +54,7 @@ func TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {
 	return outputPipe, cancel, nil
 }
 
-func TriggerInitialInfoLoad(timeoutLength time.Duration) (io.Reader, context.CancelFunc, error) {
+func (m MakeMkvCommandHandler) TriggerInitialInfoLoad(timeoutLength time.Duration) (io.Reader, context.CancelFunc, error) {
 	timeoutErr := errors.New("failed to perform initial disc load - timeout")
 	ctx, cancel := context.WithTimeoutCause(context.Background(), timeoutLength, timeoutErr)
 
@@ -69,7 +86,7 @@ func TriggerInitialInfoLoad(timeoutLength time.Duration) (io.Reader, context.Can
 
 }
 
-func TriggerDiskBackup(decrypt bool, source string, destination string) (io.Reader, context.CancelFunc, error) {
+func (m MakeMkvCommandHandler) TriggerDiskBackup(decrypt bool, source string, destination string) (io.Reader, context.CancelFunc, error) {
 	var cmd *exec.Cmd
 	ctx, cancel := context.WithCancel(context.Background())
 	if decrypt {
@@ -108,7 +125,7 @@ func validateSource(source string) error {
 	return fmt.Errorf("invalid source")
 }
 
-func TriggerSaveMkv(source string, title string, destination string) (io.Reader, context.CancelFunc, error) {
+func (m MakeMkvCommandHandler) TriggerSaveMkv(source string, title string, destination string) (io.Reader, context.CancelFunc, error) {
 	if err := validateSource(source); err != nil {
 		return nil, nil, errors.New("invalid source: " + err.Error())
 	}
@@ -134,7 +151,7 @@ func TriggerSaveMkv(source string, title string, destination string) (io.Reader,
 	return outputPipe, cancel, nil
 }
 
-func RegisterMakeMkv(key string) error {
+func (m MakeMkvCommandHandler) RegisterMakeMkv(key string) error {
 	executable := "makemkvcon"
 	arguments := "-r"
 	command := "reg"

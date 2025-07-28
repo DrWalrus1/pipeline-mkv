@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { useWebSocket } from '@vueuse/core'
-import { watch } from 'vue'
+import { ref, watch, computed } from 'vue'
+import { API_URL } from '@/config'
+
+const discInfo = ref<any>(null)
+
 function LoadDiscInfo() {
-  const socket = useWebSocket('ws:///api/info', {
+  const socket = useWebSocket(`ws://${API_URL}/api/info`, {
     heartbeat: {
       message: 'ping',
       interval: 1000,
@@ -10,20 +14,20 @@ function LoadDiscInfo() {
     }
   });
   watch(socket.data, (newData) => {
-    console.log(newData)
+    discInfo.value = JSON.parse(newData)
   })
 }
+
+const formattedDiscInfo = computed(() =>
+  discInfo.value
+    ? JSON.stringify(discInfo.value, null, 2)
+    : '{\n  "Hello": "World"\n}'
+)
 </script>
 
 <template>
   <main>
     <button @click="LoadDiscInfo">Load Disc Info</button>
-    <pre>
-      <code id="disc-info-dump">
-        {
-        "Hello": "World"
-        }
-      </code>
-    </pre>
+    <pre id="disc-info-dump">{{ formattedDiscInfo }}</pre>
   </main>
 </template>

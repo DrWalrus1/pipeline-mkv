@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-func runInitialDiscLoadOnStartup() {
+func runInitialDiscLoadOnStartup(handler IMakeMkvCommandHandler) {
 	//TODO: Set this value in config
-	initalLoadReader, _, _ := TriggerInitialInfoLoad(time.Minute * 2)
+	initalLoadReader, _, _ := handler.TriggerInitialInfoLoad(time.Minute * 2)
 	stringChan := readStream(initalLoadReader)
 	go func() {
 		for {
