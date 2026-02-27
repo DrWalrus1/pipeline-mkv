@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/vue3";
+import type { Meta, StoryObj } from "@storybook/vue3-vite";
 import DiscInfoCard from "./DiscInfoCard.vue";
 import type { DiscInfo } from "@/domain/disc_info";
 

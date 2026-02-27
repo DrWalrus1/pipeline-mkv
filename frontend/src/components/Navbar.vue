@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, ref } from 'vue';
+const { inProgressMovieCount } = defineProps<{ inProgressMovieCount: Number }>();
+const placeHolderValue = computed(() => `${inProgressMovieCount} movies in progress...`)
 
 const searchQuery = ref('');
 
@@ -20,10 +22,10 @@ const handleSettingsClick = () => {
   <nav class="navbar">
     <div class="logo">PIPELINEMKV</div>
     <div class="input-container">
-      <input type="text" placeholder="5 Movies in progress..." class="input-text" />
-      <button class="new-button">New</button>
+      <input type="text" :placeholder=placeHolderValue class="input-text" />
+      <button class="new-button" :click=handleNewClick>New</button>
     </div>
-    <button class="settings-button">Settings</button>
+    <button class="settings-button" :click=handleSettingsClick>Settings</button>
   </nav>
 </template>
 

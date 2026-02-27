@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { DiscInfo } from '@/domain/disc_info';
-import { defineProps } from 'vue';
 const { discInfo, url } = defineProps<{ discInfo: DiscInfo, url: string }>();
 </script>
 

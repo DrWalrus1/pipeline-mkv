@@ -300,19 +300,13 @@ func InsertDiscHandler(w http.ResponseWriter, r *http.Request) {
 func stringifyMakeMkvOutput(updates <-chan events.MakeMkvOutput) chan []byte {
 	updatesInBytes := make(chan []byte)
 	go func() {
-		for {
-			select {
-			case update, ok := <-updates:
-				if !ok {
-					return
-				}
-				marshalled, err := json.Marshal(update)
-				if err != nil {
-					log.Println("Failed to convert update to json")
-					continue
-				}
-				updatesInBytes <- marshalled
+		for update := range updates {
+			marshalled, err := json.Marshal(update)
+			if err != nil {
+				log.Println("Failed to convert update to json")
+				continue
 			}
+			updatesInBytes <- marshalled
 		}
 	}()
 	return updatesInBytes
