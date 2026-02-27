@@ -1,5 +1,8 @@
+import type { DiscInfo } from "@/domain/disc_info"
+
 export interface MakeMkvService {
-  GetDiscInfo: () => Promise<string>
+  GetInsertedDiscInfo: () => Promise<string>
+  GetRecentDiscInfos: (limit: number, offset: number) => Promise<DiscInfo[]>
 }
 
 export type MakeMkvServiceProvider = MakeMkvService | undefined
@@ -10,10 +13,3 @@ export function GetMakeMkvService(x: MakeMkvServiceProvider): asserts x is MakeM
   }
 }
 
-class MockMakeMkvService implements MakeMkvService {
-  public GetDiscInfo(): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      resolve("Hallo")
-    })
-  }
-}

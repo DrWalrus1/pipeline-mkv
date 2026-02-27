@@ -12,10 +12,14 @@ const preview: Preview = {
     },
   },
   decorators: [
-    (story) => ({
-      components: { story },
-      template: '<div class=\'storybook-center-preview\'><story /></div>'
-    })
+    (_, context) => {
+      switch (context.parameters.type) {
+        case 'component':
+          return { template: '<div class=\'storybook-center-preview\'><story /></div>' }
+        default:
+          return { template: '<story />' }
+      }
+    }
   ]
 };
 

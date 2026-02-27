@@ -2,12 +2,43 @@ import type { Meta, StoryObj } from "@storybook/vue3-vite";
 import HomeView from "./HomeView.vue";
 import { defineComponent } from "vue";
 import type { MakeMkvService } from "@/services/gomakemkv/gomakemkv";
+import type { DiscInfo } from "@/domain/disc_info";
 
 class FakeMakeMkvService implements MakeMkvService {
-  public GetDiscInfo(): Promise<string> {
+  public GetInsertedDiscInfo(): Promise<string> {
     return new Promise<string>((resolve) => {
       resolve("Hallo")
     })
+  }
+
+  public GetRecentDiscInfos(limit: number, offset: number): Promise<DiscInfo[]> {
+    const fakeDiscHistoryList: DiscInfo[] = [
+      {
+        name: "Movie 1",
+        language: "English",
+        type: "Blu-ray",
+        titles: []
+      },
+      {
+        name: "Movie 2",
+        language: "English",
+        type: "DVD",
+        titles: []
+      },
+      {
+        name: "Movie 3",
+        language: "Japanese",
+        type: "Blu-ray",
+        titles: []
+      }
+    ]
+    return new Promise<DiscInfo[]>((resolve) => {
+      resolve(fakeDiscHistoryList.slice(0, limit))
+
+
+    })
+
+
   }
 
 }

@@ -6,7 +6,7 @@ const makeMkvService = inject<MakeMkvService>("MakeMkvService")
 GetMakeMkvService(makeMkvService)
 
 
-const discInfo = computedAsync(async () => { return await makeMkvService.GetDiscInfo() }, "Goodbye")
+const discInfo = computedAsync(async () => { return await makeMkvService.GetInsertedDiscInfo() }, "Goodbye")
 
 </script>
 

@@ -17,6 +17,9 @@ export default meta;
 type Story = StoryObj<typeof DiscInfoCard>;
 
 export const Primary: Story = {
+  parameters: {
+    type: 'component'
+  },
   args: {
     discInfo: x,
     url: "https://m.media-amazon.com/images/I/91+ShpVWyiL._AC_UF894,1000_QL80_.jpg"
