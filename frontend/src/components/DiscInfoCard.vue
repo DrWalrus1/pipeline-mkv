@@ -16,11 +16,14 @@ const { discInfo, url } = defineProps<{ discInfo: DiscInfo, url: string }>();
 </template>
 
 <style lang="css">
+/* Common Styling */
 .discInfoCard {
   border-radius: 10px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  /*TODO: Sync to theme */
+  background-color: white;
   transition: 0.3s;
-  width: 275px;
+
 }
 
 .discInfoCard:hover {
@@ -30,11 +33,51 @@ const { discInfo, url } = defineProps<{ discInfo: DiscInfo, url: string }>();
 
 .discPoster {
   aspect-ratio: auto;
-  border-radius: 10px 10px 0 0;
-  width: 275px;
 }
 
-.discInfoCardInfo {
-  padding: 2px 16px;
+/* Small Mobile */
+@media (min-width:320px) {
+  .discInfoCard {
+    height: 10rem;
+    display: inline-flex;
+  }
+
+  .discPoster {
+    height: 10rem;
+    border-radius: 10px 0px 0px 10px;
+  }
+
+  .discInfoCardInfo {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .discInfoCardInfo>h1 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+  .discInfoCardInfo>h5 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+}
+
+/* laptops and desktops */
+@media (min-width:800px) {
+  .discInfoCard {
+    display: block;
+    width: 275px;
+  }
+
+  .discPoster {
+    border-radius: 10px 10px 0 0;
+    width: 275px;
+    height: 440px;
+  }
+
+  .discInfoCardInfo {
+    padding: 2px 16px;
+  }
 }
 </style>

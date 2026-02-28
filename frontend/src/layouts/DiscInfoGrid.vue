@@ -30,9 +30,8 @@ const fakeDiscHistoryList: DiscInfo[] = [
 </script>
 <template>
   <div class="disc-info-grid-container">
-    <div v-for="(item, index) in fakeDiscHistoryList" class="disc-info-grid-item">
-      <DiscInfoCard :discInfo=item :url=urls[index] />
-    </div>
+    <DiscInfoCard v-for="(item, index) in fakeDiscHistoryList" class="disc-info-grid-item" :discInfo=item
+      :url=urls[index] />
   </div>
 
 </template>
