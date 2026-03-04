@@ -9,19 +9,19 @@ const urls = [
 ]
 const fakeDiscHistoryList: DiscInfo[] = [
   {
-    name: "Movie 1",
+    name: "Demon Slayer: Entertainment District Arc",
     language: "English",
     type: "Blu-ray",
     titles: []
   },
   {
-    name: "Movie 2",
+    name: "Demon Slayer: Mugan Train Arc",
     language: "English",
     type: "DVD",
     titles: []
   },
   {
-    name: "Movie 3",
+    name: "Mr Bean",
     language: "Japanese",
     type: "Blu-ray",
     titles: []
@@ -39,10 +39,36 @@ const fakeDiscHistoryList: DiscInfo[] = [
 <style>
 .disc-info-grid-container {
   display: grid;
-  grid-template-rows: 1fr 1fr 1fr;
-  grid-template-columns: 1fr 1fr 1fr;
   justify-items: center;
   align-items: center;
+  column-gap: 5px;
+  row-gap: 40px;
+}
+
+.disc-info-grid-item {
+  height: 100%;
+}
+
+@media (min-width:320px) {
+  .disc-info-grid-container {
+    row-gap: 10px;
+  }
+}
+
+@media (min-width:500px) {
+
+  .disc-info-grid-container {
+    grid-template-rows: auto;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width:875px) {
+  .disc-info-grid-container {
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
 }
 
 /* .disc-info-grid-item { */

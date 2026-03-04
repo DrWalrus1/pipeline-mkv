@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type { DiscInfo } from '@/domain/disc_info';
 const { discInfo, url } = defineProps<{ discInfo: DiscInfo, url: string }>();
+let titleSize = discInfo.name.length > 15 ? "long-title" : "normal-title"
+
 </script>
 
 <template>
   <div class="discInfoCard">
     <img class="discPoster" :src="url" />
     <div class="discInfoCardInfo">
-      <h1>{{ discInfo.name }}</h1>
+      <h1 :class=titleSize>{{ discInfo.name }}</h1>
       <h5>{{ discInfo.language }}</h5>
       <h5>{{ discInfo.type }}</h5>
     </div>
@@ -36,10 +38,11 @@ const { discInfo, url } = defineProps<{ discInfo: DiscInfo, url: string }>();
 }
 
 /* Small Mobile */
-@media (min-width:320px) {
+@media (min-width:20px) {
   .discInfoCard {
     height: 10rem;
     display: inline-flex;
+    width: 100%;
   }
 
   .discPoster {
@@ -55,6 +58,15 @@ const { discInfo, url } = defineProps<{ discInfo: DiscInfo, url: string }>();
   .discInfoCardInfo>h1 {
     margin-top: 5px;
     margin-bottom: 5px;
+    margin-right: 5px;
+  }
+
+  .normal-title {
+    font-size: 24px
+  }
+
+  .long-title {
+    font-size: 18px
   }
 
   .discInfoCardInfo>h5 {

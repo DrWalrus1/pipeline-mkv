@@ -1,0 +1,9 @@
+{
+  "disc_read_log_level": "error",
+  "log_level": "info",
+  "arguments": {
+    "direct_io": true,
+    "cache": 1024,
+    "title_min_length": 10
+  }
+}

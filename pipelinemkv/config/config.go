@@ -1,58 +1,26 @@
 package config
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
-	"io"
+	"os"
+	"path/filepath"
 )
 
-type Arguments struct {
-	// Enables or disables direct disc access
-	DirectIO bool `json:"direct_io"`
-	// Default is 120 seconds
-	TitleMinLength int `json:"title_min_length"`
-	// Specifies size of read cache in megabytes used by MakeMKV. By default program uses huge amount of memory. About 128 MB is recommended for streaming and backup, 512MB for DVD conversion and 1024MB for Blu-ray conversion.
-	Cache int `json:"cache"`
-}
-
-func (a *Arguments) ConvertArgumentsToArgs() []string {
-	args := []string{}
-
-	if a.DirectIO {
-		args = append(args, fmt.Sprintf("--directio=true"))
-	}
-	if a.TitleMinLength > -1 {
-		args = append(args, fmt.Sprintf("--minlength=%d", a.TitleMinLength))
-	}
-	if a.Cache > 0 {
-		args = append(args, fmt.Sprintf("--cache=%d", a.Cache))
-	}
-	return args
-}
-
 type Config struct {
+	// Executable path for MakeMkv
 	ExecutablePath  string `json:"executable_path"`
 	RegistrationKey string `json:"registration_key"`
-	Arguments       Arguments
+	// Specifies how much read logs from MakeMKV get sent back to the client.
+	DiscReadLogLevel string `json:"disc_read_log_level"`
+	// Specifies what level of logs from the server get logged
+	LogLevel             string `json:"log_level"`
+	Arguments            Arguments
+	MetadataServiceToken string `json:"metadata_service_token"`
 }
 
 func (c *Config) HasAlternateExecutablePath() bool {
 	return c.ExecutablePath != ""
-}
-
-func LoadConfig(r io.Reader) (*Config, error) {
-	var loadedConfig Config
-	reader := bufio.NewReader(r)
-	contents, err := reader.ReadBytes(byte(reader.Buffered()))
-	if err != nil && err != io.EOF {
-		return nil, fmt.Errorf("Could not load config. %w", err)
-	}
-	err = json.Unmarshal(contents, &loadedConfig)
-	if err != nil {
-		return nil, fmt.Errorf("Could not parse config json. %w", err)
-	}
-	return &loadedConfig, nil
 }
 
 func (c *Config) ConvertConfigToArgs() []string {
@@ -62,13 +30,74 @@ func (c *Config) ConvertConfigToArgs() []string {
 		args = append(args, c.ExecutablePath)
 	}
 
+	var requiredMakeMkvOptions = []string{"-r", "--progress=-stdout"}
 	// We always enable robot mode
+	args = append(args, requiredMakeMkvOptions...)
 
 	args = append(args, c.Arguments.ConvertArgumentsToArgs()...)
 
 	return args
 }
 
-func GetRequiredMakeMkvOptions() []string {
-	return []string{"-r", "--progress=-stdout"}
+func Load(flagPath string) (*Config, error) {
+	path, err := resolvePath(flagPath)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("reading config at %s: %w", path, err)
+	}
+
+	var cfg Config
+	if err := json.Unmarshal(data, &cfg); err != nil {
+		return nil, fmt.Errorf("parsing config at %s: %w", path, err)
+	}
+
+	return &cfg, nil
+}
+
+func resolvePath(flagPath string) (string, error) {
+	candidates := buildConfigCandidates(flagPath)
+
+	for _, path := range candidates {
+		if _, err := os.Stat(path); err == nil {
+			return path, nil
+		}
+	}
+
+	return "", fmt.Errorf("no config file found; tried: %v", candidates)
+}
+
+func buildConfigCandidates(flagPath string) []string {
+	// var configPath string
+	// flag.StringVar(&configPath, "config", "", "filepath for config.json file")
+	if flagPath != "" {
+		return []string{flagPath}
+	}
+
+	var candidates []string
+
+	// 2. Environment variable
+	if env := os.Getenv("PIPELINEMKV_CONFIG"); env != "" {
+		candidates = append(candidates, env)
+		return candidates // same — explicit, don't fall through
+	}
+
+	// 3. User-local (XDG)
+	configDir := os.Getenv("XDG_CONFIG_HOME")
+	if configDir == "" {
+		if home, err := os.UserHomeDir(); err == nil {
+			configDir = filepath.Join(home, ".config")
+		}
+	}
+	if configDir != "" {
+		candidates = append(candidates, filepath.Join(configDir, "pipelinemkv", "config.json"))
+	}
+
+	// 4. System-wide fallback
+	candidates = append(candidates, "/etc/pipelinemkv/config.json")
+
+	return candidates
 }

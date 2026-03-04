@@ -27,32 +27,7 @@ var upgrader = websocket.Upgrader{
 type RouteHandler struct {
 	MakeMkvHandler makemkv.IMakeMkvCommandHandler
 	StreamTracker  *streamtracker.StreamTracker
-}
-
-func readClientMessages(conn *websocket.Conn) <-chan string {
-	done := make(chan string)
-
-	go func() {
-		defer close(done) // Signal completion when this goroutine exits
-		for {
-			// ReadMessage blocks until a message is received or an error occurs.
-			// We don't care about the message content here, just the connection status.
-			_, message, err := conn.ReadMessage()
-			if err != nil {
-				// Check if the error indicates a normal client disconnect.
-				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
-					log.Println("Client disconnected (detected by read pump).")
-				} else {
-					log.Printf("WebSocket read error: %v", err)
-				}
-				return // Exit the goroutine on any read error or disconnect
-			}
-			done <- string(message)
-			// If you had a need to process incoming messages from the client (e.g., pings, control messages),
-			// you would do so here. For this handler, we are only sending data to the client.
-		}
-	}()
-	return done
+	PosterService  PosterService
 }
 
 func (h *RouteHandler) sendClientUpdates(conn *websocket.Conn, updates <-chan []byte, clientMessages <-chan string, clientMessageHandler func(string) bool) {
@@ -101,39 +76,23 @@ func (h *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	updates, discInfoChan := gomakemkv.ParseMakeMkvInfoCommandLogs(reader)
+	//TODO: add function to log updates if needed
+	_, discInfoChan := gomakemkv.ParseMakeMkvInfoCommandLogs(reader)
 	updatesInBytes := make(chan []byte)
-	go func() {
-		isUpdatesComplete := false
-		isDiscInfoReceived := false
-		for {
-			if isUpdatesComplete && isDiscInfoReceived {
-				return
-			}
-			select {
-			case update, ok := <-updates:
-				if !ok {
-					isUpdatesComplete = true
-					break
-				}
-				updateInBytes, _ := json.Marshal(update)
-				updatesInBytes <- updateInBytes
-			case discInfo, ok := <-discInfoChan:
-				if !ok {
-					isDiscInfoReceived = true
-					break
-				}
-				updateInBytes, _ := json.Marshal(discInfo)
-				updatesInBytes <- updateInBytes
-			}
-		}
-	}()
+	//TODO: FIX ME
+	discInfoInBytes, err := json.Marshal(discInfoChan)
+	updatesInBytes <- discInfoInBytes
 
 	clientMessageHandler := func(message string) bool {
 		// do nothing because we automatically close when channel closes
 		return false
 	}
 	h.sendClientUpdates(conn, updatesInBytes, done, clientMessageHandler)
+}
+
+type DiscInfoWithPosterUrl struct {
+	DiscInfo  gomakemkv.MkvDiscInfo
+	PosterUrl string
 }
 
 func (h *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) {
@@ -310,4 +269,35 @@ func stringifyMakeMkvOutput(updates <-chan events.MakeMkvOutput) chan []byte {
 		}
 	}()
 	return updatesInBytes
+}
+
+func readClientMessages(conn *websocket.Conn) <-chan string {
+	done := make(chan string)
+
+	go func() {
+		defer close(done) // Signal completion when this goroutine exits
+		for {
+			// ReadMessage blocks until a message is received or an error occurs.
+			// We don't care about the message content here, just the connection status.
+			_, message, err := conn.ReadMessage()
+			if err != nil {
+				// Check if the error indicates a normal client disconnect.
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) || err == io.EOF {
+					log.Println("Client disconnected (detected by read pump).")
+				} else {
+					log.Printf("WebSocket read error: %v", err)
+				}
+				return // Exit the goroutine on any read error or disconnect
+			}
+			done <- string(message)
+			// If you had a need to process incoming messages from the client (e.g., pings, control messages),
+			// you would do so here. For this handler, we are only sending data to the client.
+		}
+	}()
+	return done
+}
+
+type PosterService interface {
+	SearchMoviePoster(title, release_year, language string, includeAdult bool) string
+	// consider adding ability to pick a selection
 }

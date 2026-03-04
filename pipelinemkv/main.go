@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"flag"
 	"fmt"
 	"io"
@@ -9,18 +10,28 @@ import (
 	"net/http"
 	"pipelinemkv/cmd/makemkv"
 	st "pipelinemkv/cmd/streamTracker"
+	"pipelinemkv/config"
 	"pipelinemkv/routehandlers"
+	metadataservice "pipelinemkv/services/metadata_service"
 	"time"
 )
 
 var commandHandler makemkv.IMakeMkvCommandHandler
 
 func main() {
-	//
 	if commandHandler == nil {
 		commandHandler = &makemkv.MakeMkvCommandHandler{}
 	}
-	commandHandler.LoadConfig("Dummy")
+
+	var configPath string
+	flag.StringVar(&configPath, "config", "", "filepath for config.json file")
+	conf, err := config.Load(configPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	meta_service := metadataservice.New(conf.MetadataServiceToken)
+	meta_service.SearchMovie("Forrest Gump", "", "", context.Background())
 
 	var port string
 	flag.StringVar(&port, "port", ":9090", "Port to host the server on")
@@ -39,7 +50,7 @@ func main() {
 	mux.HandleFunc("/", handler.ServerHTTP)
 
 	fmt.Printf("WebSocket server started on %s\n", port)
-	err := http.ListenAndServe(port, nil)
+	err = http.ListenAndServe(port, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}

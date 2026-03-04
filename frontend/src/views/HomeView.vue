@@ -2,6 +2,8 @@
 import { computedAsync } from '@vueuse/core'
 import { inject } from 'vue'
 import { GetMakeMkvService, type MakeMkvService } from '@/services/gomakemkv/gomakemkv'
+import Navbar from '@/components/Navbar.vue'
+import DiscInfoGrid from '@/layouts/DiscInfoGrid.vue'
 const makeMkvService = inject<MakeMkvService>("MakeMkvService")
 GetMakeMkvService(makeMkvService)
 
@@ -11,8 +13,6 @@ const discInfo = computedAsync(async () => { return await makeMkvService.GetInse
 </script>
 
 <template>
-  <main>
-    <button>Load Disc Info</button>
-    <pre id="disc-info-dump">{{ discInfo }}</pre>
-  </main>
+  <Navbar :inProgressMovieCount=5 />
+  <DiscInfoGrid style="padding-top: 10px;" />
 </template>
