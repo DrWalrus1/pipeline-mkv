@@ -31,7 +31,8 @@ func main() {
 	}
 
 	meta_service := metadataservice.New(conf.MetadataServiceToken)
-	meta_service.SearchMovie("Forrest Gump", "", "", context.Background())
+	meta_service.SearchMovie(context.Background(), "Forrest Gump", "", "")
+	meta_service.GetMovieDetails(context.Background(), "550", []string{})
 
 	var port string
 	flag.StringVar(&port, "port", ":9090", "Port to host the server on")

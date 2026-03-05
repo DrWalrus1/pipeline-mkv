@@ -7,18 +7,18 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
-	detailsBaseUrl  = "https://api.themoviedb.org/3/"
-	imageBaseUrl    = "https://image.tmdb.org/"
-	searchMoviePath = "/search/movie"
-	searchTvPath    = "/search/tv"
-	movieDetailsUrl = "https://api.themoviedb.org/3/movie/"
+	detailsBaseUrl   = "https://api.themoviedb.org/3/"
+	imageBaseUrl     = "https://image.tmdb.org/"
+	searchMoviePath  = "/search/movie"
+	searchTvPath     = "/search/tv"
+	movieDetailsPath = "/movie/"
 )
 
 type MetadataService struct {
-	// the endpoint for when you already
 	authToken string
 }
 
@@ -28,7 +28,7 @@ func New(authToken string) *MetadataService {
 	}
 }
 
-func (s MetadataService) SearchMovie(title, release_year, language string, ctx context.Context) {
+func (s MetadataService) SearchMovie(ctx context.Context, title, release_year, language string) {
 	u, err := url.Parse(detailsBaseUrl)
 	if err != nil {
 		log.Fatal(err)
@@ -47,8 +47,31 @@ func (s MetadataService) SearchMovie(title, release_year, language string, ctx c
 	}
 	u.RawQuery = queryParams.Encode()
 
+	sendRequest(ctx, u, s.authToken)
+}
+
+func (s MetadataService) GetMovieDetails(ctx context.Context, movieId string, appendToResponse []string) {
+	u, err := url.Parse(detailsBaseUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	u = u.JoinPath(fmt.Sprintf("/%s/%s", movieDetailsPath, movieId))
+	appendAppendToResponseToUrl(u, appendToResponse)
+
+	sendRequest(ctx, u, s.authToken)
+}
+
+func appendAppendToResponseToUrl(u *url.URL, appendToResponse []string) {
+	if len(appendToResponse) > 0 {
+		queryParams := u.Query()
+		queryParams.Add("append_to_response", strings.Join(appendToResponse, ","))
+		u.RawQuery = queryParams.Encode()
+	}
+}
+
+func sendRequest(ctx context.Context, u *url.URL, authToken string) {
 	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", s.authToken))
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", authToken))
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -57,9 +80,4 @@ func (s MetadataService) SearchMovie(title, release_year, language string, ctx c
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(res.Body)
 	fmt.Println(buf.String())
-
-}
-
-func (s MetadataService) GetMovieDetails(movieId string) {
-
 }
