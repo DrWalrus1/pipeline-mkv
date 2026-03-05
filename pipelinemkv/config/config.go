@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -17,6 +18,7 @@ type Config struct {
 	LogLevel             string `json:"log_level"`
 	Arguments            Arguments
 	MetadataServiceToken string `json:"metadata_service_token"`
+	Port                 string
 }
 
 func (c *Config) HasAlternateExecutablePath() bool {
@@ -54,6 +56,9 @@ func Load(flagPath string) (*Config, error) {
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("parsing config at %s: %w", path, err)
 	}
+
+	cfg.Port = getPort()
+	//TODO: Add error handling
 
 	return &cfg, nil
 }
@@ -100,4 +105,21 @@ func buildConfigCandidates(flagPath string) []string {
 	candidates = append(candidates, "/etc/pipelinemkv/config.json")
 
 	return candidates
+}
+
+func getPort() string {
+	var port string
+	flag.StringVar(&port, "port", "", "Port to host the server on")
+	flag.Parse()
+
+	if port != "" {
+		return fmt.Sprintf(":%s", port)
+	}
+
+	// 2. Environment variable
+	if env := os.Getenv("PIPELINEMKV_CONFIG"); env != "" {
+		return fmt.Sprintf(":%s", env)
+	}
+
+	return ":9090"
 }

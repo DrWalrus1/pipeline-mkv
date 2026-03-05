@@ -14,7 +14,6 @@ import (
 )
 
 type IMakeMkvCommandHandler interface {
-	LoadConfig(configPath string) error
 	TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error)
 	TriggerInitialInfoLoad(timeout time.Duration) (io.Reader, context.CancelFunc, error)
 	TriggerDiskBackup(decrypt bool, source string, destination string) (io.Reader, context.CancelFunc, error)
@@ -24,10 +23,6 @@ type IMakeMkvCommandHandler interface {
 
 type MakeMkvCommandHandler struct {
 	ExecutablePath string
-}
-
-func (m *MakeMkvCommandHandler) LoadConfig(configPath string) error {
-	panic("unimplemented: MakeMkvCommandHandler.LoadConfig")
 }
 
 func (m MakeMkvCommandHandler) TriggerDiskInfo(source string) (io.Reader, context.CancelFunc, error) {

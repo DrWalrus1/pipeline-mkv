@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"pipelinemkv/cmd/makemkv"
@@ -13,7 +11,6 @@ import (
 	"pipelinemkv/config"
 	"pipelinemkv/routehandlers"
 	metadataservice "pipelinemkv/services/metadata_service"
-	"time"
 )
 
 var commandHandler makemkv.IMakeMkvCommandHandler
@@ -34,10 +31,6 @@ func main() {
 	meta_service.SearchMovie(context.Background(), "Forrest Gump", "", "")
 	meta_service.GetMovieDetails(context.Background(), "550", []string{})
 
-	var port string
-	flag.StringVar(&port, "port", ":9090", "Port to host the server on")
-	flag.Parse()
-	// runInitialDiscLoadOnStartup()
 	streamTracker := st.NewStreamTracker()
 	advancedHandler := routehandlers.RouteHandler{
 		StreamTracker:  &streamTracker,
@@ -50,8 +43,8 @@ func main() {
 	handler := ServeWithoutHTMLExtension{fs: fs, staticFolder: "./static/"}
 	mux.HandleFunc("/", handler.ServerHTTP)
 
-	fmt.Printf("WebSocket server started on %s\n", port)
-	err = http.ListenAndServe(port, nil)
+	fmt.Printf("WebSocket server started on %s\n", conf.Port)
+	err = http.ListenAndServe(conf.Port, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
@@ -65,33 +58,4 @@ func SetupPaths(mux *http.ServeMux, advancedHandler routehandlers.RouteHandler) 
 	http.HandleFunc("POST /api/register", advancedHandler.RegistrationHandler)
 	http.HandleFunc("POST /api/eject", routehandlers.EjectHandler)
 	http.HandleFunc("POST /api/insert", routehandlers.InsertDiscHandler)
-}
-
-func runInitialDiscLoadOnStartup(h makemkv.IMakeMkvCommandHandler) {
-	//TODO: Set this value in config
-	initalLoadReader, _, _ := h.TriggerInitialInfoLoad(time.Minute * 2)
-	stringChan := readStream(initalLoadReader)
-	go func() {
-		for {
-			select {
-			case newRead, ok := <-stringChan:
-				if !ok {
-					return
-				}
-				log.Println(newRead)
-			}
-		}
-	}()
-}
-
-func readStream(reader io.Reader) <-chan string {
-	c := make(chan string)
-	go func() {
-		defer close(c)
-		scanner := bufio.NewScanner(reader)
-		for scanner.Scan() {
-			c <- scanner.Text()
-		}
-	}()
-	return c
 }

@@ -7,19 +7,12 @@ import (
 	"time"
 )
 
-func runInitialDiscLoadOnStartup(handler IMakeMkvCommandHandler) {
-	//TODO: Set this value in config
-	initalLoadReader, _, _ := handler.TriggerInitialInfoLoad(time.Minute * 2)
+func runInitialDiscLoadOnStartup(handler IMakeMkvCommandHandler, timeout time.Duration) {
+	initalLoadReader, _, _ := handler.TriggerInitialInfoLoad(timeout)
 	stringChan := readStream(initalLoadReader)
 	go func() {
-		for {
-			select {
-			case newRead, ok := <-stringChan:
-				if !ok {
-					return
-				}
-				log.Println(newRead)
-			}
+		for newRead := range stringChan {
+			log.Println(newRead)
 		}
 	}()
 }
