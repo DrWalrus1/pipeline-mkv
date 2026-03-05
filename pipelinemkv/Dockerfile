@@ -12,13 +12,13 @@ RUN apt-get update && \
     apt-get -t bookworm-backports install -y golang-go
 
 WORKDIR /makemkv
-RUN wget https://www.makemkv.com/download/makemkv-bin-1.18.1.tar.gz && \
-    wget https://www.makemkv.com/download/makemkv-oss-1.18.1.tar.gz && \
+RUN wget https://www.makemkv.com/download/makemkv-bin-1.18.3.tar.gz && \
+    wget https://www.makemkv.com/download/makemkv-oss-1.18.3.tar.gz && \
     mkdir makemkv-bin && \
     mkdir makemkv-oss && \
-    tar -xvf makemkv-bin-1.18.1.tar.gz -C ./makemkv-bin --strip-components 1 && \
-    tar -xvf makemkv-oss-1.18.1.tar.gz -C ./makemkv-oss --strip-components 1 && \
-    rm makemkv-bin-1.18.1.tar.gz makemkv-oss-1.18.1.tar.gz
+    tar -xvf makemkv-bin-1.18.3.tar.gz -C ./makemkv-bin --strip-components 1 && \
+    tar -xvf makemkv-oss-1.18.3.tar.gz -C ./makemkv-oss --strip-components 1 && \
+    rm makemkv-bin-1.18.3.tar.gz makemkv-oss-1.18.3.tar.gz
 
 WORKDIR /makemkv/makemkv-oss
 RUN ./configure && \
