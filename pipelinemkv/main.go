@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"embed"
 	"flag"
 	"fmt"
+	"io"
+	"io/fs"
 	"log"
 	"net/http"
 	"pipelinemkv/cmd/makemkv"
@@ -11,7 +14,11 @@ import (
 	"pipelinemkv/config"
 	"pipelinemkv/routehandlers"
 	metadataservice "pipelinemkv/services/metadata_service"
+	"strings"
 )
+
+//go:embed static/*
+var vueFiles embed.FS
 
 var commandHandler makemkv.IMakeMkvCommandHandler
 
@@ -37,20 +44,49 @@ func main() {
 		MakeMkvHandler: commandHandler,
 	}
 	mux := http.NewServeMux()
-	SetupPaths(mux, advancedHandler)
+	SetupApiPaths(mux, advancedHandler)
 
-	fs := http.FileServer(http.Dir("./static/"))
-	handler := ServeWithoutHTMLExtension{fs: fs, staticFolder: "./static/"}
-	mux.HandleFunc("/", handler.ServerHTTP)
+	disFS, _ := fs.Sub(vueFiles, "static")
+	staticServer := http.FileServer(http.FS(disFS))
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api") {
+			http.Error(w, "API endpoint not found", http.StatusNotFound)
+			return
+		}
+
+		// FIX 3: Check if the file exists in the embedded FS
+		// We trim the leading slash to match the FS root
+		f, err := disFS.Open(strings.TrimPrefix(r.URL.Path, "/"))
+		if err != nil {
+			// File doesn't exist (like a Vue route /dashboard)
+			// Serve index.html to allow SPA routing to take over
+			index, err := disFS.Open("index.html")
+			if err != nil {
+				http.Error(w, "Index not found", http.StatusNotFound)
+				return
+			}
+			defer index.Close()
+
+			// Just copy the index file out
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			io.Copy(w, index)
+			return
+		}
+		f.Close()
+
+		// File exists, let the static server handle it
+		staticServer.ServeHTTP(w, r)
+	})
 
 	fmt.Printf("WebSocket server started on %s\n", conf.Port)
-	err = http.ListenAndServe(conf.Port, nil)
+	err = http.ListenAndServe(conf.Port, mux)
 	if err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
 }
 
-func SetupPaths(mux *http.ServeMux, advancedHandler routehandlers.RouteHandler) {
+func SetupApiPaths(mux *http.ServeMux, advancedHandler routehandlers.RouteHandler) {
 	http.HandleFunc("/api/info", advancedHandler.InfoHandler)
 	http.HandleFunc("/api/mkv", advancedHandler.MkvHandler)
 	http.HandleFunc("/api/watch/mkv", advancedHandler.WatchMkv)
