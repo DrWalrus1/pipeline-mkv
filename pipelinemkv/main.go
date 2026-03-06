@@ -47,9 +47,29 @@ func main() {
 	SetupApiPaths(mux, advancedHandler)
 
 	disFS, _ := fs.Sub(vueFiles, "static")
+	mux.HandleFunc("/", serveStaticFrontend(disFS))
+
+	fmt.Printf("WebSocket server started on %s\n", conf.Port)
+	err = http.ListenAndServe(conf.Port, mux)
+	if err != nil {
+		log.Fatal("ListenAndServe:", err)
+	}
+}
+
+func SetupApiPaths(mux *http.ServeMux, advancedHandler routehandlers.RouteHandler) {
+	http.HandleFunc("/api/info", advancedHandler.InfoHandler)
+	http.HandleFunc("/api/mkv", advancedHandler.MkvHandler)
+	http.HandleFunc("/api/watch/mkv", advancedHandler.WatchMkv)
+	http.HandleFunc("/api/backup", advancedHandler.BackupHandler)
+	http.HandleFunc("POST /api/register", advancedHandler.RegistrationHandler)
+	http.HandleFunc("POST /api/eject", routehandlers.EjectHandler)
+	http.HandleFunc("POST /api/insert", routehandlers.InsertDiscHandler)
+}
+
+func serveStaticFrontend(disFS fs.FS) func(w http.ResponseWriter, r *http.Request) {
 	staticServer := http.FileServer(http.FS(disFS))
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api") {
 			http.Error(w, "API endpoint not found", http.StatusNotFound)
 			return
@@ -77,21 +97,6 @@ func main() {
 
 		// File exists, let the static server handle it
 		staticServer.ServeHTTP(w, r)
-	})
 
-	fmt.Printf("WebSocket server started on %s\n", conf.Port)
-	err = http.ListenAndServe(conf.Port, mux)
-	if err != nil {
-		log.Fatal("ListenAndServe:", err)
 	}
-}
-
-func SetupApiPaths(mux *http.ServeMux, advancedHandler routehandlers.RouteHandler) {
-	http.HandleFunc("/api/info", advancedHandler.InfoHandler)
-	http.HandleFunc("/api/mkv", advancedHandler.MkvHandler)
-	http.HandleFunc("/api/watch/mkv", advancedHandler.WatchMkv)
-	http.HandleFunc("/api/backup", advancedHandler.BackupHandler)
-	http.HandleFunc("POST /api/register", advancedHandler.RegistrationHandler)
-	http.HandleFunc("POST /api/eject", routehandlers.EjectHandler)
-	http.HandleFunc("POST /api/insert", routehandlers.InsertDiscHandler)
 }
