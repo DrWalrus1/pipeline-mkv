@@ -2,8 +2,8 @@ package streamtracker_test
 
 import (
 	"context"
+	"github.com/DrWalrus1/pipelinemkv/cmd/streamTracker"
 	"io"
-	"pipelinemkv/cmd/streamTracker"
 	"strings"
 	"testing"
 
