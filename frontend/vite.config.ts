@@ -18,7 +18,6 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: path.resolve(__dirname, '../pipelinemkv/static/'),
     emptyOutDir: true,
   },
   server: {
