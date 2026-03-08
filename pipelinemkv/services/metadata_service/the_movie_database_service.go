@@ -12,7 +12,7 @@ import (
 
 const (
 	detailsBaseUrl   = "https://api.themoviedb.org/3/"
-	imageBaseUrl     = "https://image.tmdb.org/"
+	imageBaseUrl     = "https://image.tmdb.org/t/p/"
 	searchMoviePath  = "/search/movie"
 	searchTvPath     = "/search/tv"
 	movieDetailsPath = "/movie/"
@@ -59,6 +59,31 @@ func (s MetadataService) GetMovieDetails(ctx context.Context, movieId string, ap
 	appendAppendToResponseToUrl(u, appendToResponse)
 
 	sendRequest(ctx, u, s.authToken)
+}
+
+// Documentation: https://developer.themoviedb.org/docs/image-basics
+// TODO: consider implementing straight in the frontend
+func (s MetadataService) GetPoster(ctx context.Context, imagePath string, imageSize string) {
+	u, err := url.Parse(imageBaseUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if imageSize == "original" || imageSize == "" {
+		u = u.JoinPath("/original/")
+	} else {
+		var imgPath string
+		if imageSize[0] == 'w' {
+			imgPath = fmt.Sprintf("/%s/", imageSize)
+		} else {
+			imgPath = fmt.Sprintf("/w%s/", imageSize)
+		}
+		u = u.JoinPath(imgPath)
+	}
+	u = u.JoinPath(fmt.Sprintf("/%s", imagePath))
+
+	sendRequest(ctx, u, s.authToken)
+
 }
 
 func appendAppendToResponseToUrl(u *url.URL, appendToResponse []string) {
