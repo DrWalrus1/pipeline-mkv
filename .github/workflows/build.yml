@@ -65,7 +65,7 @@ jobs:
 
       - name: Build
         working-directory: ./pipelinemkv
-        run: go build -v -o pipelinemkv ./...
+        run: go build -v -o pipelinemkv .
 
       - name: Test
         working-directory: ./pipelinemkv
