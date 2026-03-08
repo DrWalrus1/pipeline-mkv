@@ -1,7 +1,7 @@
 package config_test
 
 import (
-	"pipelinemkv/config"
+	"github.com/DrWalrus1/pipelinemkv/config"
 	"strings"
 	"testing"
 

@@ -1,4 +1,4 @@
-module pipelinemkv
+module github.com/DrWalrus1/pipelinemkv
 
 go 1.25.0
 

@@ -3,12 +3,12 @@ package routehandlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/DrWalrus1/pipelinemkv/cmd/makemkv"
+	streamtracker "github.com/DrWalrus1/pipelinemkv/cmd/streamTracker"
+	osCommands "github.com/DrWalrus1/pipelinemkv/os/commands"
 	"io"
 	"log"
 	"net/http"
-	"pipelinemkv/cmd/makemkv"
-	streamtracker "pipelinemkv/cmd/streamTracker"
-	osCommands "pipelinemkv/os/commands"
 	"strconv"
 
 	"github.com/DrWalrus1/gomakemkv"
