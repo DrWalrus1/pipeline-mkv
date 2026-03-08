@@ -29,9 +29,8 @@ RUN yes yes | make && \
     make install
 
 WORKDIR /code
-COPY --exclude=static/ . .
+COPY . .
 RUN go build .
-COPY /static ./static
 
 EXPOSE 8080
 CMD ["/code/pipelinemkv"]
