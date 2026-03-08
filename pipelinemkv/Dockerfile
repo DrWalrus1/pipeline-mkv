@@ -29,8 +29,9 @@ RUN yes yes | make && \
     make install
 
 WORKDIR /code
-COPY . .
-RUN go build .
+
+# Copy the prebuilt Go executable produced by CI
+COPY pipelinemkv /code/pipelinemkv
 
 EXPOSE 8080
 CMD ["/code/pipelinemkv"]
