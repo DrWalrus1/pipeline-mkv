@@ -1,14 +1,15 @@
 package routehandlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/DrWalrus1/pipelinemkv/internal/makemkv"
-	streamtracker "github.com/DrWalrus1/pipelinemkv/internal/streamTracker"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/DrWalrus1/pipelinemkv/internal/makemkv"
 
 	"github.com/DrWalrus1/gomakemkv"
 	"github.com/DrWalrus1/gomakemkv/events"
@@ -23,13 +24,30 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-type RouteHandler struct {
-	MakeMkvHandler makemkv.IMakeMkvCommandHandler
-	StreamTracker  *streamtracker.StreamTracker
-	PosterService  PosterService
+type StreamTracker interface {
+	GetStream(key string) (*io.Reader, bool)
+	GetStreamCancelFunc(key string) context.CancelFunc
+	AddStream(key string, reader *io.Reader, cancelFunc context.CancelFunc) error
+	RemoveStream(key string)
 }
 
-func (h *RouteHandler) sendClientUpdates(conn *websocket.Conn, updates <-chan []byte, clientMessages <-chan string, clientMessageHandler func(string) bool) {
+type RouteHandler struct {
+	MakeMkvHandler makemkv.IMakeMkvCommandHandler
+	StreamTracker  StreamTracker
+	PosterService  PosterService
+	upgrader       websocket.Upgrader
+}
+
+func New(handler makemkv.IMakeMkvCommandHandler, sT StreamTracker, p PosterService, u websocket.Upgrader) RouteHandler {
+	return RouteHandler{
+		MakeMkvHandler: handler,
+		StreamTracker:  sT,
+		PosterService:  p,
+		upgrader:       u,
+	}
+}
+
+func sendClientUpdates(conn *websocket.Conn, updates <-chan []byte, clientMessages <-chan string, clientMessageHandler func(string) bool) {
 	for {
 		select {
 		case update, ok := <-updates:
@@ -85,7 +103,7 @@ func (h *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request) {
 		// do nothing because we automatically close when channel closes
 		return false
 	}
-	h.sendClientUpdates(conn, updatesInBytes, done, clientMessageHandler)
+	sendClientUpdates(conn, updatesInBytes, done, clientMessageHandler)
 }
 
 type DiscInfoWithPosterUrl struct {
@@ -131,7 +149,7 @@ func (h *RouteHandler) MkvHandler(w http.ResponseWriter, r *http.Request) {
 		return false
 	}
 
-	h.sendClientUpdates(conn, updatesInBytes, messageChan, clientMessageHandler)
+	sendClientUpdates(conn, updatesInBytes, messageChan, clientMessageHandler)
 }
 
 func (h *RouteHandler) WatchMkv(w http.ResponseWriter, r *http.Request) {
@@ -164,7 +182,7 @@ func (h *RouteHandler) WatchMkv(w http.ResponseWriter, r *http.Request) {
 		return false
 	}
 
-	h.sendClientUpdates(conn, updatesInBytes, messageChan, clientMessageHandler)
+	sendClientUpdates(conn, updatesInBytes, messageChan, clientMessageHandler)
 }
 
 func (h *RouteHandler) BackupHandler(w http.ResponseWriter, r *http.Request) {
@@ -209,7 +227,7 @@ func (h *RouteHandler) BackupHandler(w http.ResponseWriter, r *http.Request) {
 		return false
 	}
 
-	h.sendClientUpdates(conn, updatesInBytes, messageChan, clientMessageHandler)
+	sendClientUpdates(conn, updatesInBytes, messageChan, clientMessageHandler)
 }
 
 func (h *RouteHandler) RegistrationHandler(w http.ResponseWriter, r *http.Request) {
@@ -217,9 +235,10 @@ func (h *RouteHandler) RegistrationHandler(w http.ResponseWriter, r *http.Reques
 
 	err := h.MakeMkvHandler.RegisterMakeMkv(key)
 	if err != nil {
-		if err == gomakemkv.ErrBadKey {
+		switch err {
+		case gomakemkv.ErrBadKey:
 			w.WriteHeader(http.StatusBadRequest)
-		} else if err == gomakemkv.ErrUnexpectedRegistrationError {
+		case gomakemkv.ErrUnexpectedRegistrationError:
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 		w.Write([]byte(err.Error()))
