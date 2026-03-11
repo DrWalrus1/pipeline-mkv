@@ -3,8 +3,8 @@ package routehandlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/DrWalrus1/pipelinemkv/cmd/makemkv"
-	streamtracker "github.com/DrWalrus1/pipelinemkv/cmd/streamTracker"
+	"github.com/DrWalrus1/pipelinemkv/internal/makemkv"
+	streamtracker "github.com/DrWalrus1/pipelinemkv/internal/streamTracker"
 	"io"
 	"log"
 	"net/http"
@@ -50,7 +50,6 @@ func (h *RouteHandler) sendClientUpdates(conn *websocket.Conn, updates <-chan []
 			}
 		}
 	}
-
 }
 
 func (h *RouteHandler) InfoHandler(w http.ResponseWriter, r *http.Request) {

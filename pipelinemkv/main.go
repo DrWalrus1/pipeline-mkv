@@ -11,12 +11,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/DrWalrus1/pipelinemkv/cmd/makemkv"
-	st "github.com/DrWalrus1/pipelinemkv/cmd/streamTracker"
 	"github.com/DrWalrus1/pipelinemkv/internal/config"
+	"github.com/DrWalrus1/pipelinemkv/internal/makemkv"
+	"github.com/DrWalrus1/pipelinemkv/internal/metadata"
 	"github.com/DrWalrus1/pipelinemkv/internal/optical"
+	st "github.com/DrWalrus1/pipelinemkv/internal/streamTracker"
 	"github.com/DrWalrus1/pipelinemkv/routehandlers"
-	metadataservice "github.com/DrWalrus1/pipelinemkv/services/metadata_service"
 )
 
 //go:embed static/*
@@ -36,7 +36,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	meta_service := metadataservice.New(conf.MetadataServiceToken)
+	meta_service := metadata.New(conf.MetadataServiceToken)
 	meta_service.SearchMovie(context.Background(), "Forrest Gump", "", "")
 	meta_service.GetMovieDetails(context.Background(), "550", []string{})
 

@@ -1,4 +1,4 @@
-package metadataservice
+package metadata
 
 import (
 	"bytes"
