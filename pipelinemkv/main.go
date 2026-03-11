@@ -5,16 +5,18 @@ import (
 	"embed"
 	"flag"
 	"fmt"
-	"github.com/DrWalrus1/pipelinemkv/cmd/makemkv"
-	st "github.com/DrWalrus1/pipelinemkv/cmd/streamTracker"
-	"github.com/DrWalrus1/pipelinemkv/config"
-	"github.com/DrWalrus1/pipelinemkv/routehandlers"
-	metadataservice "github.com/DrWalrus1/pipelinemkv/services/metadata_service"
 	"io"
 	"io/fs"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/DrWalrus1/pipelinemkv/cmd/makemkv"
+	st "github.com/DrWalrus1/pipelinemkv/cmd/streamTracker"
+	"github.com/DrWalrus1/pipelinemkv/internal/config"
+	"github.com/DrWalrus1/pipelinemkv/internal/optical"
+	"github.com/DrWalrus1/pipelinemkv/routehandlers"
+	metadataservice "github.com/DrWalrus1/pipelinemkv/services/metadata_service"
 )
 
 //go:embed static/*
@@ -62,8 +64,8 @@ func SetupApiPaths(mux *http.ServeMux, advancedHandler routehandlers.RouteHandle
 	http.HandleFunc("/api/watch/mkv", advancedHandler.WatchMkv)
 	http.HandleFunc("/api/backup", advancedHandler.BackupHandler)
 	http.HandleFunc("POST /api/register", advancedHandler.RegistrationHandler)
-	http.HandleFunc("POST /api/eject", routehandlers.EjectHandler)
-	http.HandleFunc("POST /api/insert", routehandlers.InsertDiscHandler)
+	http.HandleFunc("POST /api/eject", optical.EjectHandler)
+	http.HandleFunc("POST /api/insert", optical.InsertDiscHandler)
 }
 
 func serveStaticFrontend(disFS fs.FS) func(w http.ResponseWriter, r *http.Request) {

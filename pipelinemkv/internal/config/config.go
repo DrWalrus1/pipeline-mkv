@@ -102,7 +102,7 @@ func buildConfigCandidates(flagPath string) []string {
 	}
 
 	// 4. System-wide fallback
-	candidates = append(candidates, "/etc/pipelinemkv/config.json")
+	candidates = append(candidates, "/etc/pipelinemkv/internal/config.json")
 
 	return candidates
 }

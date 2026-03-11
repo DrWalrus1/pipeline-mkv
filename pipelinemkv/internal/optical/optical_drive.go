@@ -1,4 +1,4 @@
-package commands
+package optical
 
 import "os/exec"
 
