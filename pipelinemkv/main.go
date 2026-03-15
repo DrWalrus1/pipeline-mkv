@@ -11,8 +11,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/DrWalrus1/pipelinemkv/cmd/makemkv"
 	"github.com/DrWalrus1/pipelinemkv/internal/config"
-	"github.com/DrWalrus1/pipelinemkv/internal/makemkv"
+	webHandlers "github.com/DrWalrus1/pipelinemkv/internal/makemkv"
 	"github.com/DrWalrus1/pipelinemkv/internal/metadata"
 	"github.com/DrWalrus1/pipelinemkv/internal/optical"
 	st "github.com/DrWalrus1/pipelinemkv/internal/streamTracker"
@@ -23,18 +24,16 @@ import (
 //go:embed static/*
 var vueFiles embed.FS
 
-var commandHandler makemkv.IMakeMkvCommandHandler
-
 func main() {
-	if commandHandler == nil {
-		commandHandler = &makemkv.MakeMkvCommandHandler{}
-	}
 
 	var configPath string
 	flag.StringVar(&configPath, "config", "", "filepath for config.json file")
 	conf, err := config.Load(configPath)
 	if err != nil {
 		log.Fatal(err)
+	}
+	commandHandler := makemkv.MakeMkvCommandHandler{
+		ExecutablePath: conf.ExecutablePath,
 	}
 
 	meta_service := metadata.New(conf.MetadataServiceToken)
@@ -56,12 +55,12 @@ func main() {
 	}
 }
 
-func SetupApiPaths(mux *http.ServeMux, handler makemkv.IMakeMkvCommandHandler, tracker streamtracker.StreamTracker, socketHandler websocket.WebSocketHandler) {
-	http.HandleFunc("/api/info", makemkv.GetDiskInfoHandler(handler, socketHandler))
-	http.HandleFunc("/api/mkv", makemkv.GetSaveDiskInfoHandler(handler, &tracker, socketHandler))
-	http.HandleFunc("/api/watch/mkv", makemkv.GetWatchMkvHandler(&tracker, socketHandler))
-	http.HandleFunc("/api/backup", makemkv.GetBackupHandler(handler, &tracker, socketHandler))
-	http.HandleFunc("POST /api/register", makemkv.GetRegisterHandler(handler))
+func SetupApiPaths(mux *http.ServeMux, handler makemkv.MakeMkvCommandHandler, tracker streamtracker.StreamTracker, socketHandler websocket.WebSocketHandler) {
+	http.HandleFunc("/api/info", webHandlers.GetDiskInfoHandler(handler, socketHandler))
+	http.HandleFunc("/api/mkv", webHandlers.GetSaveDiskInfoHandler(handler, &tracker, socketHandler))
+	http.HandleFunc("/api/watch/mkv", webHandlers.GetWatchMkvHandler(&tracker, socketHandler))
+	http.HandleFunc("/api/backup", webHandlers.GetBackupHandler(handler, &tracker, socketHandler))
+	http.HandleFunc("POST /api/register", webHandlers.GetRegisterHandler(handler))
 	http.HandleFunc("POST /api/eject", optical.EjectHandler)
 	http.HandleFunc("POST /api/insert", optical.InsertDiscHandler)
 }
