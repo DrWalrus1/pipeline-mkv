@@ -16,7 +16,8 @@ import (
 	"github.com/DrWalrus1/pipelinemkv/internal/metadata"
 	"github.com/DrWalrus1/pipelinemkv/internal/optical"
 	st "github.com/DrWalrus1/pipelinemkv/internal/streamTracker"
-	"github.com/DrWalrus1/pipelinemkv/routehandlers"
+	streamtracker "github.com/DrWalrus1/pipelinemkv/internal/streamTracker"
+	"github.com/DrWalrus1/pipelinemkv/internal/websocket"
 )
 
 //go:embed static/*
@@ -40,13 +41,10 @@ func main() {
 	meta_service.SearchMovie(context.Background(), "Forrest Gump", "", "")
 	meta_service.GetMovieDetails(context.Background(), "550", []string{})
 
+	websocketHandler := websocket.NewHandler()
 	streamTracker := st.NewStreamTracker()
-	advancedHandler := routehandlers.RouteHandler{
-		StreamTracker:  &streamTracker,
-		MakeMkvHandler: commandHandler,
-	}
 	mux := http.NewServeMux()
-	SetupApiPaths(mux, advancedHandler)
+	SetupApiPaths(mux, commandHandler, streamTracker, websocketHandler)
 
 	disFS, _ := fs.Sub(vueFiles, "static")
 	mux.HandleFunc("/", serveStaticFrontend(disFS))
@@ -58,12 +56,12 @@ func main() {
 	}
 }
 
-func SetupApiPaths(mux *http.ServeMux, advancedHandler routehandlers.RouteHandler) {
-	http.HandleFunc("/api/info", advancedHandler.InfoHandler)
-	http.HandleFunc("/api/mkv", advancedHandler.MkvHandler)
-	http.HandleFunc("/api/watch/mkv", advancedHandler.WatchMkv)
-	http.HandleFunc("/api/backup", advancedHandler.BackupHandler)
-	http.HandleFunc("POST /api/register", advancedHandler.RegistrationHandler)
+func SetupApiPaths(mux *http.ServeMux, handler makemkv.IMakeMkvCommandHandler, tracker streamtracker.StreamTracker, socketHandler websocket.WebSocketHandler) {
+	http.HandleFunc("/api/info", makemkv.GetDiskInfoHandler(handler, socketHandler))
+	http.HandleFunc("/api/mkv", makemkv.GetSaveDiskInfoHandler(handler, &tracker, socketHandler))
+	http.HandleFunc("/api/watch/mkv", makemkv.GetWatchMkvHandler(&tracker, socketHandler))
+	http.HandleFunc("/api/backup", makemkv.GetBackupHandler(handler, &tracker, socketHandler))
+	http.HandleFunc("POST /api/register", makemkv.GetRegisterHandler(handler))
 	http.HandleFunc("POST /api/eject", optical.EjectHandler)
 	http.HandleFunc("POST /api/insert", optical.InsertDiscHandler)
 }
