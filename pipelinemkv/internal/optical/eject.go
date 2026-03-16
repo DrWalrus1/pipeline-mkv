@@ -3,6 +3,7 @@ package optical
 import (
 	"log"
 	"net/http"
+	"os/exec"
 )
 
 func EjectHandler(w http.ResponseWriter, r *http.Request) {
@@ -18,15 +19,12 @@ func EjectHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 }
 
-func InsertDiscHandler(w http.ResponseWriter, r *http.Request) {
-	device := r.URL.Query().Get("device")
-	log.Printf("Inserting device: %s", device)
-
-	responseStatus := InsertDevice(device)
-	if responseStatus != nil {
-		w.WriteHeader(500)
-		_, _ = w.Write([]byte("Could not insert device: " + responseStatus.Error()))
-		return
+func EjectDevice(device string) error {
+	// execute the bash command to eject the device
+	cmd := exec.Command("eject", device)
+	err := cmd.Run()
+	if err != nil {
+		return err
 	}
-	w.WriteHeader(200)
+	return nil
 }
