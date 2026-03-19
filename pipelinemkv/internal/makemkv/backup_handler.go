@@ -16,7 +16,7 @@ type backupHandler interface {
 	TriggerDiskBackup(decrypt bool, source string, destination string) (io.Reader, context.CancelFunc, error)
 }
 
-func GetBackupHandler(h backupHandler, tracker StreamTracker, wsh webSocketHandler) http.HandlerFunc {
+func GetBackupHandler(h backupHandler, sh StreamTracker, wsh webSocketHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decrypt, err := strconv.ParseBool(r.URL.Query().Get("decrypt"))
 		if err != nil {
@@ -52,7 +52,7 @@ func GetBackupHandler(h backupHandler, tracker StreamTracker, wsh webSocketHandl
 
 		clientMessageHandler := func(message string) bool {
 			if message == "cancel" {
-				tracker.RemoveStream(source)
+				sh.RemoveStream(source)
 				cancel()
 				return true
 			}

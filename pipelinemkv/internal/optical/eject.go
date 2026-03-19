@@ -6,11 +6,11 @@ import (
 	"os/exec"
 )
 
-func EjectHandler(w http.ResponseWriter, r *http.Request) {
+func ejectHandler(w http.ResponseWriter, r *http.Request) {
 	device := r.URL.Query().Get("device")
 	log.Printf("Ejecting device: %s", device)
 
-	responseStatus := EjectDevice(device)
+	responseStatus := ejectDevice(device)
 	if responseStatus != nil {
 		w.WriteHeader(500)
 		_, _ = w.Write([]byte("Could not eject device: " + responseStatus.Error()))
@@ -19,7 +19,7 @@ func EjectHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 }
 
-func EjectDevice(device string) error {
+func ejectDevice(device string) error {
 	// execute the bash command to eject the device
 	cmd := exec.Command("eject", device)
 	err := cmd.Run()

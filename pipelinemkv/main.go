@@ -11,13 +11,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/DrWalrus1/pipelinemkv/cmd/makemkv"
+	"github.com/DrWalrus1/gomakemkv"
 	"github.com/DrWalrus1/pipelinemkv/internal/config"
-	webHandlers "github.com/DrWalrus1/pipelinemkv/internal/makemkv"
-	"github.com/DrWalrus1/pipelinemkv/internal/metadata"
+	makeMkvHandlers "github.com/DrWalrus1/pipelinemkv/internal/makemkv"
+	"github.com/DrWalrus1/pipelinemkv/internal/metadata/tmdb"
 	"github.com/DrWalrus1/pipelinemkv/internal/optical"
 	st "github.com/DrWalrus1/pipelinemkv/internal/streamTracker"
-	streamtracker "github.com/DrWalrus1/pipelinemkv/internal/streamTracker"
 	"github.com/DrWalrus1/pipelinemkv/internal/websocket"
 )
 
@@ -32,18 +31,20 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	commandHandler := makemkv.MakeMkvCommandHandler{
+	commandHandler := gomakemkv.MakeMkvCommandHandler{
 		ExecutablePath: conf.ExecutablePath,
 	}
 
-	meta_service := metadata.New(conf.MetadataServiceToken)
+	meta_service := tmdb.New(conf.MetadataServiceToken)
 	meta_service.SearchMovie(context.Background(), "Forrest Gump", "", "")
 	meta_service.GetMovieDetails(context.Background(), "550", []string{})
 
 	websocketHandler := websocket.NewHandler()
 	streamTracker := st.NewStreamTracker()
 	mux := http.NewServeMux()
-	SetupApiPaths(mux, commandHandler, streamTracker, websocketHandler)
+	makeMkvHandlers.SetupMkvCommandApiPaths(mux, commandHandler, streamTracker, websocketHandler)
+	config.SetupConfigApiPaths(mux, conf)
+	optical.SetupOpticalApiPaths(mux)
 
 	disFS, _ := fs.Sub(vueFiles, "static")
 	mux.HandleFunc("/", serveStaticFrontend(disFS))
@@ -53,16 +54,6 @@ func main() {
 	if err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
-}
-
-func SetupApiPaths(mux *http.ServeMux, handler makemkv.MakeMkvCommandHandler, tracker streamtracker.StreamTracker, socketHandler websocket.WebSocketHandler) {
-	http.HandleFunc("/api/info", webHandlers.GetDiskInfoHandler(handler, socketHandler))
-	http.HandleFunc("/api/mkv", webHandlers.GetSaveDiskInfoHandler(handler, &tracker, socketHandler))
-	http.HandleFunc("/api/watch/mkv", webHandlers.GetWatchMkvHandler(&tracker, socketHandler))
-	http.HandleFunc("/api/backup", webHandlers.GetBackupHandler(handler, &tracker, socketHandler))
-	http.HandleFunc("POST /api/register", webHandlers.GetRegisterHandler(handler))
-	http.HandleFunc("POST /api/eject", optical.EjectHandler)
-	http.HandleFunc("POST /api/insert", optical.InsertDiscHandler)
 }
 
 func serveStaticFrontend(disFS fs.FS) func(w http.ResponseWriter, r *http.Request) {
