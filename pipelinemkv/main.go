@@ -12,12 +12,12 @@ import (
 	"strings"
 
 	"github.com/DrWalrus1/gomakemkv"
-	"github.com/DrWalrus1/pipelinemkv/internal/config"
-	makeMkvHandlers "github.com/DrWalrus1/pipelinemkv/internal/makemkv"
-	"github.com/DrWalrus1/pipelinemkv/internal/metadata/tmdb"
-	"github.com/DrWalrus1/pipelinemkv/internal/optical"
-	st "github.com/DrWalrus1/pipelinemkv/internal/streamTracker"
-	"github.com/DrWalrus1/pipelinemkv/internal/websocket"
+	"github.com/DrWalrus1/pipelinemkv/pipelinemkv/internal/config"
+	makeMkvHandlers "github.com/DrWalrus1/pipelinemkv/pipelinemkv/internal/makemkv"
+	"github.com/DrWalrus1/pipelinemkv/pipelinemkv/internal/metadata/tmdb"
+	"github.com/DrWalrus1/pipelinemkv/pipelinemkv/internal/optical"
+	st "github.com/DrWalrus1/pipelinemkv/pipelinemkv/internal/streamTracker"
+	"github.com/DrWalrus1/pipelinemkv/pipelinemkv/internal/websocket"
 )
 
 //go:embed static/*

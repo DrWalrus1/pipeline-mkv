@@ -1,4 +1,4 @@
-module github.com/DrWalrus1/pipelinemkv
+module github.com/DrWalrus1/pipelinemkv/pipelinemkv
 
 go 1.25.0
 
@@ -8,6 +8,5 @@ require (
 )
 
 require (
-	github.com/DrWalrus1/gomakemkv v0.3.0
 	golang.org/x/text v0.35.0
 )

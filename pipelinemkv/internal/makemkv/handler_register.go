@@ -5,16 +5,23 @@ import (
 	"net/http"
 	"strings"
 
-	streamtracker "github.com/DrWalrus1/pipelinemkv/internal/streamTracker"
-	"github.com/DrWalrus1/pipelinemkv/internal/websocket"
+	"github.com/DrWalrus1/gomakemkv"
+	streamtracker "github.com/DrWalrus1/pipelinemkv/pipelinemkv/internal/streamTracker"
+	"github.com/DrWalrus1/pipelinemkv/pipelinemkv/internal/websocket"
 )
 
-func SetupMkvCommandApiPaths(mux *http.ServeMux, handler gomakemkv.MakeMkvCommandHandler, tracker streamtracker.StreamTracker, socketHandler websocket.WebSocketHandler) {
-	mux.HandleFunc("/api/info", GetDiskInfoHandler(handler, socketHandler))
-	mux.HandleFunc("/api/mkv", GetSaveDiskInfoHandler(handler, &tracker, socketHandler))
-	mux.HandleFunc("/api/watch/mkv", GetWatchMkvHandler(&tracker, socketHandler))
-	mux.HandleFunc("/api/backup", GetBackupHandler(handler, &tracker, socketHandler))
-	mux.HandleFunc("POST /api/register", GetRegisterHandler(handler))
+func SetupMkvCommandApiPaths(mux *http.ServeMux, handler MakeMkvRouteHandler, tracker streamtracker.StreamTracker, socketHandler websocket.WebSocketHandler) {
+	mux.HandleFunc("/api/info", handler.DiskInfoHandler)
+	mux.HandleFunc("/api/mkv", handler.SaveDiskInfoHandler)
+	mux.HandleFunc("/api/watch/mkv", handler.WatchMkvHandler)
+	mux.HandleFunc("/api/backup", handler.BackupHandler)
+	mux.HandleFunc("POST /api/register", handler.RegisterHandler)
+}
+
+type MakeMkvRouteHandler struct {
+	CommandHandler *gomakemkv.MakeMkvCommandHandler
+	SocketHandler  *websocket.WebSocketHandler
+	StreamTracker  *streamtracker.StreamTracker
 }
 
 func validateSource(source string) error {

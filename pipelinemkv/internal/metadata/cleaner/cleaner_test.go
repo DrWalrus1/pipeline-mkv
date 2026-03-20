@@ -3,7 +3,7 @@ package cleaner_test
 import (
 	"testing"
 
-	"github.com/DrWalrus1/pipelinemkv/internal/metadata/cleaner"
+	"github.com/DrWalrus1/pipelinemkv/pipelinemkv/internal/metadata/cleaner"
 )
 
 var cleanTests = []struct {
