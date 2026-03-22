@@ -1,15 +1,23 @@
 import type { Meta, StoryObj } from "@storybook/vue3-vite";
-import Settings from "./Settings.vue";
+import SettingsView from "./SettingsView.vue";
+import type { Settings } from "./settings";
 
-const meta: Meta<typeof Settings> = {
-  component: Settings
+const meta: Meta<typeof SettingsView> = {
+  component: SettingsView
 }
 
 export default meta;
-type Story = StoryObj<typeof Settings>;
+type Story = StoryObj<typeof SettingsView>;
+
+let settings: Settings = {
+  executablePath: "this/is/the/executable/path",
+  metadataServiceToken: "MetadataServiceToken",
+  registrationKey: "RegistrationKey"
+}
 
 export const Primary: Story = {
   args: {
-    executablePath: "this/is/the/executable/path"
+    ...settings,
+    onSubmit: (settings: Settings) => alert(`Hello ${settings.executablePath}, ${settings.metadataServiceToken}, ${settings.registrationKey}`)
   }
 }
