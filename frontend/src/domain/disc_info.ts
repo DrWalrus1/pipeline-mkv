@@ -5,7 +5,6 @@ export type DiscInfo = {
   titles: TitleInfo[]
 }
 
-
 export type TitleInfo = {
   id: string
   name: string

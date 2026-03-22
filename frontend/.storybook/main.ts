@@ -5,10 +5,12 @@ const config: StorybookConfig = {
     "../src/**/*.mdx",
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
   ],
-  "addons": ["@storybook/addon-onboarding", "@storybook/addon-docs"],
-  "framework": {
-    "name": "@storybook/vue3-vite",
-    "options": {}
-  }
+  "addons": [
+    "@chromatic-com/storybook",
+    "@storybook/addon-vitest",
+    "@storybook/addon-a11y",
+    "@storybook/addon-docs"
+  ],
+  "framework": "@storybook/vue3-vite"
 };
 export default config;
